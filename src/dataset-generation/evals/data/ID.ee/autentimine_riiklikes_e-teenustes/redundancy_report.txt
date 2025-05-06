@@ -1,0 +1,43 @@
+# Conversation Redundancy Report
+
+## Overview
+- Topic Directory: data/ID.ee/autentimine_riiklikes_e-teenustes
+- Number of Conversations: 11
+- Overall Redundancy Score: 0.3455
+- Similarity Threshold: 0.7
+- Number of Redundant Pairs: 19
+
+## Redundant Conversation Pairs
+- conversation_7.txt and conversation_3.txt: 0.8404
+- conversation_4.txt and conversation_9.txt: 0.8395
+- conversation_10.txt and conversation_6.txt: 0.8358
+- conversation_3.txt and conversation_10.txt: 0.8289
+- conversation_7.txt and conversation_10.txt: 0.8250
+- conversation_5.txt and conversation_2.txt: 0.8073
+- conversation_3.txt and conversation_1.txt: 0.7969
+- conversation_8.txt and conversation_6.txt: 0.7946
+- conversation_7.txt and conversation_1.txt: 0.7822
+- conversation_7.txt and conversation_6.txt: 0.7807
+- conversation_3.txt and conversation_6.txt: 0.7779
+- conversation_5.txt and conversation_4.txt: 0.7671
+- conversation_8.txt and conversation_10.txt: 0.7473
+- conversation_4.txt and conversation_2.txt: 0.7451
+- conversation_9.txt and conversation_2.txt: 0.7442
+- conversation_8.txt and conversation_2.txt: 0.7312
+- conversation_1.txt and conversation_9.txt: 0.7155
+- conversation_1.txt and conversation_6.txt: 0.7116
+- conversation_7.txt and conversation_9.txt: 0.7019
+
+## Individual Conversation Redundancy
+
+- conversation_5.txt: 1.0000
+- conversation_8.txt: 0.0079
+- conversation_7.txt: 0.0000
+- conversation_3.txt: 0.0000
+- conversation_4.txt: 0.0444
+- conversation_1.txt: 0.0000
+- conversation_10.txt: 0.0048
+- conversation_9.txt: 0.0152
+- conversation_2.txt: 0.0000
+- conversation_11_out_of_context.txt: 0.0263
+- conversation_6.txt: 0.0000

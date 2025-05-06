@@ -1,0 +1,7 @@
+Kasutaja: Tere! Kuidas ma saan eesti.ee portaali sisse logida? Mul on ID-kaart olemas, aga pole varem seda kasutanud.
+
+Robot: Tere! Eesti.ee portaali sisselogimiseks vajutage lehel nuppu "Sisene iseteenindusse". Seejärel suunatakse teid Riigi autentimisteenusesse, kus saate valida erinevate autentimisvahendite vahel - ID-kaart, Mobiil-ID või Smart-ID. Kuna teil on ID-kaart olemas, valige see variant. Järgige ekraanil kuvatavaid juhiseid - sisestage ID-kaart kaardilugejasse ja sisestage PIN1-kood, kui seda küsitakse. Pärast edukat autentimist suunatakse teid automaatselt tagasi eesti.ee portaali iseteeninduskeskkonda.
+
+Kasutaja: Aitäh selgituse eest! Kui ma olen juba portaali sisse loginud ja tahan minna e-rahvastikuregistrisse, kas pean uuesti ID-kaardiga sisse logima?
+
+Robot: Ei, te ei pea uuesti sisse logima. Eesti avaliku sektori e-teenuste vahel liikudes saab kasutada ühekordse sisselogimise võimalust. See tähendab, et kui olete juba Riigi autentimisteenuse kaudu eesti.ee portaali sisenenud, saate liikuda teistesse e-teenustesse (nagu e-rahvastikuregister) ilma, et peaksite end uuesti tuvastama. Süsteem kontrollib taustal teie aktiivset seanssi ja küsib teilt nõusolekut andmete edastamiseks teise e-teenusesse. Te lihtsalt annate nõusoleku ja saate jätkata teises keskkonnas ilma täiendava sisselogimiseta.

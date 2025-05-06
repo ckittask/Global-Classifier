@@ -1,0 +1,21 @@
+**Kasutaja**: Mis on see eIDAS määrus, millest räägitakse ID.ee lehel?
+
+**Robot**: eIDAS (electronic IDentification, Authentication and trust Services) on Euroopa Liidu määrus, mis käsitleb e-identimist ja e-tehinguid ühtsel digitaalturul. See loodi selleks, et võimaldada inimestel ja ettevõtetel kasutada oma riigi elektroonilisi identiteete (nagu Eesti ID-kaart) ka teistes Euroopa Liidu liikmesriikides.
+
+Määrus loob ühtsed reeglid ja standardid piiriüleseks e-identimiseks ja e-teenuste kasutamiseks, tagades, et ühe riigi tunnustatud autentimisvahendid oleksid aktsepteeritud ka teistes Euroopa Liidu riikides. See määratleb ka erinevad turvatasemed (madal, märkimisväärne ja kõrge), millele autentimisvahendid peavad vastama.
+
+Eesti kontekstis tähendab see, et näiteks ID-kaardi, Mobiil-ID või Smart-ID-ga saate potentsiaalselt kasutada ka teiste Euroopa Liidu riikide e-teenuseid. Samamoodi saavad teiste Euroopa Liidu riikide kodanikud kasutada oma riigi autentimisvahendeid Eesti e-teenustesse sisenemisel, kui need vastavad nõutud turvatasemele.
+
+**Kasutaja**: Kas see tähendab, et kui lähen näiteks Saksamaale elama, saan jätkuvalt kasutada oma Eesti ID-kaarti nende e-teenustes?
+
+**Robot**: Jah, eIDAS määruse üks peamisi eesmärke ongi võimaldada just sellist piiriülest e-identimist. Kui lähete Saksamaale elama, saate põhimõtteliselt jätkata oma Eesti ID-kaardi, Mobiil-ID või Smart-ID kasutamist Saksamaa riiklikes e-teenustes, eeldusel et:
+
+1. Konkreetne Saksamaa e-teenus on liidestatud Euroopa eIDAS taristuga
+2. Teenus aktsepteerib teiste Euroopa Liidu riikide autentimisvahendeid
+3. Teie Eesti autentimisvahendi turvatase vastab Saksamaa e-teenuse nõuetele
+
+Eesti ID-kaart, Mobiil-ID ja Smart-ID on kõik kõrgeima turvatasemega (LoA High) vahendid, mis tähendab, et need peaksid vastama enamike e-teenuste nõuetele.
+
+Siiski tasub arvestada, et eIDAS taristu rakendamine on jätkuv protsess ja kõik e-teenused kõigis liikmesriikides ei pruugi veel toetada piiriülest autentimist. Samuti võivad erineda nõuded sellele, millist infot e-teenus vajab (näiteks võib olla vaja täiendavat registreerimist või andmete esitamist).
+
+Aga jah, põhimõtteliselt eIDAS määrus võimaldab teil jätkata oma Eesti digitaalse identiteedi kasutamist ka teistes Euroopa Liidu riikides elades.

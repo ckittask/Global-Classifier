@@ -1,0 +1,40 @@
+**Kasutaja**: Kuidas ma saan nutitelefonis dokumente digiallkirjastada?
+
+**Robot**: Nutitelefonis dokumentide digiallkirjastamiseks Mobiil-ID abil saate kasutada RIA DigiDoc rakendust. Protsess on järgmine:
+
+1. Kõigepealt veenduge, et olete RIA DigiDoc rakenduse oma nutitelefoni alla laadinud ja installeerinud.
+
+2. Avage rakendus ja valige alumises servas asuvast menüüst "Allkiri".
+
+3. Allkirjastamise vaate ekraanil näete nuppu "VALI FAIL", klõpsake sellel ning valige failid, mida soovite allkirjastada.
+
+4. Kui soovite ühte allkirjastatud ümbrikusse lisada mitu faili, klõpsake "+ LISA VEEL FAILE" nupul.
+
+5. Kui kõik vajalikud failid on lisatud, klõpsake "ALLKIRJASTA" nupule.
+
+6. Teid suunatakse "Ümbriku valideerimine" vaatesse, kus näete, millised failid kuuluvad allkirjastamisele. Kontrollige, et kõik oleks õige!
+
+7. Kui olete veendunud, et kõik on korras, vajutage "ALLKIRJASTA" nupul.
+
+8. Rakendus küsib, kas soovite allkirjastada ID-kaardi või Mobiil-ID-ga. Valige Mobiil-ID.
+
+9. Sisestage oma telefoninumber ja isikukood ning vajutage "ALLKIRJASTA" nupul.
+
+10. Teie telefoniekraanile ilmub kontrollkood ja küsimus, kas soovite dokumendid allkirjastada. Kontrollige koodi ja kui see on õige, vajutage "Nõustu".
+
+11. Seejärel tuleb sisestada Mobiil-ID PIN2-kood (see on mõeldud just digiallkirja andmiseks).
+
+12. Pärast edukat allkirjastamist võite allkirjastatud dokumendi jagada, vajutades "JAGA" nupul, või salvestada seadmesse.
+
+**Kasutaja**: Kas DigiDoc äpis saab ka allkirjastatud dokumente avada?
+
+**Robot**: Jah, RIA DigiDoc rakenduses saate avada ja vaadata ka juba allkirjastatud dokumente. Lisaks allkirjastamisele võimaldab rakendus:
+
+1. Avada digiallkirjastatud dokumente (.bdoc, .asice failid)
+2. Kontrollida allkirjade kehtivust
+3. Vaadata allkirjaandmete informatsiooni (kes, millal allkirjastas)
+4. Tutvuda ümbrikutes olevate dokumentide sisuga
+5. Lisada täiendavaid allkirju olemasolevale allkirjastatud ümbrikule
+6. Turvaliseks edasi saatmiseks krüpteerida dokumente
+
+Allkirjastatud dokumendi avamiseks valige RIA DigiDoc rakenduse alumisest menüüst "Allkiri" ja vajutage "VALI FAIL" nupule. Seejärel valige oma seadmest digiallkirjastatud dokument (tavaliselt .bdoc või .asice laiendiga). Rakendus avab dokumendiümbriku ja näitab, millised failid on ümbrikus ning kes on neid allkirjastanud. Dokumendi sisu nägemiseks vajutage lihtsalt faili nimel.

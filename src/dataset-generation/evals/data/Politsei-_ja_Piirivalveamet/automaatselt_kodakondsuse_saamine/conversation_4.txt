@@ -1,0 +1,17 @@
+**Kasutaja**: Mis tingimustel saab laps automaatselt Eesti kodakondsuse?
+
+**Robot**: Laps saab automaatselt Eesti kodakondsuse naturalisatsiooni korras sünni hetkest arvates kahel juhul:
+
+1. Kui täidetud on kõik järgmised tingimused:
+   - Laps on alla 15-aastane
+   - Laps on Eestis sündinud või asub kohe pärast sündi koos vanema(te)ga püsivalt Eestisse elama
+   - Lapse vanemad või last üksi kasvatav vanem on kodakondsuseta isikud (neid ei pea ükski riik oma kodanikuks)
+   - Vanemad on lapse sünni hetkeks elanud Eestis seaduslikult vähemalt viis aastat
+
+2. Või kui täidetud on kõik järgmised tingimused:
+   - Laps on sündinud ajavahemikul 01.01.2001 kuni 31.12.2015
+   - Lapse vanemad või last üksi kasvatav vanem on kodakondsuseta isikud
+   - Vanemad on elanud Eestis seaduslikult vähemalt viis aastat
+   - Laps on alla 15-aastane ja elab püsivalt Eestis
+
+Politsei- ja Piirivalveamet teavitab lapsevanemaid kodakondsuse saamisest kirjalikult. Kui te soovite lapse kodakondsusest loobuda, siis peate esitama vastava taotluse enne lapse üheaastaseks saamist.

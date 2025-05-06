@@ -1,0 +1,38 @@
+**Kasutaja**: Kasutan vahel raamatukogu arvutit e-teenuste jaoks. Kuidas tagada, et keegi ei pääseks pärast mind ligi minu andmetele?
+
+**Robot**: Kui kasutate avalikku või jagatud arvutit (nagu raamatukogu arvuti) riiklike e-teenuste jaoks, on väga oluline järgida neid turvanõuandeid, et kaitsta oma andmeid:
+
+1. Kõige tähtsam - logige alati korralikult välja! Vajutage e-teenuses nuppu "Logi välja" ning kui süsteem küsib, kas soovite lõpetada kõik seansid, valige "Logi kõikidest välja". Pelgalt brauseriakna sulgemine ei lõpeta alati teie seanssi.
+
+2. Kui kahtlustate, et unustasite välja logida, saate oma aktiivseid seansse kontrollida ja lõpetada Riigi autentimisteenuse iseteeninduskeskkonnast aadressil https://minuautentimine.ria.ee. Saate seda teha oma isikliku seadme (nt mobiiltelefoni) kaudu.
+
+3. Ärge salvestage brauseris paroole või sisselogimisandmeid, kui kasutate avalikku arvutit. Kui teilt küsitakse, kas soovite parooli salvestada, valige alati "Ei".
+
+4. Ärge jätke arvutit järelevalveta, kui olete sisse logitud mõnda e-teenusesse.
+
+5. Pärast e-teenuste kasutamist kustutage brauseri ajalugu ja küpsised. Enamikus brauserites saab seda teha klahvikombinatsiooniga Ctrl+Shift+Delete.
+
+6. Võimalusel eelistage ID-kaarti, mis tuleb pärast kasutamist kaardilugejast eemaldada, või kasutage Mobiil-ID/Smart-ID, mille puhul autentimisseade (telefon) on teie käes.
+
+7. Kui kasutate ID-kaarti, veenduge, et eemaldaksite kaardi lugejast kohe pärast autentimist.
+
+Nende sammude järgimine aitab tagada, et teie isiklikud andmed ja e-teenuste seansid jäävad kaitstumaks ka avalikus arvutis.
+
+**Kasutaja**: Kui ma unustan end välja logida, kas siis järgmine inimene saab kohe minu andmetele ligi?
+
+**Robot**: Kui unustate end riiklikest e-teenustest välja logida, siis järgmine arvuti kasutaja saab potentsiaalselt teie andmetele ligi, kui kasutab sama brauserit ja teie seanss on endiselt aktiivne. See on tõsine turvarisk, kuid siin on mõned olulised nüansid:
+
+1. Riiklike e-teenuste seansid aeguvad teatud aja möödudes (tavaliselt mõne tunni jooksul) automaatselt, isegi kui te ei logitud välja. See on siiski liiga pikk aeg, et võõral inimesel oleks võimalus teie seanssi kasutada.
+
+2. Mõned e-teenused võivad nõuda täiendavat autentimist tundlike toimingute tegemiseks, isegi kui seanss on juba avatud. Näiteks pangaülekannete tegemiseks on tavaliselt vaja sisestada täiendav PIN-kood.
+
+3. Eriti tundlike andmete puhul (nagu terviseandmed) võib teenus nõuda ka uut autentimist, kui olete olnud mõnda aega mitteaktiivne.
+
+Siiski on oluline teada, et kui keegi leiab aktiivsena teie seansi, võib ta teie nimel teha mitmeid toiminguid, näha teie isiklikke andmeid või dokumente, esitada taotlusi jne.
+
+Kui avastate, et olete unustanud välja logida, soovitan koheselt:
+- Minna võimalikult kiiresti tagasi arvuti juurde ja lõpetada seanss
+- Kui see pole võimalik, kasutage teist seadet (nt mobiiltelefoni) ja külastage https://minuautentimine.ria.ee lehte, logige sinna sisse ja lõpetage kõik aktiivsed seansid
+- Jälgige hiljem oma e-teenuste kasutust, et avastada võimalikud autoriseerimata toimingud
+
+See rõhutab veelkord, kui oluline on alati korralikult välja logida, eriti avalikke või jagatud arvuteid kasutades.

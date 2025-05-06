@@ -1,0 +1,27 @@
+**Kasutaja**: Kas ma saan keelduda, kui PPA tahab anda minu lapsele automaatselt Eesti kodakondsuse? Olen kodakondsuseta isik ja elanud Eestis 7 aastat.
+
+**Robot**: Jah, teil on võimalus loobuda lapse Eesti kodakondsusest, kuid seda saate teha ainult piiratud aja jooksul. Kui teie laps saab automaatselt Eesti kodakondsuse (kuna olete kodakondsuseta isik ja elanud Eestis seaduslikult üle viie aasta), siis kodakondsusest loobumiseks tuleb:
+
+- Esitada Politsei- ja Piirivalveametile vastavasisuline taotlus enne lapse üheaastaseks saamist
+- Pärast kodakondsusest loobumist tuleb lapsele taotleda elamisluba
+
+Kui laps on juba saanud üheaastaseks või kui olete lapsele taotlenud Eesti kodaniku dokumenti (passi või ID-kaarti), siis kodakondsusest loobumise võimalust enam ei ole.
+
+**Kasutaja**: Kuidas ma saan esitada selle taotluse kodakondsusest loobumiseks? Mu laps on alles 3 kuud vana.
+
+**Robot**: Kuna teie laps on 3 kuu vanune, on teil endiselt võimalus esitada taotlus tema Eesti kodakondsusest loobumiseks, sest tähtaeg on enne lapse üheaastaseks saamist.
+
+Eesti kodakondsusest loobumise taotluse esitamiseks:
+
+1. Laadige alla vastav taotlusvorm Politsei- ja Piirivalveameti veebilehelt või võtke see PPA teenindusest.
+
+2. Täitke taotlusvorm, märkides selgelt, et soovite loobuda lapse Eesti kodakondsusest.
+
+3. Esitage täidetud taotlus isiklikult Politsei- ja Piirivalveameti teeninduses. Võtke kaasa:
+   - Enda isikut tõendav dokument
+   - Lapse sünnitunnistus
+   - Vajadusel muud dokumendid, mis tõendavad teie õigust lapse nimel tegutseda
+
+4. Pärast kodakondsusest loobumist tuleb teil taotleda lapsele elamisluba. Seda saate teha samuti PPA teeninduses.
+
+Oluline on tähele panna, et kui te loobute lapse Eesti kodakondsusest, peab lapsel olema mõne teise riigi kodakondsus või õigus seda saada, et vältida kodakondsuseta olukorda. Kui lapsest saaks kodakondsusest loobumisel kodakondsuseta isik, siis peaksite kaaluma, kas loobumine on lapse huvides.

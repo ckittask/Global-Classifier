@@ -1,0 +1,15 @@
+**Kasutaja**: Kuidas ma saan Mobiil-ID-ga e-teenusesse sisse logida? Pole varem kasutanud.
+
+**Robot**: Mobiil-ID-ga e-teenusesse sisselogimine on lihtne protsess. Järgnevalt on sammud, mida peate järgima:
+
+1. Minge e-teenuse veebilehele (näiteks Eesti.ee)
+2. Valige sisselogimise viisiks "Mobiil-ID"
+3. Sisestage nõutud andmed - tavaliselt teie isikukood ja mobiiltelefoninumber. Mõni teine teenus võib isikukoodi asemel küsida kasutajanime.
+4. Pärast andmete sisestamist ilmub teie ekraanile kontrollkood
+5. Samal ajal saadetakse teie telefonile SMS sama kontrollkoodiga
+6. Kontrollige, et ekraanil ja telefonis olevad kontrollkoodid kattuksid
+7. Kui koodid kattuvad, vajutage telefonis "Nõustu" (Accept)
+8. Teilt küsitakse Mobiil-ID PIN1-koodi - sisestage see ja vajutage OK/Send/Saada
+9. Pärast edukat autentimist suunatakse teid automaatselt e-teenuse keskkonda
+
+Oluline on, et kontrollite kontrollkoodide kattumist. Kui telefonile tulev kontrollkood ei kattu e-teenuse ekraanil kuvatavaga või saate sõnumi ilma, et oleksite ise sisselogimist algatanud, ärge kunagi oma PIN-koodi sisestage!

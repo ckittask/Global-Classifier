@@ -1,0 +1,41 @@
+**Kasutaja**: Millal on parim aeg tomateid istutada?
+
+**Robot**: Tomatite istutamise parim aeg sõltub mitmest tegurist, kuid Eesti kliimas on selleks tavaliselt mai teine pool või juuni algus, kui öökülmade oht on möödas. Siin on mõned olulised juhised:
+
+1. Tomatitaimed on külmatundlikud, seega peab ööpäevane keskmine temperatuur olema püsivalt üle 10°C.
+
+2. Kui kasvatate taimed ise seemnetest, tuleks need külvata märtsi lõpus või aprilli alguses, et istutamisajaks oleksid taimed piisavalt tugevad.
+
+3. Kasvuhoones võite istutada varem, umbes mai alguses.
+
+4. Avamaal istutamiseks peab muld olema soojenenud vähemalt 12-15°C-ni.
+
+5. Tomatid armastavad päikesepaistelist kohta ja viljakandvat mulda, seega valmistage kasvukoht hoolikalt ette.
+
+6. Istutamisel jätke taimede vahele piisavalt ruumi (vähemalt 40-50 cm).
+
+7. Kohe pärast istutamist kastke taimi põhjalikult.
+
+Kui soovite saada varajast saaki, tasub kaaluda külmakindlamate sortide valikut või kasutada katteloori öökülmade kaitseks.
+
+**Kasutaja**: Kuidas parandada mulda tomatite jaoks?
+
+**Robot**: Tomatite jaoks mulla parandamiseks on mitu head võimalust:
+
+1. **Kompost** - lisage oma aiamullale küpset komposti. See parandab mulla struktuuri ja lisab toitaineid. Umbes 5-10 cm paksune kiht komposti segatud mulla ülemise kihiga on suurepärane alus tomatitele.
+
+2. **Sõnnik** - hästi kõdunenud hobuse- või lehmakasõnnik on tomatitele ideaalne. Lisage seda sügisel või vähemalt 2-3 nädalat enne istutamist, et see jõuaks mullaga seguuda.
+
+3. **Turbamulla lisamine** - happelisemat mulda eelistavate tomatite jaoks võib lisada veidi turbamulda, et parandada vee säilitamist.
+
+4. **Mineraalväetised** - tomatid vajavad palju kaaliumi ja fosforit. Kasutage spetsiaalseid tomativäetisi ja järgige pakendil olevaid juhiseid.
+
+5. **Lupjamine** - kui teie muld on liiga happeline (pH alla 6), lisage lupja, et neutraliseerida mulla pH.
+
+6. **Orgaanilised lisandid** - muruniide, lehekompost või mereadru on suurepärased orgaanilised lisandid.
+
+7. **Vahekultuurid** - külvake sügisel maha vahekultuurid nagu ristik või vikk, mis rikastavad mulda lämmastikuga ja parandavad struktuuri.
+
+8. **Multšimine** - pärast istutamist multšige taimede ümbrus orgaanilise materjaliga, et säilitada niiskust ja lisada aeglaselt vabanevaid toitaineid.
+
+Oluline on meeles pidada, et tomati taimed ei armasta üleväetamist - see võib põhjustada rohket lehtede kasvu viljade arvelt.

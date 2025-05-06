@@ -1,0 +1,43 @@
+**Kasutaja**: Kuidas saan endale Mobiil-ID tellida?
+
+**Robot**: Mobiil-ID teenuse tellimiseks peate pöörduma oma mobiilioperaatori poole. Teenuse tellimine sõltub teie operaatorist, kuid üldine protsess on sarnane:
+
+1. Minge oma mobiilioperaatori (Telia, Elisa, Tele2) esindussalongi või veebilehele.
+
+2. Võtke kaasa kehtiv isikut tõendav dokument (ID-kaart või pass).
+
+3. Esitab taotluse Mobiil-ID saamiseks. Sõltuvalt operaatorist saate seda teha:
+   - Kohapeal esinduses
+   - Operaatori veebilehel (vajalik ID-kaardiga autentimine)
+   - Mõnel juhul ka telefoni teel klienditeeninduse kaudu
+
+4. Teenuse aktiveerimiseks asendatakse teie praegune SIM-kaart uue, Mobiil-ID funktsionaalsusega SIM-kaardiga (kui teil pole juba sobivat SIM-kaarti).
+
+5. Teile antakse Mobiil-ID PIN1, PIN2 ja PUK koodid. Hoidke need kindlasti alles turvalises kohas!
+
+6. Järgige operaatori juhiseid Mobiil-ID aktiveerimiseks.
+
+Tasub teada, et:
+- Mobiil-ID teenus on tasuline ja selle hind sõltub teie mobiilioperaatori hinnakirjast
+- Teenuse aktiveerimiseks võib kuluda aega (tavaliselt kuni 24 tundi)
+- Mobiil-ID kehtivus on tavaliselt 5 aastat, pärast mida tuleb teenus uuendada
+
+Täpsema info saamiseks soovitan külastada oma mobiilioperaatori veebilehte või pöörduda nende klienditeeninduse poole.
+
+**Kasutaja**: Kas Mobiil-ID töötab ka välismaal olles?
+
+**Robot**: Jah, Mobiil-ID töötab ka välismaal olles, kuid peate arvestama mõningate asjaoludega:
+
+1. Teie telefon peab olema sisse lülitatud ja teil peab olema mobiilne andmeside või WiFi-ühendus, et saada autentimise või allkirjastamise sõnumeid.
+
+2. Rändlus (roaming) peab olema aktiveeritud, et teie telefon saaks välismaa võrkudes töötada.
+
+3. Välismaal viibides võivad rakenduda rändlustasud vastavalt teie mobiilioperaatori hinnakirjale.
+
+4. Mobiil-ID kasutamine ise ei nõua suurt andmemahtu, kuid veenduge, et teie telefon on võrgus ja suudab sõnumeid vastu võtta.
+
+5. Mõnes riigis võib mobiilvõrgu kvaliteet olla ebastabiilne, mis võib mõjutada Mobiil-ID toimimist.
+
+Mobiil-ID eelis välismaal olles on see, et te ei pea kaasas kandma ID-kaarti ja kaardilugejat - piisab vaid teie telefonist ja PIN-koodide teadmisest. See teeb Eesti e-teenuste kasutamise reisides väga mugavaks.
+
+Soovitan enne välismaale minekut kontrollida oma mobiilioperaatori rändlusteenuse tingimusi ja veenduda, et teie telefon on seadistatud välismaal töötama.

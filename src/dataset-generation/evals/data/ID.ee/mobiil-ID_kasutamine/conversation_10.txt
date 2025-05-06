@@ -1,0 +1,43 @@
+**Kasutaja**: Kuidas ma saan allkirjastatud dokumendi teistele saata?
+
+**Robot**: Pärast dokumendi Mobiil-ID-ga allkirjastamist on mitu võimalust selle teistele saatmiseks:
+
+**Arvutis DigiDoc4 kasutades:**
+1. Kui olete dokumendi DigiDoc4 rakenduses allkirjastanud, kuvatakse teile allkirjastatud digiümbrik.
+2. Dokumendi saatmiseks on mitu võimalust:
+   - Vajutage "Salvesta" nuppu ja valige, kuhu soovite faili salvestada (nt töölaud)
+   - Seejärel saate salvestatud faili saata e-mailiga, üles laadida pilveteenusesse või jagada muul viisil
+   - DigiDoc4 võimaldab ka otse faili e-mailile lisada - vajutage paremal "Salvesta" nupu kõrval olevale noolele ja valige "Saada e-postiga"
+
+**Nutitelefonis RIA DigiDoc rakenduses:**
+1. Pärast allkirjastamist vajutage "JAGA" nupul.
+2. Valige, millise rakenduse kaudu soovite allkirjastatud dokumenti jagada:
+   - E-post (Gmail, Mail, jne)
+   - Sõnumid (WhatsApp, Messenger, jne)
+   - Pilveteenused (Dropbox, Google Drive, jne)
+   - Salvestage dokument telefoni, et hiljem jagada
+
+**Oluline teada:**
+- Allkirjastatud dokumendid on failipikendusega .bdoc või .asice
+- Need failid sisaldavad nii originaaldokumenti kui ka digitaalset allkirja
+- Dokumendi saaja ei vaja Mobiil-ID-d, et allkirjastatud dokumenti avada
+- Dokumendi avamiseks võib saaja kasutada DigiDoc4 tarkvara (arvutis) või RIA DigiDoc rakendust (nutitelefonis)
+- Mõned veebiteenused võimaldavad digiallkirjastatud dokumente otse veebilehitsejas avada
+
+Pärast jagamist saab dokumendi saaja kontrollida allkirja kehtivust ja vaadata dokumendi sisu.
+
+**Kasutaja**: Kas saaja näeb, kui ma olen kasutanud Mobiil-ID-d dokumendi allkirjastamiseks?
+
+**Robot**: Jah, saaja näeb, et olete kasutanud Mobiil-ID-d dokumendi allkirjastamiseks. Kui keegi avab teie allkirjastatud dokumendi (näiteks DigiDoc4 rakenduses või RIA DigiDoc mobiilirakenduses), siis allkirja detailides on näha allkirjastamise meetod.
+
+Allkirja detailides kuvatakse tavaliselt järgmine informatsioon:
+- Allkirjastaja nimi
+- Allkirjastaja isikukood
+- Allkirjastamise aeg ja kuupäev
+- Allkirjastamise meetod (Mobiil-ID, ID-kaart või Smart-ID)
+- Sertifikaadi väljaandja (SK ID Solutions AS)
+- Allkirja kehtivus ja valideerimisteave
+
+Saaja jaoks pole tegelikult vahet, kas olete dokumendi allkirjastanud Mobiil-ID, ID-kaardi või Smart-ID-ga, sest kõik need meetodid annavad juriidiliselt võrdse digiallkirja. Kõik digitaalsed allkirjad on võrdselt kehtivad ja usaldatavad, kuna need põhinevad samal tehnoloogial ning on kooskõlas Euroopa Liidu eIDAS määrusega.
+
+Allkirjastamise meetod on lihtsalt tehniline detail, mis näitab, millist autentimisvahendit te kasutasite, kuid see ei mõjuta allkirja õiguslikku jõudu ega usaldusväärsust.

@@ -1,0 +1,12 @@
+**Kasutaja**: Kuidas ma saan näha ja hallata kõiki oma aktiivseid seansse riiklikes e-teenustes?
+
+**Robot**: Kõigi oma aktiivsete seansside nägemiseks ja haldamiseks riiklikes e-teenustes saate kasutada Riigi autentimisteenuse iseteeninduskeskkonda aadressil https://minuautentimine.ria.ee. Selleks toimige järgmiselt:
+
+1. Minge veebilehele https://minuautentimine.ria.ee
+2. Logige sisse, kasutades ID-kaarti, Mobiil-ID-d või Smart-ID-d
+3. Pärast autentimist näete nimekirja kõigist oma aktiivsetest seanssidest riiklikes e-teenustes
+4. Saate vajadusel ükskõik millise seansi lõpetada, vajutades vastavat nuppu
+
+See võimalus on eriti kasulik olukorras, kus olete kasutanud riiklikke e-teenuseid mõnes avalikus või jagatud arvutis ja unustasite end välja logida. Sel juhul saate oma seansi lõpetada mistahes teisest seadmest, näiteks oma isiklikust mobiiltelefonist või arvutist.
+
+Samuti saate iseteeninduskeskkonda liikuda otse riigi autentimisteenuse erinevatel lehtedel (autentimine, seansi jätkamine, väljalogimine) oleva lingi kaudu.

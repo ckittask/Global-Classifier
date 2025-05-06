@@ -1,0 +1,163 @@
+# Topic Quality Evaluation Results
+
+## Summary
+- Average Quality Score: 0.5694
+- Average Coherence: 0.6708
+- Average Topic Alignment: 0.4680
+- Evaluated Conversations: 11
+
+## Quality Distribution
+- Excellent: 0 (0.0%)
+- Good: 5 (45.5%)
+- Acceptable: 5 (45.5%)
+- Poor: 1 (9.1%)
+- Inadequate: 0 (0.0%)
+
+## Detailed Results
+
+### conversation_5.txt
+- Topic Quality Score: 0.6706
+- Coherence Score: 0.7776
+- Alignment Score: 0.5636
+- Quality Assessment: Good
+- Turn Count: 2
+- Word Count: 64
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenustes (0.0809)
+
+### conversation_2.txt
+- Topic Quality Score: 0.6679
+- Coherence Score: 0.7653
+- Alignment Score: 0.5706
+- Quality Assessment: Good
+- Turn Count: 2
+- Word Count: 87
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenuses (0.1213)
+  - suunatakse (0.1011)
+  - eteenustes (0.0809)
+
+### conversation_1.txt
+- Topic Quality Score: 0.6086
+- Coherence Score: 0.7187
+- Alignment Score: 0.4985
+- Quality Assessment: Good
+- Turn Count: 4
+- Word Count: 164
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenusesse (0.1617)
+  - end (0.1213)
+  - riigi (0.1213)
+  - sisse (0.1213)
+
+### conversation_6.txt
+- Topic Quality Score: 0.6029
+- Coherence Score: 0.7179
+- Alignment Score: 0.4878
+- Quality Assessment: Good
+- Turn Count: 2
+- Word Count: 116
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - end (0.1213)
+  - riigi (0.1213)
+  - sisse (0.1213)
+  - autentimine (0.1011)
+
+### conversation_4.txt
+- Topic Quality Score: 0.6028
+- Coherence Score: 0.6439
+- Alignment Score: 0.5617
+- Quality Assessment: Good
+- Turn Count: 4
+- Word Count: 248
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenusesse (0.1617)
+  - riigi (0.1213)
+  - autentimisteenus (0.1011)
+  - seanss (0.1011)
+
+### conversation_7.txt
+- Topic Quality Score: 0.5688
+- Coherence Score: 0.6863
+- Alignment Score: 0.4513
+- Quality Assessment: Acceptable
+- Turn Count: 4
+- Word Count: 246
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenusesse (0.1617)
+  - end (0.1213)
+  - kasutajal (0.1213)
+  - riigi (0.1213)
+
+### conversation_3.txt
+- Topic Quality Score: 0.5601
+- Coherence Score: 0.6659
+- Alignment Score: 0.4543
+- Quality Assessment: Acceptable
+- Turn Count: 4
+- Word Count: 211
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - antud (0.1213)
+  - end (0.1213)
+  - eteenuses (0.1213)
+  - kuvatakse (0.1213)
+
+### conversation_10.txt
+- Topic Quality Score: 0.5527
+- Coherence Score: 0.6790
+- Alignment Score: 0.4264
+- Quality Assessment: Acceptable
+- Turn Count: 4
+- Word Count: 419
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenusesse (0.1617)
+  - end (0.1213)
+  - eteenuses (0.1213)
+  - riigi (0.1213)
+
+### conversation_9.txt
+- Topic Quality Score: 0.5324
+- Coherence Score: 0.5791
+- Alignment Score: 0.4857
+- Quality Assessment: Acceptable
+- Turn Count: 4
+- Word Count: 280
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - riigi (0.1213)
+  - eteenustes (0.0809)
+
+### conversation_8.txt
+- Topic Quality Score: 0.5115
+- Coherence Score: 0.5731
+- Alignment Score: 0.4498
+- Quality Assessment: Acceptable
+- Turn Count: 4
+- Word Count: 294
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - eteenusesse (0.1617)
+  - kuvatakse (0.1213)
+  - riigi (0.1213)
+  - sisse (0.1213)
+
+### conversation_11_out_of_context.txt
+- Topic Quality Score: 0.3855
+- Coherence Score: 0.5722
+- Alignment Score: 0.1988
+- Quality Assessment: Poor
+- Turn Count: 4
+- Word Count: 378
+- Top Matching Keywords:
+  - kasutaja (0.4650)
+  - välja (0.1011)
+  - saab (0.0809)
+

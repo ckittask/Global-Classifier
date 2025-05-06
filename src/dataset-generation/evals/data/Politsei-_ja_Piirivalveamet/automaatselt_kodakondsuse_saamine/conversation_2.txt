@@ -1,0 +1,24 @@
+**Kasutaja**: Minu laps on sündinud 2010. aastal ja ma olen kodakondsuseta isik. Kas laps saab automaatselt Eesti kodakondsuse?
+
+**Robot**: Jah, teie laps saab automaatselt Eesti kodakondsuse naturalisatsiooni korras, kui on täidetud järgmised tingimused:
+- Laps on sündinud ajavahemikul 01.01.2001 kuni 31.12.2015
+- Teie kui vanem olete kodakondsuseta isik (teid ei pea ükski riik kehtivate seaduste alusel oma kodanikuks)
+- Te olete elanud Eestis seaduslikult vähemalt viis aastat
+- Teie alla 15-aastane laps elab püsivalt Eestis
+
+Kui kõik need tingimused on täidetud, siis teie 2010. aastal sündinud laps saab automaatselt Eesti kodakondsuse. Politsei- ja Piirivalveamet peaks teid olema sellest ka kirjalikult teavitanud.
+
+**Kasutaja**: Meil ei ole veel lapsele passi taotletud. Kas me saame nüüd talle kodaniku dokumendi vormistada, kuigi ta on juba 13-aastane?
+
+**Robot**: Jah, saate kindlasti ka praegu oma 13-aastasele lapsele Eesti kodaniku dokumendi (passi või ID-kaardi) vormistada, kui ta on saanud automaatselt Eesti kodakondsuse. Vanusepiirangut siin ei ole.
+
+Selleks peate pöörduma Politsei- ja Piirivalveameti teenindusse. Soovitan enne teenindusse minekut broneerida aja PPA veebilehel.
+
+Teenindusse minnes võtke kindlasti kaasa:
+- Enda isikut tõendav dokument
+- Lapse sünnitunnistus või muu dokument, mis tõendab lapse isikuandmeid
+- Vajadusel dokument, mis tõendab teie seaduslikku esindusõigust (kui see ei tulene otse seadusest)
+- Lapse dokumendifoto (saab teha ka kohapeal)
+- Riigilõivu tasumist tõendav dokument (saab tasuda ka kohapeal)
+
+Oluline on teada, et kui taotlete lapsele Eesti kodaniku dokumenti, siis puudub hiljem võimalus lapse Eesti kodakondsusest loobumiseks. Kuna teie laps on juba 13-aastane, siis kodakondsusest loobumise taotlust enam esitada ei saa, kuna see tuleb teha enne lapse üheaastaseks saamist.

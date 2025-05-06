@@ -1,0 +1,38 @@
+**Kasutaja**: Kuidas käib pangaülekannete kinnitamine Mobiil-ID-ga?
+
+**Robot**: Pangaülekannete kinnitamine Mobiil-ID-ga on lihtne protsess, mis sarnaneb e-teenustesse sisselogimisele. Siin on sammud:
+
+1. Alustate pangaülekande tegemist internetipangas või mobiilipangas nagu tavaliselt, täites saaja andmed, summa ja muu vajaliku info.
+
+2. Kui olete kõik ülekande andmed sisestanud ja jõuate kinnitamise etappi, valige maksete kinnitamise viisiks "Mobiil-ID".
+
+3. Teie telefoni saadetakse kinnitamise sõnum ning telefoni ekraanil kuvatakse teenuse nimi (panga nimi) ja kontrollnumber.
+
+4. Veebilehel kuvatakse samasugune kontrollkood.
+
+5. Kontrollige, et panga veebilehel ja telefonis kuvatavad kontrollkoodid oleksid identsed ning et teenuse nimi viitaks õigele pangale.
+
+6. Kui kontrollkoodid kattuvad, vajutage telefonis "Nõustu" või "OK".
+
+7. Seejärel küsitakse teilt Mobiil-ID PIN2-koodi, kuna tegemist on tehingu kinnitamisega. NB! Tehingute ja tegevuste kinnitamiseks kasutatakse alati PIN2-koodi, mitte PIN1-koodi!
+
+8. Sisestage PIN2-kood ja vajutage OK/Send/Saada.
+
+9. Pärast edukat kinnitamist ilmub panga veebilehele teade, et makse on edukalt kinnitatud.
+
+Turvalisuse tagamiseks on oluline jälgida, et:
+- Teenuse nimi on õige (vastab teie pangale)
+- Kontrollkoodid panga veebilehel ja telefonis kattuvad
+- Kasutate allkirjastamiseks ja tehingute kinnitamiseks alati PIN2-koodi, mitte PIN1-koodi
+
+**Kasutaja**: Miks küsitakse ülekannete kinnitamisel PIN2-koodi, mitte PIN1-koodi?
+
+**Robot**: Ülekannete kinnitamisel küsitakse PIN2-koodi, mitte PIN1-koodi, sest tegemist on juriidiliselt siduva tehingu tegemisega, mis on võrdväärne digiallkirja andmisega. See põhineb Mobiil-ID erinevate PIN-koodide erineval otstarvel:
+
+1. **PIN1-kood** on mõeldud ainult isikutuvastuseks ehk autentimiseks. See näitab, et teie olete tõesti see isik, kes väidate end olevat. Seda kasutatakse e-teenustesse sisselogimisel.
+
+2. **PIN2-kood** on mõeldud digitaalallkirja andmiseks ehk tegevuste ja tehingute kinnitamiseks. Digiallkiri on juriidiliselt võrdne omakäelise allkirjaga ja tekitab õiguslikke tagajärgi.
+
+Pangaülekande tegemine on tehing, mis nõuab teie kinnitust ja millega võtate endale kohustuse. Seega on see sisuliselt digitaalne allkirjastamine, et kinnitate ülekande tegemist, nõustute selle tingimustega ja volitate panka teie nimel toimingut tegema.
+
+See kahetasandiline süsteem (erinevad koodid autentimiseks ja allkirjastamiseks) suurendab turvalisust ja vastab digitaalallkirja seaduse nõuetele. Nii ei saa keegi, kes teab ainult teie PIN1-koodi, teha teie nimel siduvaid tehinguid, mis nõuavad PIN2-koodi.

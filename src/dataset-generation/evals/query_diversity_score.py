@@ -1,0 +1,618 @@
+from typing import List, Dict, Tuple, Set, Optional
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from nltk.tokenize import word_tokenize
+import re
+from collections import Counter, defaultdict
+from loguru import logger
+import os
+import sys
+import glob
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+
+
+logger.remove()
+# add stout handler
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
+
+
+class QueryDiversityAnalyzer:
+    """
+    A class for analyzing the diversity of user queries in a set of conversations.
+    Evaluates both lexical diversity (word usage variety) and semantic diversity (intent variety).
+    """
+    
+    def __init__(self, 
+                embedding_model: str = "paraphrase-multilingual-mpnet-base-v2",
+                semantic_similarity_threshold: float = 0.8,
+                min_queries_for_analysis: int = 3):
+        """
+        Initialize the query diversity analyzer.
+        
+        Args:
+            embedding_model: Name of sentence transformer model to use
+            semantic_similarity_threshold: Threshold for considering queries semantically similar
+            min_queries_for_analysis: Minimum number of queries needed for meaningful analysis
+        """
+        self.embedding_model_name = embedding_model
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.semantic_similarity_threshold = semantic_similarity_threshold
+        self.min_queries_for_analysis = min_queries_for_analysis
+        self.stopwords = self._load_estonian_stopwords()
+        
+    def _load_estonian_stopwords(self) -> List[str]:
+        """Load Estonian stopwords."""
+        try:
+            with open("data/estonian-stopwords.txt", "r", encoding="utf-8") as f:
+                est_stopwords = [line.strip() for line in f if line.strip()]
+            return est_stopwords
+        except:
+            logger.warning("Could not load stopwords from nltk. Using basic set.")
+            return ['ja', 'ning', 'et', 'on', 'ei', 'ka', 'kui', 'aga', 'see', 'mis']
+    
+    def _preprocess_text(self, text: str) -> str:
+        """Preprocess Estonian text."""
+        text = text.lower()
+        
+        text = re.sub(r'https?://\S+|www\.\S+|\S+@\S+', '', text)
+        
+        text = re.sub(r'\s+', ' ', text).strip()
+        
+        estonian_chars = 'äöüõÄÖÜÕ'
+        text = re.sub(f'[^a-zA-Z0-9{estonian_chars} ]', ' ', text)
+        
+        return text
+    
+    def extract_user_queries(self, conversation: str) -> List[str]:
+        """
+        Extract user queries/questions from a conversation.
+        Focuses only on user turns, not system responses.
+        
+        Args:
+            conversation: The conversation text
+            
+        Returns:
+            List of user queries
+        """
+        user_patterns = [
+            r'\*\*Kasutaja\*\*:(.*?)(?:\*\*Robot\*\*:|$)',  
+            r'Kasutaja:(.*?)(?:Robot:|$)',                   
+            r'User:(.*?)(?:Assistant:|$)',                   
+            r'Human:(.*?)(?:AI:|$)'                         
+        ]
+        
+        queries = []
+        for pattern in user_patterns:
+            matches = re.findall(pattern, conversation, re.DOTALL | re.IGNORECASE)
+            queries.extend([self._preprocess_text(m) for m in matches if m.strip()])
+        
+        if not queries:
+            sentences = re.split(r'(?<=[.!?])\s+', conversation)
+            queries = [self._preprocess_text(s.strip()) for s in sentences if s.strip().endswith('?')]
+        
+        return queries
+    
+    def compute_lexical_diversity(self, queries: List[str]) -> Dict:
+        """
+        Compute lexical diversity metrics for a set of queries.
+        Measures variety in vocabulary and phrasing.
+        
+
+        """
+        if not queries or len(queries) < self.min_queries_for_analysis:
+            return {
+                "lexical_diversity_score": 0.0,
+                "unique_token_ratio": 0.0,
+                "total_tokens": 0,
+                "unique_tokens": 0,
+                "reason": "Too few queries for meaningful analysis"
+            }
+        
+        all_text = " ".join(queries)
+        
+        try:
+            tokens = word_tokenize(all_text)
+            
+            tokens = [t for t in tokens if t not in self.stopwords and len(t) > 2]
+            
+            total_tokens = len(tokens)
+            unique_tokens = len(set(tokens))
+            
+            unique_token_ratio = unique_tokens / max(1, total_tokens)
+            
+            vectorizer = TfidfVectorizer(
+                ngram_range=(2, 3),  
+                min_df=1,
+                max_df=0.9
+            )
+            
+            try:
+                # we do need at least two documents for meaningful TF-IDF
+                if len(queries) < 2:
+                    queries.append("dummy text")  
+                
+                tfidf_matrix = vectorizer.fit_transform(queries)
+                
+                # calculate average pairwise similarity 
+                similarities = cosine_similarity(tfidf_matrix)
+                
+                upper_tri = similarities[np.triu_indices_from(similarities, k=1)]
+                
+                avg_similarity = np.mean(upper_tri) if len(upper_tri) > 0 else 0.0
+                
+                ngram_diversity = 1.0 - avg_similarity
+                
+            except Exception as e:
+                logger.warning(f"Error calculating n-gram diversity: {e}")
+                ngram_diversity = 0.0
+            
+            # Calculate overall lexical diversity score 
+            lexical_diversity_score = (0.7 * unique_token_ratio) + (0.3 * ngram_diversity)
+            
+            return {
+                "lexical_diversity_score": float(lexical_diversity_score),
+                "unique_token_ratio": float(unique_token_ratio),
+                "ngram_diversity": float(ngram_diversity),
+                "total_tokens": total_tokens,
+                "unique_tokens": unique_tokens,
+                "avg_query_length": total_tokens / len(queries)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error computing lexical diversity: {e}")
+            return {
+                "lexical_diversity_score": 0.0,
+                "error": str(e)
+            }
+    
+    def compute_semantic_diversity(self, queries: List[str]) -> Dict:
+        """
+        Compute semantic diversity metrics for a set of queries.
+        Measures variety in intent and meaning.
+
+        """
+        if not queries or len(queries) < self.min_queries_for_analysis:
+            return {
+                "semantic_diversity_score": 0.0,
+                "cluster_count": 0,
+                "avg_similarity": 0.0,
+                "reason": "Too few queries for meaningful analysis"
+            }
+        
+        try:
+            embeddings = self.embedding_model.encode(queries)            
+            similarities = cosine_similarity(embeddings)
+            
+            upper_tri = similarities[np.triu_indices_from(similarities, k=1)]
+            
+            avg_similarity = np.mean(upper_tri) if len(upper_tri) > 0 else 0.0
+            
+            clusters = []
+            query_cluster_map = {}
+            
+            for i in range(len(queries)):
+                if i in query_cluster_map:
+                    continue
+                    
+                cluster = [i]
+                query_cluster_map[i] = len(clusters)
+                
+                for j in range(i + 1, len(queries)):
+                    if j not in query_cluster_map and similarities[i, j] >= self.semantic_similarity_threshold:
+                        cluster.append(j)
+                        query_cluster_map[j] = len(clusters)
+                
+                clusters.append(cluster)
+            
+            cluster_count = len(clusters)
+            avg_cluster_size = np.mean([len(c) for c in clusters]) if clusters else 0
+            largest_cluster_size = max([len(c) for c in clusters]) if clusters else 0
+            largest_cluster_ratio = largest_cluster_size / len(queries) if queries else 0
+
+            
+            cluster_ratio = cluster_count / len(queries)
+            avg_dissimilarity = 1.0 - avg_similarity
+            size_balance = 1.0 - largest_cluster_ratio
+            
+            semantic_diversity_score = (0.4 * cluster_ratio) + (0.4 * avg_dissimilarity) + (0.2 * size_balance)
+            
+            cluster_examples = []
+            for cluster_idx, cluster in enumerate(clusters):
+                representative_idx = cluster[0]  
+                cluster_examples.append({
+                    "cluster_id": cluster_idx,
+                    "size": len(cluster),
+                    "example_query": queries[representative_idx]
+                })
+            
+            return {
+                "semantic_diversity_score": float(semantic_diversity_score),
+                "cluster_count": cluster_count,
+                "avg_similarity": float(avg_similarity),
+                "cluster_ratio": float(cluster_ratio),
+                "largest_cluster_ratio": float(largest_cluster_ratio),
+                "avg_cluster_size": float(avg_cluster_size),
+                "cluster_examples": cluster_examples
+            }
+            
+        except Exception as e:
+            logger.error(f"Error computing semantic diversity: {e}")
+            return {
+                "semantic_diversity_score": 0.0,
+                "error": str(e)
+            }
+    
+    def compute_query_diversity(self, conversations: List[str], 
+                              topic_label: str = None) -> Dict:
+        """
+        Compute comprehensive query diversity metrics for conversations.
+        
+        Args:
+            conversations: List of conversation texts
+            topic_label: Optional topic label for reporting
+            
+        Returns:
+            Dictionary with diversity metrics
+        """
+        all_queries = []
+        queries_by_conversation = []
+        
+        for conv in conversations:
+            queries = self.extract_user_queries(conv)
+            if queries:
+                all_queries.extend(queries)
+                queries_by_conversation.append(queries)
+        
+        if not all_queries:
+            return {
+                "query_diversity_score": 0.0,
+                "query_count": 0,
+                "topic": topic_label,
+                "reason": "No user queries found"
+            }
+        
+        lexical_diversity = self.compute_lexical_diversity(all_queries)        
+        semantic_diversity = self.compute_semantic_diversity(all_queries)
+
+        if "lexical_diversity_score" in lexical_diversity and "semantic_diversity_score" in semantic_diversity:
+            overall_score = (lexical_diversity["lexical_diversity_score"] + 
+                           semantic_diversity["semantic_diversity_score"]) / 2
+        else:
+            overall_score = 0.0
+        
+        first_queries = []
+        for queries in queries_by_conversation:
+            if queries:
+                first_queries.append(queries[0])
+        
+        first_query_semantic = self.compute_semantic_diversity(first_queries) if first_queries else {"semantic_diversity_score": 0.0}
+        first_query_lexical = self.compute_lexical_diversity(first_queries) if first_queries else {"lexical_diversity_score": 0.0}
+        
+        first_query_diversity = (
+            first_query_semantic.get("semantic_diversity_score", 0.0) * 0.7 +
+            first_query_lexical.get("lexical_diversity_score", 0.0) * 0.3
+        )
+        
+        return {
+            "query_diversity_score": float(overall_score),
+            "first_query_diversity": float(first_query_diversity),
+            "lexical_diversity": lexical_diversity,
+            "semantic_diversity": semantic_diversity,
+            "query_count": len(all_queries),
+            "unique_query_count": semantic_diversity.get("cluster_count", 0),
+            "conversations_analyzed": len(conversations),
+            "topic": topic_label
+        }
+    
+    def generate_diversity_report(self, results: Dict, output_file: str = None) -> None:
+        """
+        Generate a detailed report from diversity analysis results.
+
+        """
+        report_lines = []
+        
+        topic_label = results.get("topic", "Unnamed Topic")
+        report_lines.append(f"# Query Diversity Analysis: {topic_label}\n")
+        
+        report_lines.append("## Summary\n")
+        report_lines.append(f"- **Overall Diversity Score**: {results['query_diversity_score']:.4f}")
+        report_lines.append(f"- **First Query Diversity**: {results['first_query_diversity']:.4f}")
+        report_lines.append(f"- **Total Queries Analyzed**: {results['query_count']}")
+        report_lines.append(f"- **Unique Query Intents**: {results['unique_query_count']}")
+        report_lines.append(f"- **Conversations Analyzed**: {results['conversations_analyzed']}\n")
+        
+        report_lines.append("## Lexical Diversity\n")
+        lexical = results["lexical_diversity"]
+        report_lines.append(f"- **Lexical Diversity Score**: {lexical.get('lexical_diversity_score', 0):.4f}")
+        report_lines.append(f"- **Unique Token Ratio**: {lexical.get('unique_token_ratio', 0):.4f}")
+        report_lines.append(f"- **N-gram Diversity**: {lexical.get('ngram_diversity', 0):.4f}")
+        report_lines.append(f"- **Unique Words**: {lexical.get('unique_tokens', 0)}")
+        report_lines.append(f"- **Average Query Length**: {lexical.get('avg_query_length', 0):.1f} tokens\n")
+        
+        report_lines.append("## Semantic Diversity\n")
+        semantic = results["semantic_diversity"]
+        report_lines.append(f"- **Semantic Diversity Score**: {semantic.get('semantic_diversity_score', 0):.4f}")
+        report_lines.append(f"- **Distinct Query Clusters**: {semantic.get('cluster_count', 0)}")
+        report_lines.append(f"- **Average Query Similarity**: {semantic.get('avg_similarity', 0):.4f}")
+        report_lines.append(f"- **Largest Cluster Ratio**: {semantic.get('largest_cluster_ratio', 0):.4f}\n")
+        
+        if "cluster_examples" in semantic and semantic["cluster_examples"]:
+            report_lines.append("## Query Cluster Examples\n")
+            report_lines.append("Each cluster represents semantically similar query types:\n")
+            
+            for cluster in semantic["cluster_examples"]:
+                report_lines.append(f"- **Cluster {cluster['cluster_id']+1}** ({cluster['size']} queries):")
+                report_lines.append(f"  Example: \"{cluster['example_query']}\"\n")
+        
+        report_lines.append("## Interpretation\n")
+        
+        overall_score = results['query_diversity_score']
+        if overall_score >= 0.8:
+            interpretation = "Excellent query diversity. Training data has a wide variety of query formulations."
+        elif overall_score >= 0.6:
+            interpretation = "Good query diversity. Training data covers different ways of asking about this topic."
+        elif overall_score >= 0.4:
+            interpretation = "Moderate query diversity. Some variation exists, but could benefit from more diverse formulations."
+        elif overall_score >= 0.2:
+            interpretation = "Low query diversity. Most queries are similar, limiting the classifier's ability to generalize."
+        else:
+            interpretation = "Very low diversity. Queries are highly similar or repetitive."
+        
+        report_lines.append(f"- **Overall Diversity**: {interpretation}")
+        
+        first_query_score = results['first_query_diversity']
+        if first_query_score >= 0.8:
+            interpretation = "Excellent variety in how conversations start, giving the classifier diverse examples."
+        elif first_query_score >= 0.6:
+            interpretation = "Good variety in initial queries, helping classification accuracy."
+        elif first_query_score >= 0.4:
+            interpretation = "Moderate variety in first queries. Classification may work well for common patterns."
+        elif first_query_score >= 0.2:
+            interpretation = "Limited variety in how conversations start. May affect classification performance."
+        else:
+            interpretation = "Very similar conversation starters. Classification may struggle with variations."
+        
+        report_lines.append(f"- **First Query Diversity**: {interpretation}")
+        
+        report_lines.append("\n## Recommendations\n")
+        
+        if overall_score < 0.6:
+            report_lines.append("- **Generate more diverse query formulations** to improve classifier robustness")
+            
+        if lexical.get('unique_token_ratio', 0) < 0.5:
+            report_lines.append("- **Increase vocabulary variety** in queries")
+            
+        if semantic.get('cluster_count', 0) < 5 and results['query_count'] > 10:
+            report_lines.append("- **Add more ways of asking about this topic** with different intents/focuses")
+            
+        if first_query_score < 0.6:
+            report_lines.append("- **Diversify conversation starters** to improve initial classification")
+            
+        if results['query_count'] < 20:
+            report_lines.append("- **Add more conversations** to increase query sampling")
+        
+        full_report = "\n".join(report_lines)
+        
+        if output_file:
+            try:
+                output_dir = os.path.dirname(output_file)
+                if output_dir and not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                    
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(full_report)
+                
+                logger.info(f"Diversity report written to {output_file}")
+            except Exception as e:
+                logger.error(f"Error writing diversity report: {e}")
+        else:
+            logger.info(full_report)
+        
+        return full_report
+
+
+def compute_query_diversity_for_topic(conversations: List[str], 
+                                    topic_label: str = None) -> float:
+    """
+    Simple interface for computing query diversity score.
+    
+    Args:
+        conversations: List of conversations for a specific topic
+        topic_label: Optional topic label
+        
+    Returns:
+        Float score between 0 and 1
+    """
+    analyzer = QueryDiversityAnalyzer()
+    results = analyzer.compute_query_diversity(conversations, topic_label)
+    
+    return results["query_diversity_score"]
+
+
+def read_file(file_path: str) -> str:
+    """Read the content of a file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        logger.error(f"Error reading file {file_path}: {e}")
+        return ""
+
+def read_conversations_from_directory(directory: str, pattern: str = "conversation_*.txt") -> Tuple[List[str], List[str]]:
+    """
+    Read all conversation files from a directory matching a pattern.
+    
+    Returns:
+        Tuple of (conversation_contents, filenames)
+    """
+    files = sorted(glob.glob(os.path.join(directory, pattern)))
+    contents = []
+    filenames = []
+    
+    for f in files:
+        content = read_file(f)
+        if content.strip():  
+            contents.append(content)
+            filenames.append(os.path.basename(f))
+    
+    return contents, filenames
+
+def analyze_query_diversity_from_files(
+    conversation_path: str,
+    output_file: str = None,
+    topic_label: str = None
+) -> Dict:
+    """
+    Analyze query diversity using conversation files.
+    
+    Args:
+        conversation_path: Path to conversation file or directory
+        output_file: Optional path to save the report
+        topic_label: Optional topic label
+        
+    Returns:
+        Dictionary with diversity analysis results
+    """
+    if os.path.isdir(conversation_path):
+        conversations, _ = read_conversations_from_directory(conversation_path)
+    else:
+        # Single conversation file
+        content = read_file(conversation_path)
+        if content:
+            conversations = [content]
+        else:
+            conversations = []
+    
+    if not conversations:
+        logger.error(f"No conversations found at {conversation_path}")
+        return {"error": "No conversations found"}
+    
+    if not topic_label:
+        path = Path(conversation_path)
+        if path.is_dir():
+            topic_label = path.name
+        else:
+            topic_label = path.parent.name
+    
+    analyzer = QueryDiversityAnalyzer()
+    
+    results = analyzer.compute_query_diversity(conversations, topic_label)
+    
+    if output_file:
+        analyzer.generate_diversity_report(results, output_file)
+    
+    return results
+
+def analyze_multiple_topics(
+    base_directory: str,
+    output_directory: str = None
+) -> Dict:
+    """
+    analyze query diversity for multiple topics in subdirectories
+
+    """
+    topic_dirs = [d for d in glob.glob(os.path.join(base_directory, "*")) if os.path.isdir(d)]
+    
+    if not topic_dirs:
+        logger.error(f"No topic directories found in {base_directory}")
+        return {"error": "No topic directories found"}
+    
+    all_results = []
+    
+    for topic_dir in topic_dirs:
+        topic_name = os.path.basename(topic_dir)
+        
+        output_file = None
+        if output_directory:
+            os.makedirs(output_directory, exist_ok=True)
+            output_file = os.path.join(output_directory, f"{topic_name}_query_diversity.md")
+        
+        result = analyze_query_diversity_from_files(
+            conversation_path=topic_dir,
+            output_file=output_file,
+            topic_label=topic_name
+        )
+        
+        if "error" not in result:
+            all_results.append(result)
+    
+    if all_results:
+        summary = {
+            "topics_analyzed": len(all_results),
+            "average_diversity_score": np.mean([r["query_diversity_score"] for r in all_results]),
+            "average_first_query_diversity": np.mean([r["first_query_diversity"] for r in all_results]),
+            "total_queries_analyzed": sum([r["query_count"] for r in all_results]),
+            "topic_results": all_results
+        }
+        
+        if output_directory:
+            summary_file = os.path.join(output_directory, "diversity_summary.md")
+            
+            with open(summary_file, 'w', encoding='utf-8') as f:
+                f.write("# Query Diversity Analysis Summary\n\n")
+                
+                f.write("## Overall Statistics\n")
+                f.write(f"- **Topics Analyzed**: {summary['topics_analyzed']}\n")
+                f.write(f"- **Average Diversity Score**: {summary['average_diversity_score']:.4f}\n")
+                f.write(f"- **Average First Query Diversity**: {summary['average_first_query_diversity']:.4f}\n")
+                f.write(f"- **Total Queries Analyzed**: {summary['total_queries_analyzed']}\n\n")
+                
+                f.write("## Topics Ranked by Diversity\n")
+                
+                sorted_results = sorted(all_results, key=lambda x: x["query_diversity_score"], reverse=True)
+                
+                for i, result in enumerate(sorted_results):
+                    topic = result["topic"]
+                    score = result["query_diversity_score"]
+                    queries = result["query_count"]
+                    unique = result["unique_query_count"]
+                    
+                    f.write(f"{i+1}. **{topic}**: {score:.4f} diversity score ({unique} unique intents from {queries} queries)\n")
+            
+            logger.info(f"Summary report written to {summary_file}")
+        
+        return summary
+    else:
+        return {"error": "No valid results from any topic"}
+
+
+if __name__ == "__main__":
+    conversation_path = "data/ID.ee/autentimine_riiklikes_e-teenustes"
+    output_file = "data/ID.ee/autentimine_riiklikes_e-teenustes/query_diversity_report.md"
+    topic_label = "ID Authentication"
+   
+    multi_topic=False
+    
+    if multi_topic:
+        results = analyze_multiple_topics(
+            base_directory=conversation_path,
+            output_directory=output_file
+        )
+        
+        if "error" not in results:
+            print(f"Analyzed {results['topics_analyzed']} topics")
+            print(f"Average diversity score: {results['average_diversity_score']:.4f}")
+            print(f"Average first query diversity: {results['average_first_query_diversity']:.4f}")
+            print(f"Reports saved to {output_file}")
+    else:
+        results = analyze_query_diversity_from_files(
+            conversation_path=conversation_path,
+            output_file=output_file,
+            topic_label=topic_label
+        )
+        
+        if "error" in results:
+            print(f"Error: {results['error']}")
+        else:
+            print(f"Query Diversity Score: {results['query_diversity_score']:.4f}")
+            print(f"First Query Diversity: {results['first_query_diversity']:.4f}")
+            print(f"Analyzed {results['query_count']} queries from {results['conversations_analyzed']} conversations")
+            print(f"Found {results['unique_query_count']} distinct query intents")
+            
+            if output_file:
+                print(f"Report saved to {output_file}")

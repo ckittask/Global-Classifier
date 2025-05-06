@@ -1,0 +1,48 @@
+**Kasutaja**: Kuidas tagada Mobiil-ID kasutamise turvalisus?
+
+**Robot**: Mobiil-ID turvaliseks kasutamiseks on mitu olulist aspekti, mida peaksite jälgima:
+
+1. **Kontrollige teenuse nime ja kontrollkoode**:
+   - Veenduge, et mobiiltelefonis kuvatav teenuse nimi viitab sellele e-teenusele või veebilehele, kuhu soovisite Mobiil-ID-ga siseneda
+   - Veenduge, et kontrollkoodid teenuse veebilehel ja mobiiltelefonis on identsed
+   - Kui need ei kattu või kui saate autentimise sõnumi ilma, et oleksite ise seda algatanud, ärge sisestage oma PIN-koode
+
+2. **Kasutage PIN-koode õigesti**:
+   - Autentimisel (sisselogimisel) kasutatakse alati PIN1-koodi
+   - Digitaalallkirja andmisel ja tehingute kinnitamisel kasutatakse alati PIN2-koodi
+   - Ärge kunagi kasutage PIN-koode vastupidiselt
+
+3. **Hoidke PIN-koode turvaliselt**:
+   - Ärge hoidke PIN-koode kirjutatuna telefoni lähedal või telefonis
+   - Ärge avalikustage oma PIN-koode teistele inimestele
+   - Ärge kasutage lihtsasti äraarvatavaid koode (nagu sünniaasta, järjestikused numbrid jne)
+
+4. **Reageerige anomaaliatele**:
+   - Kui teie telefonile saabub Mobiil-ID autentimise või allkirjastamise sõnum, mida te pole ise algatanud, ärge sisestage PIN-koodi
+   - Kui kahtlustate, et keegi võib teada teie PIN-koode, vahetage need esimesel võimalusel
+   
+5. **Telefoni kadumisel**:
+   - Kui teie Mobiil-ID-ga seotud telefon kaob või varastatakse, võtke kohe ühendust oma mobiilioperaatoriga ja peatage Mobiil-ID teenus
+
+Järgides neid ettevaatusabinõusid, on Mobiil-ID kasutamine väga turvaline viis e-teenustesse sisselogimiseks ja dokumentide digiallkirjastamiseks.
+
+**Kasutaja**: Mis juhtub, kui sisestan PIN-koodi valesti?
+
+**Robot**: Kui sisestate Mobiil-ID PIN-koodi valesti, juhtub järgmine:
+
+1. Saate veateate, et autentimine või allkirjastamine ebaõnnestus vale PIN-koodi tõttu.
+
+2. Teil on võimalus proovida uuesti, kuid arvestage, et igal PIN-koodil on piiratud arv sisestuskordi (tavaliselt 3 katset), enne kui see lukustub.
+
+3. Kui sisestate PIN-koodi valesti kolm korda järjest, lukustub vastav PIN-kood (PIN1 või PIN2) turvalisuse tagamiseks.
+
+4. Lukustunud PIN-koodi avamiseks vajate PUK-koodi, mille saite Mobiil-ID aktiveerimise ajal.
+
+5. PUK-koodi saate kasutada PIN-koodi taasavamiseks. Selleks tuleb tavaliselt:
+   - Helistada oma mobiilioperaatori klienditeenindusse
+   - Kasutada mobiilioperaatori iseteenindust
+   - Mõnel juhul saab kasutada ka spetsiaalseid rakendusi PIN-koodi avamiseks
+
+6. Kui ka PUK-kood lukustub (tavaliselt pärast 10 ebaõnnestunud sisestuskatset), siis tuleb Mobiil-ID teenus uuesti aktiveerida. Selleks peate pöörduma oma mobiilioperaatori teenindusse isikut tõendava dokumendiga.
+
+Seega on oluline hoida oma PIN-koode ja PUK-koodi turvalises kohas ning jälgida, et te ei sisestaks neid valesti.

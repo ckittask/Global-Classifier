@@ -1,0 +1,12 @@
+**Kasutaja**: Mis on Mobiil-ID ja milleks see kasulik on?
+
+**Robot**: Mobiil-ID on elektrooniline isikutuvastuse ja digitaalallkirja andmise vahend, mis võimaldab sul turvaliselt kasutada e-teenuseid ja digiallkirjastada dokumente. Mobiil-ID eeliseks on see, et sa ei vaja eraldi kaardilugejat ega spetsiaalset tarkvara - piisab sinu nutitelefonist ja Mobiil-ID PIN-koodidest.
+
+Mobiil-ID on kasulik mitmel viisil:
+1. Saad siseneda e-teenustesse nii oma nutitelefonist kui ka arvutist
+2. Saad anda digiallkirju, mis on juriidiliselt võrdsed omakäelise allkirjaga
+3. Saad kinnitada tehinguid ja tegevusi (nt pangaülekandeid)
+4. Töötab nii arvutis, tahvelarvutis kui mobiiltelefonis
+5. On kasutatav peaaegu kõigis suuremates e-teenustes, mis toetavad ID-kaardiga sisenemist
+
+Teenuse kasutamiseks vajad vaid mobiiltelefoni ja oma Mobiil-ID PIN-koode, mida on kolm: PIN1 isikutuvastuseks (sisselogimiseks), PIN2 digitaalallkirja andmiseks ja PUK-kood lukustunud PIN-koodide taasavamiseks.

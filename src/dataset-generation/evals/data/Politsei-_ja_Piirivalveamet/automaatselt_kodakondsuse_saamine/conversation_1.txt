@@ -1,0 +1,21 @@
+**Kasutaja**: Minu laps on sündinud Eestis ja mina olen kodakondsuseta isik, kes on Eestis elanud 6 aastat. Kas mu laps saab automaatselt Eesti kodakondsuse?
+
+**Robot**: Jah, teie laps saab automaatselt Eesti kodakondsuse naturalisatsiooni korras sünni hetkest arvates, kui on täidetud järgmised tingimused:
+- Laps on alla 15-aastane ja on Eestis sündinud või asub kohe pärast sündi koos teiega püsivalt Eestisse elama
+- Teie kui vanem olete kodakondsuseta isik (teid ei pea ükski riik kehtivate seaduste alusel oma kodanikuks)
+- Te olete lapse sünni hetkeks elanud Eestis seaduslikult vähemalt viis aastat
+
+Kuna teie olete elanud Eestis 6 aastat ja olete kodakondsuseta isik, siis teie Eestis sündinud laps saab automaatselt Eesti kodakondsuse. Politsei- ja Piirivalveamet teavitab teid sellest ka kirjalikult.
+
+**Kasutaja**: Kuidas ma saan lapsele Eesti kodaniku passi taotleda?
+
+**Robot**: Eesti kodaniku passi taotlemiseks oma lapsele peate pöörduma Politsei- ja Piirivalveameti teenindusse. Selleks toimige järgmiselt:
+
+1. Broneerige aeg PPA teenindusse (võite seda teha veebilehel politsei.ee või helistades teeninduse infotelefonile)
+2. Võtke kaasa vajalikud dokumendid:
+   - Enda isikut tõendav dokument
+   - Lapse sünnitunnistus
+   - Dokumendifoto lapsest (saab teha ka kohapeal)
+   - Riigilõivu tasumist tõendav dokument (riigilõivu saab tasuda ka kohapeal)
+
+Oluline on meeles pidada, et kui taotlete lapsele Eesti kodaniku dokumenti, ei ole hiljem võimalik lapse Eesti kodakondsusest loobuda. Kui soovite lapse Eesti kodakondsusest loobuda, tuleb vastav taotlus esitada Politsei- ja Piirivalveametile enne lapse üheaastaseks saamist.

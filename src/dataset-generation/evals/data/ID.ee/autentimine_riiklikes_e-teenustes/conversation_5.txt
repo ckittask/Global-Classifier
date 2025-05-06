@@ -1,0 +1,3 @@
+**Kasutaja**: Kas Smart-ID on sama turvaline kui ID-kaart riiklikes e-teenustes?
+
+**Robot**: Jah, Smart-ID on riiklikes e-teenustes sama turvaline kui ID-kaart. Mõlemad autentimisvahendid on eIDAS määruse järgi kõrge turvatasemega (LoA High) vahendid. See tähendab, et nende abil toimuv isikutuvastus on väga usaldusväärne ja turvaline. Erinevus on peamiselt kasutamise viisis - ID-kaart nõuab füüsilist kaarti ja kaardilugejat, samas kui Smart-ID on mobiilirakendus, mis ei vaja eraldi riistvara.

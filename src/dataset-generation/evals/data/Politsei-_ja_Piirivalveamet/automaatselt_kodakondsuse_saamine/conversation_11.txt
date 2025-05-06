@@ -1,0 +1,65 @@
+**Kasutaja**: Mu äripartner Saksamaalt soovib taotleda Eesti kodakondsust, sest tahab arendada ettevõtet Eestis. Millised võimalused tal on?
+
+**Robot**: Teie äripartneril on mitu võimalust Eestis ettevõtluse arendamiseks, kuid Eesti kodakondsuse saamine ei pruugi olla kõige lihtsam või sobivam lahendus. Selgitan erinevaid võimalusi:
+
+1. **E-residentsus** - See on kõige lihtsam ja kiirem lahendus välismaalastele, kes soovivad arendada ettevõtlust Eestis. E-residentsus ei anna kodakondsust ega elamisluba, kuid võimaldab:
+   - Asutada ja juhtida Eesti ettevõtet distantsilt
+   - Digitaalselt allkirjastada dokumente
+   - Kasutada Eesti e-teenuseid
+   - Hallata ettevõtet internetipõhiselt
+
+2. **Elamisluba ettevõtluseks** - Kui teie äripartner soovib Eestisse elama asuda, võib ta taotleda tähtajalist elamisluba ettevõtluseks. Selleks on vaja:
+   - Investeerida Eesti ettevõttesse vähemalt 65 000 eurot
+   - Esitada usaldusväärne äriplaan
+   - Tõestada, et ettevõte loob lisandväärtust Eesti majandusele
+
+3. **Tähtajaline elamisluba töötamiseks** - Alternatiivina võib ta taotleda elamisluba töötamiseks, kui ta asub tööle Eesti ettevõttesse.
+
+4. **Eesti kodakondsus naturalisatsiooni korras** - See on oluliselt keerulisem protsess ja nõuab:
+   - Vähemalt 8 aastat seaduslikku elamist Eestis, millest viimased 5 aastat püsivalt
+   - Eesti keele oskust B1 tasemel
+   - Eesti Vabariigi põhiseaduse ja kodakondsuse seaduse tundmist
+   - Püsivat legaalset sissetulekut
+   - Lojaalsusvannet Eesti riigile
+
+Arvestades teie partneri eesmärki arendada ettevõtlust, soovitan talle esmalt e-residentsust, mille taotlemine on lihtne ja kiire. Seejärel, kui ta soovib Eestisse elama asuda, võiks ta kaaluda elamisluba ettevõtluseks.
+
+Eesti kodakondsus ei ole ettevõtluse arendamiseks vajalik ning selle saamine on pikaajaline protsess, mis nõuab ka Saksamaa kodakondsusest loobumist (kuna Eesti ei luba topeltkodakondsust naturalisatsiooni puhul).
+
+**Kasutaja**: Kuidas e-residentsust taotleda ja kui palju see maksab?
+
+**Robot**: E-residentsuse taotlemine on üsna lihtne protsess. Selgitan sammud ja kulud:
+
+**E-residentsuse taotlemise protsess:**
+
+1. **Taotluse esitamine veebis** - Taotlus esitatakse e-residentsuse ametlikul veebilehel (e-resident.gov.ee). Taotleja peab:
+   - Täitma digitaalse avalduse
+   - Üles laadima oma passikoopia ja digitaalse näofoto
+   - Üles laadima skaneeritud näokujutise
+   - Kirjutama lühikese põhjenduse, miks ta e-residentsust soovib
+   - Valima Eesti välisesinduse või PPA teeninduspunkti, kust ta soovib e-residendi digi-ID kaarti kätte saada
+
+2. **Taustakontroll** - Pärast taotluse esitamist viib Politsei- ja Piirivalveamet läbi taustakontrolli, mis võtab tavaliselt 30 päeva.
+
+3. **Teavitus** - Kui taotlus on heaks kiidetud, saadetakse taotlejale e-kiri, mis sisaldab juhiseid digi-ID kaardi kättesaamiseks.
+
+4. **Digi-ID kaardi kättesaamine** - Taotleja peab isiklikult kohale minema valitud välisesindusse või PPA teeninduspunkti. Kaasas peab olema isikut tõendav dokument (pass).
+
+**Kulud:**
+
+1. **Taotluse riigilõiv** - E-residentsuse taotlemise riigilõiv on 120 eurot.
+
+2. **Võimalikud lisakulud:**
+   - Reisikulud välisesindusse või Eestisse PPA teeninduspunkti (kui taotleja peab selleks eraldi reisima)
+   - Digi-ID kaardi uuendamine (kehtib 5 aastat)
+   - Kui digi-ID kaart on kadunud või varastatud, siis uue kaardi taotlemine
+
+**Digi-ID kaardi kasutamine:**
+Pärast digi-ID kaardi saamist vajab teie partner kaardi kasutamiseks:
+- ID-kaardi lugejat (kui kasutab arvutit)
+- Smart-ID või mobiilse ID-kaardi rakendust (mugavam alternatiiv)
+- PIN-koode, mis väljastatakse koos digi-ID kaardiga
+
+E-residentsus võimaldab teie partneril kohe alustada Eesti ettevõtlusega, asutada firma, avada pangakonto (kas Eesti pangas või e-residentidele suunatud fintech-lahendustes nagu Wise Business), hallata ettevõtet ja esitada maksudeklaratsioone - kõike seda ilma Eestisse kolimata.
+
+See on palju kiirem ja lihtsam lahendus kui kodakondsuse taotlemine, eriti kui eesmärk on just ettevõtluse arendamine.

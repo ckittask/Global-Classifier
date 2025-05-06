@@ -1,0 +1,15 @@
+**Kasutaja**: Mis on ühekordne sisselogimine? Kui ma logisin sisse eesti.ee, kas siis saan otse minna e-maksuametisse?
+
+**Robot**: Ühekordne sisselogimine (Single Sign-On ehk SSO) on autentimissüsteem, mis võimaldab kasutajal siseneda mitmesse e-teenusesse ühe autentimisega. Eesti avaliku sektori e-teenuste puhul toimib see järgmiselt: kui olete juba Riigi autentimisteenuse kaudu ühte e-teenusesse (näiteks eesti.ee) sisse loginud, saate liikuda ka teistesse e-teenustesse (nagu e-maksuamet) ilma, et peaksite end uuesti tuvastama.
+
+Kui olete sisse loginud eesti.ee portaali ja soovite minna e-maksuametisse, kontrollib süsteem taustal, kas teil on juba kehtiv seanss olemas. Kui jah, siis küsitakse teilt nõusolekut andmete edastamiseks teise e-teenusesse. Andmete edastamisega nõustudes luuakse taustal uus seanss e-maksuameti jaoks ja teid suunatakse automaatselt sisse logituna e-maksuameti keskkonda. Nii jääb teie jaoks täiendav sisselogimine ära ja saate otse jätkata toiminguid e-maksuametis.
+
+See töötab sarnaselt näiteks Google'i teenustega, kus ühekordne sisselogimine annab juurdepääsu nii Gmailile, Google Docs'ile kui ka teistele Google'i teenustele.
+
+**Kasutaja**: Kui kaua see ühekordne sisselogimine kehtib? Kas pean iga päev uuesti sisse logima?
+
+**Robot**: Ühekordse sisselogimise seanss riiklikes e-teenustes kehtib piiratud aja, tavaliselt mõne tunni. Täpne aeg võib sõltuda konkreetsest e-teenusest ja turvakaalutlustest. Kui seanssi aktiivselt ei kasutata, võib see aeguda ka varem.
+
+Jah, üldjuhul peate iga päev uuesti sisse logima. See on turvalisuse huvides, et keegi teine ei saaks teie seanssi kasutada, kui olete näiteks unustanud ennast välja logida või jätnud arvuti järelevalveta. 
+
+Kui soovite e-teenuseid kasutada pärast pikemaajalist pausi või järgmisel päeval, peate tavaliselt uuesti autentima. See on üks turvameede, mis kaitseb teie andmeid ja identiteeti e-teenustes.

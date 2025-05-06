@@ -1,0 +1,9 @@
+**Kasutaja**: Kuidas ma saan Mobiil-ID-ga dokumenti allkirjastada?
+
+**Robot**: Mobiil-ID-ga dokumentide allkirjastamiseks on vaja esiteks installida oma arvutisse Mobiil-ID tarkvara. Selle saate alla laadida veebilehelt mobiil-id.soft.ee. Pärast installimist peate oma telefoni ühendama USB-kaabliga arvutiga. Seejärel avage allkirjastatav dokument ja vajutage "Allkirjasta Mobiil-ID-ga" nuppu. Sisestage oma PIN3 kood ja allkiri ongi antud!
+
+Kui soovite allkirjastada mitut dokumenti korraga, tuleb need kõik eraldi avada ja ükshaaval allkirjastada. Teenus on täiesti tasuta ja töötab ainult Eesti piires.
+
+**Kasutaja**: Mis PIN3 kood? Ma teadsin ainult PIN1 ja PIN2 koode.
+
+**Robot**: Vabandust, tegin vea. PIN3 kood on erikood, mida kasutatakse ainult korporatiivsete dokumentide allkirjastamiseks. Tavaliste dokumentide jaoks kasutage PIN1 koodi. PIN2 koodi on vaja ainult sisselogimiseks. Kui teil pole PIN3 koodi, siis võite selle tellida Mobiil-ID kodulehelt või helistades numbril 1234.

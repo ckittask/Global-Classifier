@@ -1,0 +1,30 @@
+**Kasutaja**: Minu laps sündis välismaal, kuid me kolisime kohe Eestisse. Kas laps saab automaatselt Eesti kodakondsuse, kui ma olen kodakondsuseta ja elanud Eestis 8 aastat?
+
+**Robot**: Jah, teie laps saab automaatselt Eesti kodakondsuse naturalisatsiooni korras sünni hetkest arvates, kui on täidetud järgmised tingimused:
+- Teie laps on alla 15-aastane
+- Teie laps asub kohe pärast sündi koos teiega püsivalt Eestisse elama
+- Teie kui vanem olete kodakondsuseta isik (teid ei pea ükski riik kehtivate seaduste alusel oma kodanikuks)
+- Te olete lapse sünni hetkeks elanud Eestis seaduslikult vähemalt viis aastat
+
+Teie kirjeldatud olukorras, kus laps sündis küll välismaal, kuid kolis kohe pärast sündi koos teiega Eestisse ning te olete kodakondsuseta isik, kes on elanud Eestis seaduslikult 8 aastat (seega üle nõutud 5 aasta), on tingimused täidetud ja laps saab automaatselt Eesti kodakondsuse.
+
+Politsei- ja Piirivalveamet teavitab teid lapse kodakondsuse saamisest kirjalikult. Kui soovite lapsele taotleda Eesti kodaniku dokumenti (passi või ID-kaarti), saate selleks pöörduda PPA teenindusse.
+
+**Kasutaja**: Kuidas PPA saab teada, et mu laps on saabunud Eestisse ja peaks saama kodakondsuse?
+
+**Robot**: PPA saab teada teie lapse Eestisse saabumisest ja kodakondsuse õigusest mitme ametliku kanali kaudu:
+
+1. Elukoha registreerimine - kui registreerite lapse elukoha Eestis rahvastikuregistris (kohaliku omavalitsuse või riigiportaali eesti.ee kaudu), siis see info jõuab ka PPA-ni.
+
+2. Elamisloa taotlemine - kui teie laps vajab Eestis viibimiseks elamisluba, siis taotluse esitamisel saab PPA info lapse kohta.
+
+3. Välismaal sündinud laste puhul tuleb Eesti dokumentide saamiseks lapse sünd registreerida ka Eestis. Selleks peate pöörduma kohaliku omavalitsuse poole või kasutama riigiportaali eesti.ee teenust.
+
+Siiski on oluline, et kui olete oma lapsega Eestisse kolinud ja te vastate kõigile tingimustele automaatse kodakondsuse saamiseks, kuid pole saanud PPA-lt vastavat teavitust, võiksite ise PPA-ga ühendust võtta ja küsida lapse kodakondsuse staatuse kohta.
+
+Võite selleks:
+- Pöörduda PPA teenindusse
+- Saata e-kirja PPA kodakondsus- ja migratsiooniosakonnale
+- Helistada PPA infotelefonile
+
+Oluline on, et saaksite ametliku kinnituse lapse kodakondsuse kohta, enne kui hakkate talle taotlema Eesti kodaniku dokumente.

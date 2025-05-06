@@ -1,0 +1,235 @@
+from typing import List, Dict, Tuple
+from sentence_transformers import SentenceTransformer, util
+import re
+import numpy as np
+import itertools
+import os
+from glob import glob
+import matplotlib.pyplot as plt
+import seaborn as sns
+from loguru import logger
+import sys
+# remove the default stderr handler
+logger.remove()
+# add stout handler
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
+
+
+
+# Multilingual model for Estonian
+model = SentenceTransformer("paraphrase-multilingual-mpnet-base-v2")
+
+def clean_utterances(text: str) -> List[str]:
+
+    turns = re.split(r'[\n\r]+|(?:(?:\*\*Kasutaja\*\*:|\*\*Robot\*\*:)\b)', text.strip(), flags=re.IGNORECASE)
+    return [t.strip() for t in turns if len(t.strip()) > 10]
+
+def compute_intra_conversation_redundancy(conversation: str, similarity_threshold: float = 0.8) -> float:
+
+    turns = clean_utterances(conversation)
+    if len(turns) < 2:
+        return 0.0  
+    
+    embeddings = model.encode(turns, convert_to_tensor=True)
+    
+    similarity_matrix = util.pytorch_cos_sim(embeddings, embeddings)
+    n = len(turns)
+    
+    redundant_pairs = 0
+    total_pairs = 0
+    
+    for i, j in itertools.combinations(range(n), 2):
+        if similarity_matrix[i][j].item() >= similarity_threshold:
+            redundant_pairs += 1
+        total_pairs += 1
+    
+    redundancy_ratio = redundant_pairs / total_pairs if total_pairs > 0 else 0
+    return redundancy_ratio 
+
+def compute_inter_conversation_redundancy(conversations, 
+                                         similarity_threshold: float = 0.7) -> Dict:
+
+    if len(conversations) < 2:
+        return {
+            "redundancy_score": 0.0,
+            "redundant_pairs": [],
+            "similarity_matrix": np.array([[0.0]])
+        }
+    
+
+    conversation_embeddings = []
+    
+    for conv in conversations:
+        turns = clean_utterances(conv)
+        if not turns:
+            conversation_embeddings.append(np.zeros(384)) 
+            continue
+            
+        turn_embeddings = model.encode(turns)
+        avg_embedding = np.mean(turn_embeddings, axis=0)
+        conversation_embeddings.append(avg_embedding)
+    
+    conversation_embeddings = np.array(conversation_embeddings)
+    
+    n = len(conversations)
+    similarity_matrix = np.zeros((n, n))
+    
+    redundant_pairs = []
+    for i, j in itertools.combinations(range(n), 2):
+        sim = util.cos_sim(
+            conversation_embeddings[i], 
+            conversation_embeddings[j]
+        ).item()
+        
+        similarity_matrix[i, j] = sim
+        similarity_matrix[j, i] = sim  # Symmetric
+        
+        if sim >= similarity_threshold:
+            redundant_pairs.append((i, j, sim))
+    
+    total_pairs = (n * (n - 1)) // 2
+    redundancy_score = len(redundant_pairs) / total_pairs if total_pairs > 0 else 0.0
+    
+    return {
+        "redundancy_score": redundancy_score,
+        "redundant_pairs": redundant_pairs,
+        "similarity_matrix": similarity_matrix
+    }
+
+def get_pairwise_comparison(conversation_files: List[str], 
+                           similarity_threshold: float = 0.7):
+
+    conversations = []
+    filenames = []
+    
+    for file_path in conversation_files:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                conversations.append(f.read())
+                filenames.append(os.path.basename(file_path))
+        except Exception as e:
+            logger.info(f"Error reading {file_path}: {e}")
+    
+    redundancy_info = compute_inter_conversation_redundancy(
+        conversations, 
+        similarity_threshold
+    )
+    
+    named_redundant_pairs = [
+        {
+            "file1": filenames[i],
+            "file2": filenames[j],
+            "similarity": sim,
+            "index1": i,
+            "index2": j
+        }
+        for i, j, sim in redundancy_info["redundant_pairs"]
+    ]
+    
+    named_redundant_pairs.sort(key=lambda x: x["similarity"], reverse=True)
+    
+    redundancy_info["filenames"] = filenames
+    redundancy_info["named_redundant_pairs"] = named_redundant_pairs
+    
+    return redundancy_info
+
+def plot_similarity_heatmap(redundancy_info: Dict, 
+                           output_file: str = "conversation_similarity.png") -> None:
+    """
+    plot a heatmap of conversation similarities.
+
+    """
+    similarity_matrix = redundancy_info["similarity_matrix"]
+    filenames = redundancy_info["filenames"]
+    
+    mask = np.zeros_like(similarity_matrix, dtype=bool)
+    mask[np.triu_indices_from(mask)] = True
+    
+    plt.figure(figsize=(12, 10))
+    
+    cmap = sns.diverging_palette(230, 20, as_cmap=True)
+    
+    sns.heatmap(
+        similarity_matrix,
+        mask=mask,
+        cmap=cmap,
+        vmax=1.0,
+        vmin=0.0,
+        center=0.5,
+        square=True,
+        linewidths=.5,
+        cbar_kws={"shrink": .5},
+        xticklabels=[f.split('.')[0] for f in filenames],
+        yticklabels=[f.split('.')[0] for f in filenames]
+    )
+    
+    plt.title('Conversation Similarity Matrix')
+    plt.tight_layout()
+    plt.savefig(output_file)
+    plt.close()
+
+def generate_redundancy_report(topic_dir: str, 
+                              output_file: str = "redundancy_report.txt",
+                              similarity_threshold: float = 0.7) -> None:
+
+    conversation_files = glob(os.path.join(topic_dir, "conversation_*.txt"))
+    
+    if not conversation_files:
+        logger.info(f"No conversation files found in {topic_dir}")
+        return
+    
+    redundancy_info = get_pairwise_comparison(conversation_files, similarity_threshold)
+    
+    plot_similarity_heatmap(redundancy_info, 
+                           os.path.join(os.path.dirname(output_file), "similarity_heatmap.png"))
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write("# Conversation Redundancy Report\n\n")
+        
+        f.write(f"## Overview\n")
+        f.write(f"- Topic Directory: {topic_dir}\n")
+        f.write(f"- Number of Conversations: {len(conversation_files)}\n")
+        f.write(f"- Overall Redundancy Score: {redundancy_info['redundancy_score']:.4f}\n")
+        f.write(f"- Similarity Threshold: {similarity_threshold}\n")
+        f.write(f"- Number of Redundant Pairs: {len(redundancy_info['redundant_pairs'])}\n\n")
+        
+        if redundancy_info['redundant_pairs']:
+            f.write(f"## Redundant Conversation Pairs\n")
+            for pair in redundancy_info["named_redundant_pairs"]:
+                f.write(f"- {pair['file1']} and {pair['file2']}: {pair['similarity']:.4f}\n")
+        else:
+            f.write("No redundant conversation pairs found.\n")
+            
+        f.write("\n## Individual Conversation Redundancy\n\n")
+        
+        for file_path in conversation_files:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f_conv:
+                    conversation = f_conv.read()
+                
+                intra_redundancy = compute_intra_conversation_redundancy(conversation)
+                f.write(f"- {os.path.basename(file_path)}: {intra_redundancy:.4f}\n")
+            except Exception as e:
+                f.write(f"- {os.path.basename(file_path)}: Error - {e}\n")
+    
+    logger.info(f"Redundancy report generated at {output_file}")
+
+if __name__ == "__main__":
+    topic_dir = "data/ID.ee/autentimine_riiklikes_e-teenustes"
+    generate_redundancy_report(
+        topic_dir=topic_dir,
+        output_file="data/ID.ee/autentimine_riiklikes_e-teenustes/redundancy_report.txt",
+        similarity_threshold=0.7
+    )
+    
+    from utils import read_file
+    
+    conversation1 = read_file("data/ID.ee/autentimine_riiklikes_e-teenustes/conversation_1.txt")
+    conversation2 = read_file("data/ID.ee/autentimine_riiklikes_e-teenustes/conversation_2.txt")
+    
+    intra_score1 = compute_intra_conversation_redundancy(conversation1)
+    logger.info(f"Intra-Conversation Redundancy (conv1): {intra_score1:.2f}")
+    
+    inter_redundancy = compute_inter_conversation_redundancy([conversation1, conversation2])
+    print(f"Inter-Conversation Redundancy Score: {inter_redundancy['redundancy_score']:.2f}")
+    print(f"Similarity between conversations: {inter_redundancy['similarity_matrix'][0][1]:.2f}")

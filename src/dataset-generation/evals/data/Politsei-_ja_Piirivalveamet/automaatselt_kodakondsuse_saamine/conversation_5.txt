@@ -1,0 +1,28 @@
+**Kasutaja**: Sain PPA-lt kirja, et mu laps on saanud automaatselt Eesti kodakondsuse. Milliseid dokumente vajan, et talle ID-kaarti taotleda?
+
+**Robot**: Õnnitleme teid selle puhul, et teie laps on saanud Eesti kodakondsuse! Lapsele ID-kaardi taotlemiseks Politsei- ja Piirivalveameti teeninduses vajate järgmisi dokumente:
+
+1. Teie enda isikut tõendav dokument (ID-kaart, pass või elamisluba)
+2. Lapse sünnitunnistus või muu dokument, mis tõendab lapse isikuandmeid
+3. Dokumendifoto lapsest (mõõtmetega 40x50mm) - saab teha ka kohapeal teeninduses
+4. Riigilõivu tasumist tõendav dokument (saab tasuda ka kohapeal)
+5. Kui taotlust ei esita lapse seaduslik esindaja, siis notariaalselt kinnitatud nõusolek vanemate poolt
+
+Oluline on teada, et kui taotlete lapsele Eesti kodaniku dokumenti, siis puudub hiljem võimalus lapse Eesti kodakondsusest loobumiseks. Kodakondsusest loobumise taotluse saate esitada ainult enne lapse üheaastaseks saamist.
+
+ID-kaardi taotlemiseks soovitan eelnevalt broneerida aja PPA teeninduspunkti PPA veebilehel. Alla 15-aastase lapse ID-kaardi taotlemisel peab laps olema taotluse esitamisel kindlasti isiklikult kohal.
+
+**Kasutaja**: Kui palju maksab lapsele ID-kaardi taotlemine?
+
+**Robot**: Lapsele ID-kaardi taotlemise riigilõiv sõltub lapse vanusest.
+
+Alla 15-aastasele lapsele on ID-kaardi taotlemise riigilõiv soodsam kui täiskasvanutele. Täpsed kehtivad riigilõivu määrad leiate Politsei- ja Piirivalveameti veebilehelt, kuna need võivad aeg-ajalt muutuda.
+
+Riigilõivu saate tasuda:
+- Pangaülekandega (enne teenindusse minekut)
+- Kohapeal teeninduspunktis kaardimaksena
+- Osades teeninduspunktides ka sularahas
+
+Peale ID-kaardi taotlemist väljastatakse dokument tavaliselt 30 päeva jooksul. Kiireloomuliste juhtude puhul on võimalik taotleda kiirendatud korras väljastamist (2-10 tööpäeva), kuid see on lisatasu eest.
+
+Kui soovite täpset kehtivat riigilõivu määra, soovitan külastada PPA veebilehte või helistada PPA infotelefonile.

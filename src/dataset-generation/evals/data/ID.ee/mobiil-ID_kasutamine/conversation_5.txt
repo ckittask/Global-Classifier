@@ -1,0 +1,11 @@
+**Kasutaja**: Millised PIN-koodid on Mobiil-ID jaoks ja milleks neid kasutatakse?
+
+**Robot**: Mobiil-ID kasutamiseks on vaja kolme erinevat koodi, millel igaühel on oma kindel otstarve:
+
+1. **Mobiil-ID PIN1-kood** – kasutatakse isikutuvastuseks ehk e-teenustesse sisselogimiseks. Seda küsitakse alati, kui soovite end autentida mõnes e-teenuses.
+
+2. **Mobiil-ID PIN2-kood** – kasutatakse digitaalallkirja andmiseks ehk tegevuste kinnitamiseks. Seda küsitakse, kui soovite dokumente digiallkirjastada või tehinguid (näiteks pangaülekandeid) kinnitada.
+
+3. **Mobiil-ID PUK-kood** – kasutatakse lukustunud PIN-koodide taasavamiseks. Kui sisestate PIN1 või PIN2 koodi mitu korda valesti, lukustub vastav PIN-kood ja selle avamiseks vajate PUK-koodi.
+
+On väga oluline, et hoiaksite neid koode eraldi ja turvaliselt ning et te ei segaks PIN1 ja PIN2 koode omavahel. Turvalisuse tagamiseks jälgige, et autentimisel küsitakse teilt PIN1 koodi ja ainult allkirjastamisel PIN2 koodi.

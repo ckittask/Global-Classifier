@@ -1,0 +1,19 @@
+**Kasutaja**: Kas ma saan Eesti e-teenuseid kasutada ka teiste Euroopa Liidu riikide autentimisvahenditega?
+
+**Robot**: Jah, saate kasutada Eesti riiklikke e-teenuseid ka teiste Euroopa Liidu riikide autentimisvahenditega, mis on tunnustatud eIDAS määruse nõuete kohaselt. See võimaldab Euroopa Liidu kodanikel kasutada oma riigi elektroonilisi identiteete piiriüleselt. Siiski on oluline teada, et mõned Euroopa Liidu riikide autentimisvahendid võivad olla madalama turvatasemega kui Eestis kasutusel olevad vahendid (ID-kaart, Mobiil-ID ja Smart-ID). 
+
+Kui proovite siseneda e-teenusesse, mis nõuab kõrgemat turvataset kui teie kasutatud autentimisvahend pakub, kontrollib Riigi autentimisteenus seda ja võib paluda teil uuesti autentida turvalisema vahendiga. Näiteks kui olete autentinud madalama turvatasemega vahendiga ja soovite kasutada teenust, mis nõuab kõrgemat taset, suunatakse teid uuesti autentima ning teie eelmine seanss lõpetatakse automaatselt.
+
+Nimekirja Euroopa Liidus tunnustatud autentimisvahenditest ja nende turvatasemetest leiate Euroopa Komisjoni veebilehelt.
+
+**Kasutaja**: Mida täpsemalt tähendavad need erinevad turvatasemed?
+
+**Robot**: Turvatase (Level of Assurance ehk LoA) näitab, kui usaldusväärne ja turvaline on konkreetne autentimisvahend. eIDAS määruse järgi on defineeritud kolm turvataset:
+
+1. Madal (Low) - pakub piiratud kindlustunnet isiku väidetava identiteedi kohta. Siin võib piisata kasutajanimest ja paroolist.
+
+2. Märkimisväärne (Substantial) - pakub olulist kindlustunnet isiku väidetava identiteedi kohta. Nõuab tavaliselt mitmetasemelist autentimist.
+
+3. Kõrge (High) - pakub kõrgeima kindlustunde isiku väidetava identiteedi kohta. Nõuab tugevat krüptograafiat ja füüsilisi turvaelemente.
+
+Eesti ID-kaart, Mobiil-ID ja Smart-ID on kõik kõrge turvatasemega (High) autentimisvahendid. Mõned teiste Euroopa Liidu riikide vahendid võivad olla madala või märkimisväärse tasemega. Seega, kui soovite kasutada e-teenust, mis nõuab kõrget turvataset, aga olete sisenenud madala turvatasemega autentimisvahendiga, palutakse teil uuesti autentida turvalisema vahendiga.

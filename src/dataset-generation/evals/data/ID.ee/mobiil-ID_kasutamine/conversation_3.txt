@@ -1,0 +1,36 @@
+**Kasutaja**: Kuidas saan Mobiil-ID-ga arvutis dokumente digiallkirjastada?
+
+**Robot**: Dokumente saate arvutis Mobiil-ID-ga digiallkirjastada kasutades DigiDoc4 (ID-tarkvara) rakendust. Sammud on järgmised:
+
+1. Esmalt veenduge, et teil on DigiDoc4 tarkvara installitud. Kui pole, saate selle paigaldada veebilehelt id.ee (https://www.id.ee/artikkel/paigalda-id-tarkvara/).
+
+2. Dokumendi allkirjastamiseks on mitu võimalust:
+   - Failihalduri kaudu: otsige allkirjastamist vajav dokument üles, tehke sellel parem hiireklõps ja valige "Allkirjasta digitaalselt" (DigiDoc4 märkega link).
+   - Windows Exploreris: tehke faili nimel parem hiireklõps ja valige kontekstimenüüst vastav valik.
+   - DigiDoc4 rakendusest: avage rakendus, valige "Allkiri" menüüst, ja lohistage vajalikud dokumendid rakendusse või lisage need "... või vali fail kettalt" nupu abil.
+
+3. Korraga saate allkirjastada ka mitu faili – selleks klõpsake "Lisa veel faile" lingil. Kõik üheaegselt allkirjastatavad dokumendid lisatakse ühte dokumendiümbrikusse.
+
+4. Kui kõik soovitud failid on lisatud, klõpsake "Allkirjasta" nupul.
+
+5. DigiDoc4 küsib teie telefoninumbrit ja isikukoodi. Sisestage need ja vajutage "Allkirjasta" nupul.
+
+6. Teie telefoni ekraanile ja DigiDoc4 rakendusse ilmub kontrollkood. Veenduge, et need on identsed.
+
+7. Kui kontrollkoodid kattuvad, vajutage telefonis "Nõustu" nupule. Seejärel küsib telefon teilt Mobiil-ID PIN2-koodi (see on mõeldud just digiallkirja andmiseks, mitte PIN1).
+
+8. Sisestage PIN2-kood ja vajutage OK/Send.
+
+9. Kui allkirjastamine õnnestub, näete DigiDoc4 peavaates digitaalselt allkirjastatud ümbrikus olevaid dokumente ning informatsiooni antud allkirjade kohta.
+
+Pidage meeles, et allkirjastatud ümbriku sisu muuta ei saa, küll aga saate lisada ja eemaldada allkirju.
+
+**Kasutaja**: Kas ma saan pärast allkirjastamist juurde lisada veel dokumente samasse digiümbrikusse?
+
+**Robot**: Ei, kahjuks te ei saa juba allkirjastatud digiümbrikusse uusi dokumente lisada. Allkirjastatud ümbriku sisu ei ole võimalik muuta, sest selle sisu on kinnitatud digitaalse allkirjaga - kui saaksite sisu muuta, muutuks allkiri kehtetuks.
+
+Küll aga saate DigiDoc4 rakenduses:
+- Lisada olemasolevale allkirjastatud ümbrikule täiendavaid allkirju (näiteks kui dokumendile on vaja mitme inimese allkirja)
+- Eemaldada allkirju (kui teil on selleks õigused)
+
+Kui soovite lisada uusi dokumente, peate looma uue digiümbriku ja allkirjastama need dokumendid eraldi. Seetõttu on oluline enne allkirjastamist veenduda, et kõik vajalikud failid, mida soovite üheaegselt allkirjastada, oleksid juba lisatud.

@@ -1,0 +1,21 @@
+**Kasutaja**: Mis on Mobiil-ID eelised võrreldes ID-kaardiga?
+
+**Robot**: Mobiil-ID-l on mitmeid eeliseid võrreldes ID-kaardiga:
+
+1. **Ei vaja eraldi riistvara** - Mobiil-ID kasutamiseks ei ole vaja kaardilugejat, mis on ID-kaardi kasutamisel vajalik. Vajad ainult oma nutitelefoni.
+
+2. **Lihtne kasutada** - Mobiil-ID kasutamine on intuitiivne ja lihtne, eriti neile, kes telefoni igapäevaselt kasutavad.
+
+3. **Mobiilsus** - Mobiil-ID on kättesaadav igal pool, kus sul on telefon kaasas, ilma täiendava riistvara vajaduseta.
+
+4. **Töötab mitmes seadmes** - Saad Mobiil-ID-ga sisse logida nii arvutis, tahvelarvutis kui ka mobiiltelefonis.
+
+5. **Mugav reisides** - Välismaal olles ei pea kaasas kandma kaardilugejat, piisab telefonist.
+
+6. **Ei sõltu arvuti tarkvarast** - Ei vaja spetsiaalset tarkvara arvutis, mistõttu töötab ka avalikes arvutites, kus ei ole võimalik tarkvara installida.
+
+7. **Vastupidavus** - ID-kaart võib füüsiliselt kahjustuda, kuluda või murduda, Mobiil-ID puhul seda riski ei ole.
+
+8. **SIM-kaart on turvaliselt telefonis** - Väheneb risk kaotada või unustada ID-kaarti kuhugi.
+
+Siiski tasub meeles pidada, et mõlemal autentimisvahendil on oma eelised ja puudused. ID-kaart on näiteks kasulik füüsilise isikut tõendava dokumendina, samal ajal kui Mobiil-ID seda funktsiooni ei täida. Turvalisuse seisukohalt on mõlemad kõrge turvatasemega lahendused.

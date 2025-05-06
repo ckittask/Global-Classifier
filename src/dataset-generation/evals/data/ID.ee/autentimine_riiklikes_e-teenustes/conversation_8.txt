@@ -1,0 +1,32 @@
+**Kasutaja**: Sain just Mobiil-ID ja tahan seda kasutada eesti.ee portaalis. Kuidas täpselt see protsess käib?
+
+**Robot**: Mobiil-ID kasutamine eesti.ee portaalis on lihtne protsess. Järgnevalt selgitan samm-sammult, kuidas see käib:
+
+1. Avage veebilehitseja ja minge aadressile www.eesti.ee
+2. Vajutage portaali ülaosas asuvat nuppu "Sisene iseteenindusse"
+3. Teid suunatakse Riigi autentimisteenusesse, kus kuvatakse erinevate autentimisvahendite valik
+4. Valige autentimisvahendiks "Mobiil-ID"
+5. Sisestage avanenud väljadele oma isikukood ja telefoninumber, mis on seotud teie Mobiil-ID-ga
+6. Vajutage nuppu "Jätka"
+7. Teie mobiiltelefonile saadetakse kontrollsõnum koos kontrollkoodiga
+8. Kontrollige, et telefonil kuvatav kontrollkood vastab veebilehel kuvatavale koodile
+9. Sisestage oma mobiiltelefonis Mobiil-ID PIN1-kood (see on kood, mille saite Mobiil-ID tellimisel)
+10. Pärast edukat autentimist suunatakse teid automaatselt tagasi eesti.ee portaali, kus olete nüüd sisse logitud ja saate kasutada kõiki portaali iseteeninduse funktsioone
+
+Kui soovite pärast eesti.ee portaali kasutamist liikuda mõnda teise riiklikku e-teenusesse, ei pea te üldjuhul uuesti sisse logima. Süsteem kontrollib taustal teie kehtivat seanssi ja küsib vaid nõusolekut andmete edastamiseks teise e-teenusesse.
+
+**Kasutaja**: Tänan! Aga mis juhtub, kui teen vea ja sisestan vale PIN-koodi?
+
+**Robot**: Kui sisestate Mobiil-ID kasutamisel vale PIN1-koodi, siis juhtub järgmine:
+
+1. Teile kuvatakse veateade, et autentimine ebaõnnestus vale PIN-koodi tõttu
+2. Saate võimaluse protsessi uuesti alustada, vajutades vastavat nuppu
+3. Teil on piiratud arv katseid PIN-koodi õigesti sisestada (tavaliselt 3 katset)
+
+Kui sisestate PIN1-koodi valesti kolm korda järjest, siis Mobiil-ID lukustub turvakaalutlustel. Lukustatud Mobiil-ID avamiseks peate kasutama PUK-koodi, mille saite Mobiil-ID tellimisel. PUK-koodi sisestamiseks on tavaliselt kaks võimalust:
+- Helistada oma mobiilioperaatori klienditeenindusse
+- Kasutada mobiilioperaatori iseteenindust (kui see võimaldab PUK-koodi sisestamist)
+
+Kui ka PUK-kood on kadunud või sisestate selle mitu korda valesti, tuleb teil Mobiil-ID uuesti tellida, minnes oma mobiilioperaatori teenindusse isikut tõendava dokumendiga.
+
+Soovitan hoida PIN1 ja PUK-koodid turvalises kohas, kuid eraldi Mobiil-ID seadmest, et need ei satuks valedesse kätesse, kuid oleksid vajadusel kättesaadavad.

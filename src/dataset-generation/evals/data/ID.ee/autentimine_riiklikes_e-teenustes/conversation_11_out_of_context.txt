@@ -1,0 +1,66 @@
+**Kasutaja**: Kuidas ma peaksin oma jalgratast hooldama?
+
+**Robot**: Jalgratta korralik hooldamine pikendab selle eluiga ja tagab turvalise sõidu. Siin on põhilised sammud jalgratta hooldamiseks:
+
+**Regulaarne hooldus (iga nädal või iga paari nädala tagant):**
+
+1. **Rehvide kontroll ja pumpamine** - kontrollige rehvirõhku ja pumbake rehvid õige rõhuni. Õige rõhk on tavaliselt kirjas rehvi küljel.
+
+2. **Keti puhastamine ja õlitamine** - puhastage kett mustusest spetsiaalse ketipuhastaja või lapiga ja seejärel õlitage ketimäärdega. Pühkige liigne õli ära.
+
+3. **Pidurite kontroll** - veenduge, et pidurid töötavad korralikult. Piduriklotsid ei tohiks olla kulunud ja pidurid peaksid reageerima ühtlaselt.
+
+4. **Poltide kontroll** - veenduge, et olulised poldid (juhtraua, sadula, pedaalide kinnitused jne) on korralikult kinni.
+
+**Hooajaline hooldus (2-3 korda aastas):**
+
+1. **Põhjalik puhastus** - peske kogu ratas puhtaks, pöörates erilist tähelepanu ülekandele (ketid, hammasrattad).
+
+2. **Laagrite kontroll** - veenduge, et rattalaagrid, keskjooks ja juhtlaager töötavad sujuvalt ilma lõtkuta.
+
+3. **Käikude reguleerimine** - kontrollige, kas käiguvahetus töötab sujuvalt ja vajadusel reguleerige käiguvahetajat.
+
+4. **Kodarate pingutamine** - kontrollige, kas kodarad on ühtlaselt pingul ja rattad on sirged.
+
+**Täielik hooldus (kord aastas):**
+
+1. Viige ratas täielikuks hoolduseks professionaalsesse jalgrattapoodi, eriti kui te pole kindel, kuidas teatud osi hooldada.
+
+2. Vahetage välja kulunud osad nagu rehvid, ketid, piduriklotsid.
+
+**Kasutaja**: Kas ma saan kõiki neid asju ise teha või peaks mõne hoolduse jätma professionaalidele?
+
+**Robot**: Enamikku jalgratta hooldustöid saate kindlasti ise teha, eriti regulaarseid hooldustöid nagu puhastamine, õlitamine ja rehvide pumpamine. Siin on jaotus, mis võiks aidata otsustada:
+
+**Lihtsamad tööd, mida enamik inimesi saab ise teha:**
+- Rehvide pumpamine ja kontroll
+- Keti puhastamine ja õlitamine
+- Poltide pingutamine
+- Välispindade puhastamine
+- Pidurite baasjustimine (piduriklotside asendi reguleerimine)
+- Sisekummide vahetamine
+
+**Keskmise raskusega tööd, mida saate teha, kui teil on põhitööriistad ja veidi teadmisi:**
+- Rehvide vahetamine
+- Käikude baasreguleerimine
+- Piduritrosside vahetamine
+- Keti vahetamine
+- Pedaalide vahetamine
+- Sadulapostide ja sadulate vahetamine
+
+**Keerulisemad tööd, mis võiksid jääda professionaalidele:**
+- Laagreid puudutavad tööd (keskjooksu, rummu laagrite vahetamine)
+- Täielik käiguvahetuse süsteemi seadistamine mitmiksüsteemidel
+- Hüdrauliliste pidurite õhutamine ja hooldus
+- Kodarate pingutamine ja rataste tsentreerimine
+- Vedrustuse hooldus (amortisaatorid, vedruhargi)
+- Elektrirattaga seotud elektroonika probleemid
+
+Alustage lihtsamatest asjadest ja laiendage oma oskusi järk-järgult. Internetis on palju häid õpetusi ja videoid. Investeerige kvaliteetsetesse tööriistadesse - minimaalselt vajate:
+- Kuuskantvõtmete komplekti
+- Rehvilabasid
+- Pumbaga rehvirõhu mõõtjat
+- Ketipuhastajat ja määret
+- Mõnda põhilist mutrivõtit
+
+Kui midagi tundub liiga keeruline või nõuab spetsiaalseid tööriistu, siis ei ole häbi pöörduda professionaalide poole. Eriti kui tegemist on turvalisust puudutavate osadega nagu pidurid või juhtraud.

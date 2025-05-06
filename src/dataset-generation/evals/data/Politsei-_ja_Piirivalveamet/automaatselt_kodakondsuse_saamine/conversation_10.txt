@@ -1,0 +1,41 @@
+**Kasutaja**: Esitasin taotluse lapse Eesti kodakondsusest loobumiseks. Millist elamisluba ma nüüd lapsele pean taotlema?
+
+**Robot**: Kui olete esitanud taotluse lapse Eesti kodakondsusest loobumiseks, siis peate järgmisena taotlema lapsele elamisluba. Elamisloa tüüp sõltub mitmest asjaolust, kuid tüüpiliselt tuleks kaaluda järgmisi võimalusi:
+
+1. **Tähtajaline elamisluba elama asumiseks vanema juurde** - kui teie kui vanem elate Eestis seadusliku elamisloa või elamisõiguse alusel, saate taotleda lapsele elamisluba elama asumiseks vanema juurde. See on kõige tavalisem elamisloa tüüp sellises olukorras.
+
+2. **Tähtajaline elamisluba õppimiseks** - kui laps on kooliealine ja õpib Eestis, võib kaaluda ka seda võimalust, kuigi esimene variant on tavaliselt eelistatum.
+
+3. **Pikaajalise elaniku elamisluba** - kui teie kui vanem omate pikaajalise elaniku elamisluba, võib teatud tingimustel olla võimalik taotleda seda ka lapsele.
+
+Elamisloa taotlemiseks peate pöörduma Politsei- ja Piirivalveameti teenindusse ning esitama järgmised dokumendid:
+- Lapse sünnitunnistus
+- Teie isikut tõendav dokument
+- Taotlus elamisloa saamiseks (saab täita kohapeal või eelnevalt PPA veebilehel)
+- Dokumendifoto lapsest
+- Riigilõivu tasumist tõendav dokument
+- Muud dokumendid sõltuvalt elamisloa tüübist (näiteks tõend õppimise kohta, kui taotlete elamisluba õppimiseks)
+
+Täpne loetelu vajalikest dokumentidest võib sõltuda konkreetsest olukorrast, seega soovitan enne teeninduspunkti minekut kontrollida PPA veebilehelt või helistada PPA infotelefonile.
+
+**Kasutaja**: Kui kaua kehtib lapsele antav elamisluba ja kas ma pean sellega seoses maksma riigilõivu?
+
+**Robot**: Lapsele antava elamisloa kehtivusaeg ja riigilõivu suurus sõltuvad elamisloa tüübist ja muudest asjaoludest:
+
+**Elamisloa kehtivus:**
+1. Tähtajaline elamisluba elama asumiseks vanema juurde antakse tavaliselt samaks perioodiks, kui on teie enda elamisloa kehtivusaeg, kuid mitte kauemaks kui 5 aastat korraga.
+
+2. Kui teil on pikaajalise elaniku elamisluba, siis lapsele antakse tavaliselt esmalt tähtajaline elamisluba kuni 5 aastaks, misjärel on võimalik taotleda ka pikaajalise elaniku elamisluba.
+
+3. Kui laps on alla 15-aastane, siis elamisluba antakse tavaliselt kuni 5 aastaks või kuni lapse 15-aastaseks saamiseni.
+
+**Riigilõiv:**
+Jah, elamisloa taotlemisel tuleb maksta riigilõivu, kuid alaealistele kehtivad soodsamad määrad:
+
+1. Alla 15-aastasele lapsele on elamisloa taotlemise riigilõiv oluliselt väiksem kui täiskasvanutele.
+
+2. Täpne riigilõivu suurus sõltub elamisloa tüübist, taotlemise viisist (kas elektrooniline või paberil) ja muudest teguritest.
+
+3. Mõningatel juhtudel võib olla võimalik taotleda riigilõivu vähendamist või sellest vabastamist, eriti kui tegemist on majanduslikult raske olukorraga.
+
+Täpsed kehtivad riigilõivu määrad leiate Politsei- ja Piirivalveameti veebilehelt, kuna need võivad aeg-ajalt muutuda. Enne taotluse esitamist soovitan kontrollida PPA veebilehelt või helistada PPA infotelefonile, et saada täpseimat infot kehtivate riigilõivude kohta.

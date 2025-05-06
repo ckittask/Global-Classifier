@@ -1,0 +1,35 @@
+**Kasutaja**: Mida tähendab nõue, et vanem peab olema "elanud Eestis seaduslikult vähemalt viis aastat"?
+
+**Robot**: Nõue, et vanem peab olema "elanud Eestis seaduslikult vähemalt viis aastat", tähendab, et vanemal peab olema olnud seaduslik alus Eestis elamiseks järjestikuse viie aasta jooksul enne lapse sündi. Seaduslik alus Eestis elamiseks võib olla:
+
+1. Alaline või tähtajaline elamisluba
+2. Pikaajalise elaniku elamisluba
+3. Elamisõigus (Euroopa Liidu kodanike puhul)
+4. Varjupaigataotleja või pagulase staatus
+5. Muu seaduslik alus, mis annab õiguse riigis viibida (näiteks diplomaatiline staatus)
+
+Oluline on, et:
+- Need viis aastat peavad olema lapse sünni hetkeks täitunud
+- Eestis elamine peab olema olnud seaduslik ja dokumenteeritud
+- Viis aastat võivad olla järjestikused, ilma pikaajaliste katkestusteta
+- Lühiajalised välisreisid ei katkesta üldjuhul seadusliku elamise perioodi
+
+Kui teil on olnud elamisluba või muu seaduslik alus Eestis elamiseks vähemalt viis aastat enne lapse sündi ja olete kodakondsuseta isik, siis see tingimus on täidetud.
+
+**Kasutaja**: Kas vahepealsed lühikesed viibimised välismaal, näiteks puhkusereisid, lõhuvad selle 5 aasta perioodi?
+
+**Robot**: Ei, lühiajalised viibimised välismaal, nagu puhkusereisid, töölähetused või perekondlikud külastused, ei katkesta ega lõhu 5-aastast seadusliku elamise perioodi Eestis.
+
+Seadusliku elamisena käsitletakse olukorda, kus:
+- Teil on kehtiv elamisluba või muu seaduslik alus Eestis elamiseks
+- Teie alaline või peamine elukoht on Eestis
+- Te viibite Eestis regulaarselt ja pikemaajaliselt
+
+Lühiajalised välisreisid on tavapärane elu osa ja neid ei käsitleta Eestist lahkumisena seadusliku elamise perioodi arvestamisel. Oluline on, et:
+- Teie elamisluba või muu seaduslik alus Eestis viibimiseks jääb reisi ajal kehtivaks
+- Te ei registreeri end püsivalt teise riiki elama
+- Te naasete Eestisse mõistliku aja jooksul
+
+Kui aga välismaal viibimine on pikaajaline (näiteks elate mitu kuud või aastat järjest välismaal), siis võib see mõjutada 5-aastase seadusliku elamise perioodi arvestust.
+
+Kahtluse korral võite alati pöörduda Politsei- ja Piirivalveameti poole täpsustuste saamiseks, eriti kui teie välismaal viibimised on olnud pikemad või sagedasemad.

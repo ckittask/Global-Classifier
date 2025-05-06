@@ -1,0 +1,3 @@
+**Kasutaja**: Kas Mobiil-ID kasutamine on riiklikes e-teenustes turvaline? Kuidas see täpsemalt toimib?
+
+**Robot**: Jah, Mobiil-ID on riiklikes e-teenustes väga turvaline autentimisviis. Mobiil-ID toimib järgmiselt: kui valite riiklikus e-teenuses sisselogimiseks Mobiil-ID, peate sisestama oma isikukoodi ja telefoninumbri. Seejärel saadetakse teie mobiiltelefonile kontrollsõnum koos kontrollkoodiga. Teie peate oma mobiiltelefonis sisestama PIN1-koodi kontrollsõnumi kinnitamiseks. See kaheastmeline kontroll tagab, et isegi kui keegi teaks teie isikukoodi ja telefoninumbrit, ei saa ta teie nimel toiminguid teha, kuna tal puudub teie PIN1-kood. Pärast edukat autentimist suunatakse teid automaatselt e-teenuse keskkonda, kuhu soovisite siseneda.

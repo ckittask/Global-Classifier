@@ -1,0 +1,21 @@
+**Kasutaja**: Mina olen kodakondsuseta isik, aga mu abikaasa on Venemaa kodanik. Kas meie Eestis sündinud laps saab automaatselt Eesti kodakondsuse?
+
+**Robot**: Teie laps ei saa automaatselt Eesti kodakondsust naturalisatsiooni korras, sest automaatse kodakondsuse saamiseks peavad mõlemad vanemad olema kodakondsuseta isikud või peab last üksi kasvatav vanem olema kodakondsuseta isik.
+
+Teie kirjeldatud olukorras, kus üks vanem (teie) on kodakondsuseta isik, aga teine vanem (teie abikaasa) on Venemaa kodanik, ei täitu automaatse kodakondsuse saamise tingimus, kuna:
+- Ühte lapse vanemat (teie abikaasat) peab Venemaa oma kodanikuks kehtivate seaduste alusel
+- Automaatne kodakondsuse andmine kehtib juhtudel, kus lapse vanemaid või last üksi kasvatavat vanemat ei pea ükski riik oma kodanikuks
+
+Teie laps saab tõenäoliselt sünnijärgselt Venemaa kodakondsuse oma ühe vanema kaudu. Kui soovite taotleda lapsele Eesti kodakondsust, peate seda tegema üldises korras naturalisatsiooni teel, kui laps vastab selleks nõutud tingimustele (näiteks elanud Eestis teatud aja, valdab eesti keelt vastavalt nõuetele jne).
+
+**Kasutaja**: Aga mul on üksi lapse hooldusõigus, teine vanem ei osale lapse elus. Kas see muudab olukorda?
+
+**Robot**: Jah, see muudab olukorda. Kui teil on ametlikult täielik ainuhooldusõigus lapse üle ja teine vanem ei osale lapse elus (st olete juriidiliselt last üksi kasvatav vanem), siis võib teie laps saada automaatselt Eesti kodakondsuse naturalisatsiooni korras, eeldusel et:
+
+- Teie kui ainuhooldusõigusega vanem olete kodakondsuseta isik
+- Olete lapse sünni hetkeks elanud Eestis seaduslikult vähemalt viis aastat
+- Laps on alla 15-aastane ja on Eestis sündinud või asub kohe pärast sündi koos teiega püsivalt Eestisse elama
+
+Oluline on see, et teil peab olema ametlik dokument (kohtuotsus või notariaalne kokkulepe), mis kinnitab teie ainuhooldusõigust lapse üle. Ainult sel juhul käsitletakse teid "last üksi kasvatava vanemana" seaduse mõttes.
+
+Soovitan pöörduda konkreetse juhtumi asjaoludega Politsei- ja Piirivalveametisse, et saada täpne info, kas teie laps kvalifitseerub automaatse kodakondsuse saamiseks. Võtke kaasa kõik dokumendid, mis tõendavad teie ainuhooldusõigust lapse üle.
