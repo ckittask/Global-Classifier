@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-
+import json
 
 logger.remove()
 # add stout handler
@@ -996,7 +996,7 @@ def evaluate_topic_directory(
     _generate_topic_fit_report(
         topic_summary,
         all_results,
-        os.path.join(topic_output_dir, "topic_fit_report.md"),
+        os.path.join(topic_output_dir, "topic_fit_report.json"),
     )
 
     return topic_summary
@@ -1010,104 +1010,10 @@ def _generate_topic_fit_report(
 
 
     """
+    # write to json 
     with open(output_file, "w", encoding="utf-8") as f:
-        topic_name = topic_summary.get("topic_name", "Unknown Topic")
-        agency_name = topic_summary.get("agency_name", "Unknown Agency")
-
-        f.write(f"# Topic and Agency Fit Evaluation: {topic_name}\n\n")
-        f.write(f"**Agency**: {agency_name}\n\n")
-
-        # Summary statistics
-        f.write("## Summary\n\n")
-        f.write(
-            f"- **Conversations Evaluated**: {topic_summary.get('total_conversations', 0)}\n"
-        )
-
-        # Average scores
-        if "scores" in topic_summary:
-            f.write("### Average Scores\n\n")
-            f.write("| Criteria | Average | Min | Max |\n")
-            f.write("|----------|---------|-----|-----|\n")
-
-            for criteria, stats in topic_summary["scores"].items():
-                criteria_name = criteria.replace("_", " ").title()
-                f.write(
-                    f"| {criteria_name} | {stats['average']:.2f} | {stats['min']:.1f} | {stats['max']:.1f} |\n"
-                )
-
-            f.write("\n")
-
-        # Overall score
-        if "average_aggregate_score" in topic_summary:
-            score = topic_summary["average_aggregate_score"]
-            f.write(f"**Overall Topic-Agency Fit Score**: {score:.2f}/5.0\n\n")
-
-            # Interpretation
-            if score >= 4.5:
-                interpretation = "Excellent fit for agency and topic"
-            elif score >= 4.0:
-                interpretation = "Good fit for agency and topic"
-            elif score >= 3.0:
-                interpretation = "Acceptable fit, with some room for improvement"
-            elif score >= 2.0:
-                interpretation = "Poor fit, needs significant improvement"
-            else:
-                interpretation = "Very poor fit, major revisions needed"
-
-            f.write(f"**Interpretation**: {interpretation}\n\n")
-
-        f.write("## Individual Conversation Evaluations\n\n")
-
-        sorted_results = sorted(
-            all_results,
-            key=lambda r: (
-                r.get("aggregate_score", 0)
-                if r.get("aggregate_score") is not None
-                else 0
-            ),
-            reverse=True,
-        )
-
-        for result in sorted_results:
-            file_name = result.get("file_name", "Unknown")
-
-            f.write(f"### {file_name}\n\n")
-
-            aggregate_score = result.get("aggregate_score")
-            if aggregate_score is not None:
-                f.write(f"**Overall Score**: {aggregate_score:.2f}/5.0\n\n")
-
-            if "numerical_scores" in result:
-                f.write("#### Scores\n\n")
-                for criteria, score in result["numerical_scores"].items():
-                    criteria_name = criteria.replace("_", " ").title()
-                    f.write(f"- **{criteria_name}**: {score:.1f}/5.0\n")
-                f.write("\n")
-
-            if (
-                "detailed_scores" in result
-                and "key_indicators" in result["detailed_scores"]
-            ):
-                key_indicators = result["detailed_scores"]["key_indicators"].get(
-                    "response", ""
-                )
-                if key_indicators:
-                    f.write("#### Key Topic/Agency Indicators\n\n")
-                    f.write(f"{key_indicators}\n\n")
-
-            if (
-                "detailed_scores" in result
-                and "potential_confusion" in result["detailed_scores"]
-            ):
-                confusion = result["detailed_scores"]["potential_confusion"].get(
-                    "response", ""
-                )
-                if confusion:
-                    f.write("#### Potential Classification Confusion\n\n")
-                    f.write(f"{confusion}\n\n")
-
-            f.write("---\n\n")
-
+        json.dump(all_results, f, ensure_ascii=False, indent=2)
+            
 
 def _generate_agency_fit_report(agency_summary: Dict[str, Any], output_file: str):
     """
@@ -1115,115 +1021,10 @@ def _generate_agency_fit_report(agency_summary: Dict[str, Any], output_file: str
 
 
     """
+    # write to json
     with open(output_file, "w", encoding="utf-8") as f:
-        agency_name = agency_summary.get("agency_name", "Unknown Agency")
-
-        f.write(f"# Agency Fit Evaluation: {agency_name}\n\n")
-
-        f.write("## Summary\n\n")
-        f.write(
-            f"- **Topics Evaluated**: {agency_summary.get('topics_evaluated', 0)}\n"
-        )
-
-        if "average_scores" in agency_summary:
-            f.write("### Agency-wide Average Scores\n\n")
-            f.write("| Criteria | Score |\n")
-            f.write("|----------|-------|\n")
-
-            for criteria, score in agency_summary["average_scores"].items():
-                criteria_name = criteria.replace("_", " ").title()
-                f.write(f"| {criteria_name} | {score:.2f} |\n")
-
-            f.write("\n")
-
-        if "average_aggregate_score" in agency_summary:
-            score = agency_summary["average_aggregate_score"]
-            f.write(f"**Overall Agency Fit Score**: {score:.2f}/5.0\n\n")
-
-            if score >= 4.5:
-                interpretation = (
-                    "Excellent - Conversations very clearly represent this agency"
-                )
-            elif score >= 4.0:
-                interpretation = "Good - Conversations represent this agency well"
-            elif score >= 3.0:
-                interpretation = (
-                    "Acceptable - Conversations adequately represent this agency"
-                )
-            elif score >= 2.0:
-                interpretation = (
-                    "Poor - Many conversations don't clearly represent this agency"
-                )
-            else:
-                interpretation = "Very poor - Major issues with agency representation"
-
-            f.write(f"**Interpretation**: {interpretation}\n\n")
-
-        f.write("## Topic Scores\n\n")
-
-        topic_scores = []
-        for topic_name, topic_data in agency_summary.get("topic_results", {}).items():
-            if "average_aggregate_score" in topic_data:
-                topic_scores.append(
-                    {
-                        "name": topic_name,
-                        "score": topic_data["average_aggregate_score"],
-                        "conversations": topic_data.get("total_conversations", 0),
-                    }
-                )
-
-        topic_scores.sort(key=lambda x: x["score"], reverse=True)
-
-        if topic_scores:
-            f.write("| Topic | Fit Score | Conversations |\n")
-            f.write("|-------|-----------|---------------|\n")
-
-            for topic in topic_scores:
-                f.write(
-                    f"| {topic['name']} | {topic['score']:.2f} | {topic['conversations']} |\n"
-                )
-
-            f.write("\n")
-
-        f.write("## Recommendations\n\n")
-
-        if topic_scores:
-            problem_topics = [t for t in topic_scores if t["score"] < 3.5]
-            if problem_topics:
-                f.write("### Topics Needing Improvement\n\n")
-                f.write(
-                    "The following topics may need attention to better align with this agency:\n\n"
-                )
-                for topic in problem_topics:
-                    f.write(f"- **{topic['name']}** ({topic['score']:.2f}/5.0)\n")
-                f.write("\n")
-
-            # Identify exemplary topics
-            good_topics = [t for t in topic_scores if t["score"] >= 4.5]
-            if good_topics:
-                f.write("### Exemplary Topics\n\n")
-                f.write(
-                    "These topics demonstrate excellent alignment with this agency and can serve as examples:\n\n"
-                )
-                for topic in good_topics:
-                    f.write(f"- **{topic['name']}** ({topic['score']:.2f}/5.0)\n")
-                f.write("\n")
-
-        f.write("### General Recommendations\n\n")
-        f.write(
-            "- Review conversations in lower-scoring topics to ensure they clearly relate to this agency\n"
-        )
-        f.write(
-            "- Consider adding more agency-specific terminology and context to ambiguous conversations\n"
-        )
-        f.write(
-            "- Ensure that each conversation contains clear indicators of the responsible agency\n"
-        )
-        f.write(
-            "- Use the key indicators identified in individual reports to strengthen agency associations\n"
-        )
-
-
+        json.dump(agency_summary, f, ensure_ascii=False, indent=2)
+        
 def main():
 
     # Create evaluator

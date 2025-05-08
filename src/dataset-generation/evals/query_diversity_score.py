@@ -1,19 +1,16 @@
 from typing import List, Dict, Tuple, Set, Optional
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.tokenize import word_tokenize
 import re
-from collections import Counter, defaultdict
 from loguru import logger
 import os
 import sys
 import glob
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
+import json
 
 
 logger.remove()
@@ -314,106 +311,21 @@ class QueryDiversityAnalyzer:
         Generate a detailed report from diversity analysis results.
 
         """
-        report_lines = []
         
-        topic_label = results.get("topic", "Unnamed Topic")
-        report_lines.append(f"# Query Diversity Analysis: {topic_label}\n")
-        
-        report_lines.append("## Summary\n")
-        report_lines.append(f"- **Overall Diversity Score**: {results['query_diversity_score']:.4f}")
-        report_lines.append(f"- **First Query Diversity**: {results['first_query_diversity']:.4f}")
-        report_lines.append(f"- **Total Queries Analyzed**: {results['query_count']}")
-        report_lines.append(f"- **Unique Query Intents**: {results['unique_query_count']}")
-        report_lines.append(f"- **Conversations Analyzed**: {results['conversations_analyzed']}\n")
-        
-        report_lines.append("## Lexical Diversity\n")
-        lexical = results["lexical_diversity"]
-        report_lines.append(f"- **Lexical Diversity Score**: {lexical.get('lexical_diversity_score', 0):.4f}")
-        report_lines.append(f"- **Unique Token Ratio**: {lexical.get('unique_token_ratio', 0):.4f}")
-        report_lines.append(f"- **N-gram Diversity**: {lexical.get('ngram_diversity', 0):.4f}")
-        report_lines.append(f"- **Unique Words**: {lexical.get('unique_tokens', 0)}")
-        report_lines.append(f"- **Average Query Length**: {lexical.get('avg_query_length', 0):.1f} tokens\n")
-        
-        report_lines.append("## Semantic Diversity\n")
-        semantic = results["semantic_diversity"]
-        report_lines.append(f"- **Semantic Diversity Score**: {semantic.get('semantic_diversity_score', 0):.4f}")
-        report_lines.append(f"- **Distinct Query Clusters**: {semantic.get('cluster_count', 0)}")
-        report_lines.append(f"- **Average Query Similarity**: {semantic.get('avg_similarity', 0):.4f}")
-        report_lines.append(f"- **Largest Cluster Ratio**: {semantic.get('largest_cluster_ratio', 0):.4f}\n")
-        
-        if "cluster_examples" in semantic and semantic["cluster_examples"]:
-            report_lines.append("## Query Cluster Examples\n")
-            report_lines.append("Each cluster represents semantically similar query types:\n")
-            
-            for cluster in semantic["cluster_examples"]:
-                report_lines.append(f"- **Cluster {cluster['cluster_id']+1}** ({cluster['size']} queries):")
-                report_lines.append(f"  Example: \"{cluster['example_query']}\"\n")
-        
-        report_lines.append("## Interpretation\n")
-        
-        overall_score = results['query_diversity_score']
-        if overall_score >= 0.8:
-            interpretation = "Excellent query diversity. Training data has a wide variety of query formulations."
-        elif overall_score >= 0.6:
-            interpretation = "Good query diversity. Training data covers different ways of asking about this topic."
-        elif overall_score >= 0.4:
-            interpretation = "Moderate query diversity. Some variation exists, but could benefit from more diverse formulations."
-        elif overall_score >= 0.2:
-            interpretation = "Low query diversity. Most queries are similar, limiting the classifier's ability to generalize."
-        else:
-            interpretation = "Very low diversity. Queries are highly similar or repetitive."
-        
-        report_lines.append(f"- **Overall Diversity**: {interpretation}")
-        
-        first_query_score = results['first_query_diversity']
-        if first_query_score >= 0.8:
-            interpretation = "Excellent variety in how conversations start, giving the classifier diverse examples."
-        elif first_query_score >= 0.6:
-            interpretation = "Good variety in initial queries, helping classification accuracy."
-        elif first_query_score >= 0.4:
-            interpretation = "Moderate variety in first queries. Classification may work well for common patterns."
-        elif first_query_score >= 0.2:
-            interpretation = "Limited variety in how conversations start. May affect classification performance."
-        else:
-            interpretation = "Very similar conversation starters. Classification may struggle with variations."
-        
-        report_lines.append(f"- **First Query Diversity**: {interpretation}")
-        
-        report_lines.append("\n## Recommendations\n")
-        
-        if overall_score < 0.6:
-            report_lines.append("- **Generate more diverse query formulations** to improve classifier robustness")
-            
-        if lexical.get('unique_token_ratio', 0) < 0.5:
-            report_lines.append("- **Increase vocabulary variety** in queries")
-            
-        if semantic.get('cluster_count', 0) < 5 and results['query_count'] > 10:
-            report_lines.append("- **Add more ways of asking about this topic** with different intents/focuses")
-            
-        if first_query_score < 0.6:
-            report_lines.append("- **Diversify conversation starters** to improve initial classification")
-            
-        if results['query_count'] < 20:
-            report_lines.append("- **Add more conversations** to increase query sampling")
-        
-        full_report = "\n".join(report_lines)
         
         if output_file:
             try:
-                output_dir = os.path.dirname(output_file)
-                if output_dir and not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-                    
+                # write results to json 
                 with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(full_report)
+                    json.dump(results, f, ensure_ascii=False, indent=4)
                 
                 logger.info(f"Diversity report written to {output_file}")
             except Exception as e:
                 logger.error(f"Error writing diversity report: {e}")
         else:
-            logger.info(full_report)
+            logger.info("Diversity report not saved. No output file specified.")
         
-        return full_report
+        return results
 
 
 def compute_query_diversity_for_topic(conversations: List[str], 
@@ -530,7 +442,7 @@ def analyze_multiple_topics(
         output_file = None
         if output_directory:
             os.makedirs(output_directory, exist_ok=True)
-            output_file = os.path.join(output_directory, f"{topic_name}_query_diversity.md")
+            output_file = os.path.join(output_directory, f"{topic_name}_query_diversity.json")
         
         result = analyze_query_diversity_from_files(
             conversation_path=topic_dir,
@@ -551,28 +463,10 @@ def analyze_multiple_topics(
         }
         
         if output_directory:
-            summary_file = os.path.join(output_directory, "diversity_summary.md")
-            
+            summary_file = os.path.join(output_directory, "diversity_summary.json")
+            # write to json
             with open(summary_file, 'w', encoding='utf-8') as f:
-                f.write("# Query Diversity Analysis Summary\n\n")
-                
-                f.write("## Overall Statistics\n")
-                f.write(f"- **Topics Analyzed**: {summary['topics_analyzed']}\n")
-                f.write(f"- **Average Diversity Score**: {summary['average_diversity_score']:.4f}\n")
-                f.write(f"- **Average First Query Diversity**: {summary['average_first_query_diversity']:.4f}\n")
-                f.write(f"- **Total Queries Analyzed**: {summary['total_queries_analyzed']}\n\n")
-                
-                f.write("## Topics Ranked by Diversity\n")
-                
-                sorted_results = sorted(all_results, key=lambda x: x["query_diversity_score"], reverse=True)
-                
-                for i, result in enumerate(sorted_results):
-                    topic = result["topic"]
-                    score = result["query_diversity_score"]
-                    queries = result["query_count"]
-                    unique = result["unique_query_count"]
-                    
-                    f.write(f"{i+1}. **{topic}**: {score:.4f} diversity score ({unique} unique intents from {queries} queries)\n")
+                json.dump(summary, f, ensure_ascii=False, indent=4)
             
             logger.info(f"Summary report written to {summary_file}")
         
@@ -583,7 +477,7 @@ def analyze_multiple_topics(
 
 if __name__ == "__main__":
     conversation_path = "data/ID.ee/autentimine_riiklikes_e-teenustes"
-    output_file = "data/ID.ee/autentimine_riiklikes_e-teenustes/query_diversity_report.md"
+    output_file = "data/ID.ee/autentimine_riiklikes_e-teenustes/query_diversity_report.json"
     topic_label = "ID Authentication"
    
     multi_topic=False

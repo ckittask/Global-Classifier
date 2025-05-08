@@ -547,47 +547,9 @@ def evaluate_topic_quality_from_files(conversation_path: str,
             if output_dir and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
                 
+            # write to json file 
             with open(output_file, 'w', encoding='utf-8') as f:
-                f.write("# Topic Quality Evaluation Results\n\n")
-                
-                f.write("## Summary\n")
-                f.write(f"- Average Quality Score: {results['average_quality_score']:.4f}\n")
-                f.write(f"- Average Coherence: {results['average_coherence']:.4f}\n")
-                f.write(f"- Average Topic Alignment: {results['average_alignment']:.4f}\n")
-                f.write(f"- Evaluated Conversations: {results['evaluated_count']}\n\n")
-                
-                f.write("## Quality Distribution\n")
-                dist = results["quality_distribution"]
-                f.write(f"- Excellent: {dist.get('excellent', 0)} ({dist.get('excellent', 0)/results['evaluated_count']*100:.1f}%)\n")
-                f.write(f"- Good: {dist.get('good', 0)} ({dist.get('good', 0)/results['evaluated_count']*100:.1f}%)\n")
-                f.write(f"- Acceptable: {dist.get('acceptable', 0)} ({dist.get('acceptable', 0)/results['evaluated_count']*100:.1f}%)\n")
-                f.write(f"- Poor: {dist.get('poor', 0)} ({dist.get('poor', 0)/results['evaluated_count']*100:.1f}%)\n")
-                f.write(f"- Inadequate: {dist.get('inadequate', 0)} ({dist.get('inadequate', 0)/results['evaluated_count']*100:.1f}%)\n\n")
-                
-                f.write("## Detailed Results\n\n")
-                
-                sorted_results = sorted(
-                    results["detailed_results"], 
-                    key=lambda x: x["topic_quality_score"], 
-                    reverse=True
-                )
-                
-                for detailed in sorted_results:
-                    filename = detailed.get("filename", f"Conversation {detailed['conversation_index']}")
-                    f.write(f"### {filename}\n")
-                    f.write(f"- Topic Quality Score: {detailed['topic_quality_score']:.4f}\n")
-                    f.write(f"- Coherence Score: {detailed['coherence_score']:.4f}\n")
-                    f.write(f"- Alignment Score: {detailed['alignment_score']:.4f}\n")
-                    f.write(f"- Quality Assessment: {detailed['quality_assessment'].capitalize()}\n")
-                    f.write(f"- Turn Count: {detailed.get('turn_count', 'N/A')}\n")
-                    f.write(f"- Word Count: {detailed.get('word_count', 'N/A')}\n")
-                    
-                    if detailed.get('matching_keywords'):
-                        f.write("- Top Matching Keywords:\n")
-                        for keyword, score in detailed['matching_keywords'][:5]:
-                            f.write(f"  - {keyword} ({score:.4f})\n")
-                    
-                    f.write("\n")
+                json.dump(results, f, ensure_ascii=False, indent=4)
                 
             logger.info(f"Results written to {output_file}")
         except Exception as e:
@@ -601,7 +563,7 @@ if __name__ == "__main__":
 
     conversation_path = "data/ID.ee/autentimine_riiklikes_e-teenustes/"
     topic_docs_path = "../data/output_ID.ee/Autentimine_riiklikes_e-teenustes_-_ID.ee.txt"
-    output_file = "data/ID.ee/autentimine_riiklikes_e-teenustes/topic_quality_results.txt"
+    output_file = "data/ID.ee/autentimine_riiklikes_e-teenustes/topic_quality_results.json"
 
     
     # Evaluate conversations

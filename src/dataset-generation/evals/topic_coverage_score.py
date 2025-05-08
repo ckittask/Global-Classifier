@@ -11,6 +11,7 @@ import os
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
+import json
 import seaborn as sns
 import sys
 
@@ -235,13 +236,13 @@ class TopicCoverageAnalyzer:
             
             is_covered = best_match_score >= 0.5
             
-            topic_coverage[topic_id] = {
-                "topic_id": topic_id,
+            topic_coverage[str(topic_id)] = {
+                "topic_id": str(topic_id),
                 "keywords": topic["keywords"],
                 "segment_count": topic["segment_count"],
-                "is_covered": is_covered,
-                "best_match_score": float(best_match_score),
-                "best_match_conversation_idx": int(best_match_idx)
+                "is_covered": 1 if is_covered else 0,
+                "best_match_score": str(best_match_score),
+                "best_match_conversation_idx": str(best_match_idx)
             }
         
         uncovered_topics = [
@@ -251,12 +252,12 @@ class TopicCoverageAnalyzer:
                 "segment_count": t["segment_count"]
             }
             for t in document_topics
-            if not topic_coverage[t["topic_id"]]["is_covered"]
+            if not bool(topic_coverage[str(t["topic_id"])]["is_covered"])
         ]
         
         total_topics = len(document_topics)
-        covered_topics = sum(1 for t in topic_coverage.values() if t["is_covered"])
-        coverage_percentage = (covered_topics / total_topics) * 100 if total_topics > 0 else 0
+        covered_topics = sum(1 for t in topic_coverage.values() if bool(t["is_covered"]))
+        coverage_percentage = str((covered_topics / total_topics) * 100) if total_topics > 0 else "0"
         
         conversation_coverage = []
         for i, (conv, embedding) in enumerate(zip(conversations, conversation_embeddings)):
@@ -266,17 +267,17 @@ class TopicCoverageAnalyzer:
                 similarity = cosine_similarity([topic["centroid"]], [embedding])[0][0]
                 if similarity >= 0.5:
                     covered_topics.append({
-                        "topic_id": topic_id,
-                        "similarity": float(similarity),
+                        "topic_id": str(topic_id),
+                        "similarity": str(similarity),
                         "keywords": topic["keywords"]
                     })
             
             keywords = self._extract_keywords(conv)
             
             conversation_coverage.append({
-                "conversation_idx": i,
+                "conversation_idx": str(i),
                 "covered_topics": covered_topics,
-                "topic_count": len(covered_topics),
+                "topic_count": str(len(covered_topics)),
                 "keywords": keywords
             })
         
@@ -353,7 +354,7 @@ class TopicCoverageAnalyzer:
         
         output_files = {}
         if output_dir:
-            md_report_path = os.path.join(output_dir, "topic_coverage_report.md")
+            md_report_path = os.path.join(output_dir, "topic_coverage_report.json")
             self._generate_markdown_report(coverage_results, md_report_path)
             output_files["markdown_report"] = md_report_path
             
@@ -361,9 +362,6 @@ class TopicCoverageAnalyzer:
             self._generate_coverage_heatmap(coverage_results, heatmap_path)
             output_files["heatmap"] = heatmap_path
             
-            csv_path = os.path.join(output_dir, "topic_coverage_data.csv")
-            self._generate_coverage_csv(coverage_results, csv_path)
-            output_files["csv_data"] = csv_path
         
         coverage_results["output_files"] = output_files
         
@@ -374,60 +372,10 @@ class TopicCoverageAnalyzer:
                                 output_file: str) -> None:
         """Generate detailed markdown report of topic coverage."""
         try:
+            # write coverage results to json 
+            results = convert_dict_keys(coverage_results)
             with open(output_file, 'w', encoding='utf-8') as f:
-                f.write("# Topic Coverage Analysis Report\n\n")
-                
-                f.write("## Summary\n\n")
-                f.write(f"- **Total topics identified:** {coverage_results['total_topics']}\n")
-                f.write(f"- **Topics covered by conversations:** {coverage_results['covered_topics']}\n")
-                f.write(f"- **Coverage percentage:** {coverage_results['coverage_percentage']:.1f}%\n")
-                f.write(f"- **Uncovered topics:** {len(coverage_results['uncovered_topics'])}\n\n")
-                
-                f.write("## Uncovered Topics\n\n")
-                
-                if coverage_results['uncovered_topics']:
-                    f.write("The following topics from the source document are not adequately covered by the conversations:\n\n")
-                    f.write("| Topic ID | Key Terms | Segment Count |\n")
-                    f.write("|---------|-----------|---------------|\n")
-                    
-                    for topic in coverage_results['uncovered_topics']:
-                        topic_id = topic['topic_id']
-                        keywords = ", ".join(topic['keywords'][:5])  
-                        segment_count = topic['segment_count']
-                        f.write(f"| {topic_id} | {keywords} | {segment_count} |\n")
-                else:
-                    f.write("All topics are adequately covered by the conversations. Great job! 👍\n")
-                
-                f.write("\n")
-                
-                f.write("## Conversation Coverage Analysis\n\n")
-                
-                for conv_coverage in coverage_results['conversation_coverage']:
-                    filename = conv_coverage.get('filename', f"Conversation {conv_coverage['conversation_idx']}")
-                    topic_count = conv_coverage['topic_count']
-                    f.write(f"### {filename}\n\n")
-                    f.write(f"- **Topics covered:** {topic_count}\n")
-                    
-                    if conv_coverage['covered_topics']:
-                        f.write("- **Covered topics:**\n")
-                        for topic in conv_coverage['covered_topics']:
-                            keywords = ", ".join(topic['keywords'][:3])
-                            f.write(f"  - Topic {topic['topic_id']}: {keywords} (similarity: {topic['similarity']:.2f})\n")
-                    else:
-                        f.write("- This conversation doesn't strongly cover any specific topic.\n")
-                    
-                    f.write("\n")
-                
-                f.write("## Analysis Details\n\n")
-                f.write(f"- **Analysis performed:** {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"- **Embedding model:** {self.embedding_model_name}\n")
-                f.write(f"- **Coverage threshold:** 0.5 (cosine similarity)\n")
-                f.write(f"- **Document segments analyzed:** {len(self.document_segments)}\n")
-                
-                f.write("\n")
-                f.write("---\n")
-                f.write("*This report was automatically generated by the Topic Coverage Analysis tool.*")
-                
+                json.dump(results, f, cls=NumpyEncoder, ensure_ascii=False, indent=4)
             logger.info(f"Markdown report written to {output_file}")
             
         except Exception as e:
@@ -496,69 +444,40 @@ class TopicCoverageAnalyzer:
             
         except Exception as e:
             logger.error(f"Error generating coverage heatmap: {e}")
+   
+def convert_dict_keys(d):
+    """Convert all NumPy int64 keys in a dictionary to Python int."""
+    if not isinstance(d, dict):
+        return d
     
-    def _generate_coverage_csv(self, 
-                             coverage_results: Dict, 
-                             output_file: str) -> None:
-        """Generate CSV data file with coverage information."""
-        try:
-            topic_rows = []
-            for topic in self.document_topics:
-                topic_id = topic["topic_id"]
-                coverage = coverage_results["topic_coverage_scores"].get(topic_id, {})
-                
-                topic_rows.append({
-                    "topic_id": topic_id,
-                    "keywords": ", ".join(topic["keywords"]),
-                    "segment_count": topic["segment_count"],
-                    "is_covered": coverage.get("is_covered", False),
-                    "best_match_score": coverage.get("best_match_score", 0.0),
-                    "best_match_conversation": coverage.get("best_match_conversation_idx", -1)
-                })
+    result = {}
+    for k, v in d.items():
+        # Convert the key if it's a NumPy type
+        if isinstance(k, np.integer):
+            k = str(k)
+        elif isinstance(k, np.floating):
+            k = str(k)
+        elif isinstance(k, bool):
+            k = "1" if k else "0"
             
-            topics_df = pd.DataFrame(topic_rows)
+        # Recursively convert nested dictionaries
+        if isinstance(v, dict):
+            v = convert_dict_keys(v)
+        elif isinstance(v, list):
+            v = [convert_dict_keys(item) if isinstance(item, dict) else item for item in v]
             
-            conv_rows = []
-            for conv in coverage_results["conversation_coverage"]:
-                filename = conv.get("filename", f"conversation_{conv['conversation_idx']}.txt")
-                
-                conv_rows.append({
-                    "conversation_id": conv["conversation_idx"],
-                    "filename": filename,
-                    "topics_covered": conv["topic_count"],
-                    "keywords": ", ".join(conv["keywords"]),
-                    "covered_topic_ids": ", ".join([str(t["topic_id"]) for t in conv["covered_topics"]])
-                })
-            
-            conversations_df = pd.DataFrame(conv_rows)
-            
-            with pd.ExcelWriter(output_file) as writer:
-                topics_df.to_excel(writer, sheet_name="Topics", index=False)
-                conversations_df.to_excel(writer, sheet_name="Conversations", index=False)
-                
-                summary_data = {
-                    "Metric": [
-                        "Total Topics", 
-                        "Topics Covered", 
-                        "Coverage Percentage", 
-                        "Uncovered Topics",
-                        "Total Conversations"
-                    ],
-                    "Value": [
-                        coverage_results["total_topics"],
-                        coverage_results["covered_topics"],
-                        f"{coverage_results['coverage_percentage']:.1f}%",
-                        len(coverage_results["uncovered_topics"]),
-                        len(coverage_results["conversation_coverage"])
-                    ]
-                }
-                pd.DataFrame(summary_data).to_excel(writer, sheet_name="Summary", index=False)
-            
-            logger.info(f"Coverage data written to {output_file}")
-            
-        except Exception as e:
-            logger.error(f"Error generating coverage CSV: {e}")
-
+        result[k] = v
+    return result   
+ 
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 def read_file(file_path: str) -> str:
     """Read the content of a file."""
@@ -664,7 +583,7 @@ if __name__ == "__main__":
         print("Topic Coverage Analysis:")
         print(f"- Total topics identified: {results['total_topics']}")
         print(f"- Topics covered by conversations: {results['covered_topics']}")
-        print(f"- Coverage percentage: {results['coverage_percentage']:.1f}%")
+        print(f"- Coverage percentage: {results['coverage_percentage']}%")
         print(f"- Uncovered topics: {len(results['uncovered_topics'])}")
         
         if results['uncovered_topics']:

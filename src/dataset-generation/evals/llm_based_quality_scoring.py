@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-
+import json
 # Configure logging
 logger.remove()
 # add stout handler
@@ -404,64 +404,10 @@ class LightweightQualitativeEvaluator:
             all_results: List of evaluation results
             output_file: Path to save the report
         """
+        # write to json 
         with open(output_file, 'w', encoding='utf-8') as f:
-            f.write("# Conversation Evaluation Report\n\n")
+            json.dump(all_results, f, ensure_ascii=False, indent=2)
             
-            # Overall statistics
-            valid_scores = [r.get("aggregate_score") for r in all_results if r.get("aggregate_score") is not None]
-            if valid_scores:
-                avg_score = sum(valid_scores) / len(valid_scores)
-                f.write(f"## Overall Statistics\n\n")
-                f.write(f"- **Conversations Evaluated**: {len(all_results)}\n")
-                f.write(f"- **Average Score**: {avg_score:.2f}/5.0\n\n")
-                
-                # Quality distribution
-                excellent = sum(1 for s in valid_scores if s >= 4.5)
-                good = sum(1 for s in valid_scores if 4 <= s < 4.5)
-                acceptable = sum(1 for s in valid_scores if 3 <= s < 4)
-                poor = sum(1 for s in valid_scores if s < 3)
-                
-                f.write("### Quality Distribution\n\n")
-                f.write(f"- Excellent (4.5-5.0): {excellent} ({excellent/len(valid_scores)*100:.1f}%)\n")
-                f.write(f"- Good (4.0-4.4): {good} ({good/len(valid_scores)*100:.1f}%)\n")
-                f.write(f"- Acceptable (3.0-3.9): {acceptable} ({acceptable/len(valid_scores)*100:.1f}%)\n")
-                f.write(f"- Poor (<3.0): {poor} ({poor/len(valid_scores)*100:.1f}%)\n\n")
-            
-            f.write("## Individual Conversation Evaluations\n\n")
-            
-            sorted_results = sorted(
-                all_results, 
-                key=lambda r: r.get("aggregate_score", 0) if r.get("aggregate_score") is not None else 0,
-                reverse=True
-            )
-            
-            for result in sorted_results:
-                file_name = result.get("file_name", "Unknown")
-                aggregate_score = result.get("aggregate_score")
-                
-                f.write(f"### {file_name}\n\n")
-                f.write(f"**Overall Score**: {aggregate_score:.2f}/5.0\n\n")
-                
-                if "numerical_scores" in result:
-                    f.write("#### Scores by Category\n\n")
-                    for criteria, score in result["numerical_scores"].items():
-                        f.write(f"- **{criteria.replace('_', ' ').title()}**: {score:.1f}/5.0\n")
-                    f.write("\n")
-                
-                if "detailed_scores" in result and "strengths_weaknesses" in result["detailed_scores"]:
-                    sw = result["detailed_scores"]["strengths_weaknesses"].get("response", "")
-                    if sw:
-                        f.write("#### Strengths and Weaknesses\n\n")
-                        f.write(f"{sw}\n\n")
-                
-                if "detailed_scores" in result and "improvement_suggestions" in result["detailed_scores"]:
-                    suggestions = result["detailed_scores"]["improvement_suggestions"].get("response", "")
-                    if suggestions:
-                        f.write("#### Improvement Suggestions\n\n")
-                        f.write(f"{suggestions}\n\n")
-                
-                f.write("---\n\n")
-
 
 def evaluate_topic_directory(
     evaluator: LightweightQualitativeEvaluator,

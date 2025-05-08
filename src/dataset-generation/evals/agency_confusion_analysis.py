@@ -10,6 +10,7 @@ import sys
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
+import json
 import seaborn as sns
 
 # remove the default stderr handler
@@ -533,209 +534,17 @@ class AgencyConfusionAnalyzer:
         Generate a detailed report from confusion analysis results.
  
         """
-        if is_agency_level:
-            pair_results = confusion_results.get("agency_pair_results", {})
-            entity_name = "Agency"
-            entity_label = "agency"
-        else:
-            pair_results = confusion_results.get("topic_pair_results", {})
-            entity_name = "Topic"
-            entity_label = "topic"
-            agency_name = confusion_results.get("agency_name", "Unknown Agency")
-        
-        if not pair_results:
-            logger.error("No confusion results to report")
+       # write to json 
+ 
+        try:
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(confusion_results, f, ensure_ascii=False, indent=4)
+            logger.info(f"Confusion report saved to {output_file}")
+        except Exception as e:
+            logger.error(f"Error saving confusion report to {output_file}: {e}")
             return
-        
-        report_lines = []
-        
-        if is_agency_level:
-            report_lines.append("# Cross-Agency Confusion Analysis\n")
-        else:
-            report_lines.append(f"# Topic Confusion Analysis for {agency_name}\n")
-        
-        report_lines.append("## Overview\n")
-        report_lines.append(f"- **Overall Confusion Rate**: {confusion_results['overall_confusion_rate']:.4f}")
-        report_lines.append(f"- **Average Query Similarity**: {confusion_results['overall_similarity']:.4f}")
-        report_lines.append(f"- **Total Confusable Query Pairs**: {confusion_results['total_confusion_pairs']}")
-        
-        if confusion_results['most_confusable_pair']:
-            most_confusable = confusion_results['most_confusable_pair']
-            pair_names = most_confusable[0]
-            pair_results_data = most_confusable[1]
-            
-            report_lines.append(f"- **Most Confusable {entity_name} Pair**: {pair_names[0]} and {pair_names[1]}")
-            report_lines.append(f"  - Confusion Rate: {pair_results_data['confusion_rate']:.4f}")
-            report_lines.append(f"  - Confusable Pairs: {pair_results_data['confusion_count']} out of {pair_results_data['total_possible_pairs']} possible\n")
-        
-
-        has_topic_metrics = False
-        if is_agency_level:
-            for result_val in pair_results.values():
-                if isinstance(result_val, dict) and "topic_pair_metrics" in result_val:
-                    if result_val["topic_pair_metrics"]:  
-                        has_topic_metrics = True
-                        break
-            
-        if is_agency_level and has_topic_metrics:
-            report_lines.append("## Most Confusable Topic Pairs\n")
-            
-            topic_pair_data = []
-            
-            for (agency1, agency2), pair_result in pair_results.items():
-                if not isinstance(pair_result, dict):
-                    continue
-                    
-                topic_pair_metrics = pair_result.get("topic_pair_metrics", {})
-                if not isinstance(topic_pair_metrics, dict):
-                    continue
-                    
-                for (topic1, topic2), topic_metrics in topic_pair_metrics.items():
-                    if not isinstance(topic_metrics, dict):
-                        continue
-                        
-                    confusion_rate = topic_metrics.get("confusion_rate", 0)
-                    if confusion_rate > 0:
-                        topic_pair_data.append({
-                            "agency1": agency1,
-                            "agency2": agency2,
-                            "topic1": topic1,
-                            "topic2": topic2,
-                            "confusion_rate": confusion_rate,
-                            "confusion_count": topic_metrics.get("confusion_count", 0),
-                            "total_possible": topic_metrics.get("total_possible_pairs", 0)
-                        })
-            
-            topic_pair_data.sort(key=lambda x: x["confusion_rate"], reverse=True)
-            
-            for i, data in enumerate(topic_pair_data[:10]):
-                report_lines.append(f"{i+1}. **{data['topic1']} ({data['agency1']})** and **{data['topic2']} ({data['agency2']})**")
-                report_lines.append(f"   - Confusion Rate: {data['confusion_rate']:.4f}")
-                report_lines.append(f"   - Confusable Pairs: {data['confusion_count']} out of {data['total_possible']} possible\n")
-        
-        
-        report_lines.append("## Interpretation\n")
-        
-        overall_rate = confusion_results['overall_confusion_rate']
-        if overall_rate < 0.01:
-            interpretation = "The overall confusion is **very low**. The classifier should have no significant issues distinguishing between these entities."
-        elif overall_rate < 0.05:
-            interpretation = "The overall confusion is **low**. The classifier may occasionally confuse some queries, but this should be minimal."
-        elif overall_rate < 0.10:
-            interpretation = "The overall confusion is **moderate**. Some specific query types may be difficult to classify correctly."
-        elif overall_rate < 0.20:
-            interpretation = "The overall confusion is **high**. There are significant areas of overlap that may lead to classification errors."
-        else:
-            interpretation = "The overall confusion is **very high**. The classifier may struggle to reliably distinguish between these entities."
-        
-        report_lines.append(f"- **Overall Confusion**: {interpretation}")
-        
-        report_lines.append("\n")
-        
-        report_lines.append(f"## Detailed {entity_name} Pair Analysis\n")
-        
-
-        valid_pairs = []
-        for pair, result in pair_results.items():
-            if isinstance(result, dict) and "confusion_rate" in result:
-                valid_pairs.append((pair, result))
-        
-        sorted_pairs = sorted(valid_pairs, 
-                            key=lambda x: x[1]["confusion_rate"], 
-                            reverse=True)
-        
-        for pair, result in sorted_pairs:
-            entity1, entity2 = pair
-            report_lines.append(f"### {entity1} vs {entity2}\n")
-            report_lines.append(f"- **Confusion Rate**: {result['confusion_rate']:.4f}")
-            report_lines.append(f"- **Average Similarity**: {result['average_similarity']:.4f}")
-            report_lines.append(f"- **Maximum Similarity**: {result['max_similarity']:.4f}")
-            report_lines.append(f"- **Confusable Pairs**: {result['confusion_count']} out of {result['total_possible_pairs']} possible\n")
-            
-            if 'confusion_pairs' in result and result['confusion_pairs']:
-                report_lines.append("#### Example Confusable Queries\n")
-                report_lines.append("| Similarity | " + f"{entity1} Query | {entity2} Query |")
-                report_lines.append("|------------|" + "-" * (len(entity1) + 8) + "|" + "-" * (len(entity2) + 8) + "|")
-                
-                for pair_item in result['confusion_pairs']:
-                    if not isinstance(pair_item, dict):
-                        continue
-                        
-                    query1_key = f"{entity_label}1_query"
-                    query2_key = f"{entity_label}2_query"
-                    
-                    if query1_key not in pair_item or query2_key not in pair_item:
-                        continue
-                        
-                    query1 = pair_item[query1_key][:50] + ("..." if len(pair_item[query1_key]) > 50 else "")
-                    query2 = pair_item[query2_key][:50] + ("..." if len(pair_item[query2_key]) > 50 else "")
-                    similarity = pair_item.get('similarity', 0.0)
-                    
-                    report_lines.append(f"| {similarity:.4f} | {query1} | {query2} |")
-                
-                report_lines.append("\n")
-            
-
-            if is_agency_level and isinstance(result, dict) and "topic_pair_metrics" in result:
-                topic_pair_metrics = result["topic_pair_metrics"]
-                
-                if isinstance(topic_pair_metrics, dict) and topic_pair_metrics:
-                    report_lines.append("#### Topic-Level Confusion\n")
-                    
-   
-                    valid_topic_pairs = []
-                    for tp_key, tp_value in topic_pair_metrics.items():
-                        if isinstance(tp_value, dict) and "confusion_rate" in tp_value:
-                            valid_topic_pairs.append((tp_key, tp_value))
-                    
-                    sorted_topic_pairs = sorted(
-                        valid_topic_pairs,
-                        key=lambda x: x[1]["confusion_rate"],
-                        reverse=True
-                    )
-                    
-                    for (topic1, topic2), topic_metrics in sorted_topic_pairs[:5]:
-                        confusion_rate = topic_metrics.get("confusion_rate", 0)
-                        if confusion_rate > 0:
-                            report_lines.append(f"- **{topic1}** vs **{topic2}**")
-                            report_lines.append(f"  - Confusion Rate: {confusion_rate:.4f}")
-                            report_lines.append(f"  - Confusable Pairs: {topic_metrics.get('confusion_count', 0)} out of {topic_metrics.get('total_possible_pairs', 0)} possible\n")
-        
-        report_lines.append("## Recommendations\n")
-        
-        if overall_rate < 0.05:
-            report_lines.append("- No significant changes needed; the confusion level is acceptable.")
-        else:
-            report_lines.append("Recommendations to reduce confusion:")
-            
-            most_confusable = confusion_results['most_confusable_pair']
-            if most_confusable and isinstance(most_confusable[1], dict) and most_confusable[1].get('confusion_rate', 0) > 0.1:
-                pair_names = most_confusable[0]
-                report_lines.append(f"- Focus on differentiating {pair_names[0]} and {pair_names[1]} queries with more distinct examples.")
-                
-            report_lines.append("- Review and rewrite the most similar queries to make them more clearly distinct.")
-            report_lines.append("- Consider adding more domain-specific terminology to queries to help the classifier distinguish between entities.")
-            report_lines.append("- For queries that are inherently ambiguous, consider creating specific examples for the classifier to learn from.")
-        
-        full_report = "\n".join(report_lines)
-        
-        if output_file:
-            try:
-                output_dir = os.path.dirname(output_file)
-                if output_dir and not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-                    
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(full_report)
-                
-                logger.info(f"Confusion report written to {output_file}")
-            except Exception as e:
-                logger.error(f"Error writing confusion report: {e}")
-        else:
-            logger.info(full_report)
-        
-        return full_report
-
+        return confusion_results
+    
 
 def read_file(file_path: str) -> str:
     """Read the content of a file."""
@@ -823,7 +632,7 @@ def analyze_cross_agency_confusion(agency_dirs: Dict[str, str],
         os.makedirs(output_dir, exist_ok=True)
         
         # Generate report
-        report_file = os.path.join(output_dir, "cross_agency_confusion_report.md")
+        report_file = os.path.join(output_dir, "cross_agency_confusion_report.json")
         analyzer.generate_confusion_report(results, report_file, is_agency_level=True)
         
         # Generate visualization
@@ -866,7 +675,7 @@ def analyze_within_agency_topic_confusion(agency_dir: str,
     if output_dir and "error" not in results:
         os.makedirs(output_dir, exist_ok=True)
         
-        report_file = os.path.join(output_dir, f"{agency_name}_topic_confusion_report.md")
+        report_file = os.path.join(output_dir, f"{agency_name}_topic_confusion_report.json")
         analyzer.generate_confusion_report(results, report_file, is_agency_level=False)
         
         viz_file = os.path.join(output_dir, f"{agency_name}_topic_confusion_matrix.png")

@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from loguru import logger
 import sys
+import json
 # remove the default stderr handler
 logger.remove()
 # add stout handler
@@ -169,7 +170,7 @@ def plot_similarity_heatmap(redundancy_info: Dict,
     plt.close()
 
 def generate_redundancy_report(topic_dir: str, 
-                              output_file: str = "redundancy_report.txt",
+                              output_file: str = "redundancy_report.json",
                               similarity_threshold: float = 0.7) -> None:
 
     conversation_files = glob(os.path.join(topic_dir, "conversation_*.txt"))
@@ -182,43 +183,41 @@ def generate_redundancy_report(topic_dir: str,
     
     plot_similarity_heatmap(redundancy_info, 
                            os.path.join(os.path.dirname(output_file), "similarity_heatmap.png"))
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write("# Conversation Redundancy Report\n\n")
+    results = {}
         
-        f.write(f"## Overview\n")
-        f.write(f"- Topic Directory: {topic_dir}\n")
-        f.write(f"- Number of Conversations: {len(conversation_files)}\n")
-        f.write(f"- Overall Redundancy Score: {redundancy_info['redundancy_score']:.4f}\n")
-        f.write(f"- Similarity Threshold: {similarity_threshold}\n")
-        f.write(f"- Number of Redundant Pairs: {len(redundancy_info['redundant_pairs'])}\n\n")
+    results["topic_dir"] = topic_dir
+    results["num_conversations"] = len(conversation_files)
+    results["redundancy_score"] = redundancy_info['redundancy_score']
+    results["similarity_threshold"] = similarity_threshold
+    results["num_redundant_pairs"] = len(redundancy_info['redundant_pairs'])
         
-        if redundancy_info['redundant_pairs']:
-            f.write(f"## Redundant Conversation Pairs\n")
-            for pair in redundancy_info["named_redundant_pairs"]:
-                f.write(f"- {pair['file1']} and {pair['file2']}: {pair['similarity']:.4f}\n")
-        else:
-            f.write("No redundant conversation pairs found.\n")
+    if redundancy_info['redundant_pairs']:
+        results["redundant_pairs"] = redundancy_info['redundant_pairs']
+      
             
-        f.write("\n## Individual Conversation Redundancy\n\n")
-        
-        for file_path in conversation_files:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f_conv:
-                    conversation = f_conv.read()
+    results["intra_redundancy"] = []
+    for file_path in conversation_files:
+            
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f_conv:
+                conversation = f_conv.read()
                 
-                intra_redundancy = compute_intra_conversation_redundancy(conversation)
-                f.write(f"- {os.path.basename(file_path)}: {intra_redundancy:.4f}\n")
-            except Exception as e:
-                f.write(f"- {os.path.basename(file_path)}: Error - {e}\n")
-    
+            intra_redundancy = compute_intra_conversation_redundancy(conversation)
+                
+            results["intra_redundancy"].append({"file_path":file_path, "intra_redundancy": intra_redundancy})
+        except Exception as e:
+            results["intra_redundancy"].append({"file_path":file_path, "intra_redundancy": None})
+    #   Save results to json 
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(results, f, ensure_ascii=False, indent=4)
+        
     logger.info(f"Redundancy report generated at {output_file}")
 
 if __name__ == "__main__":
     topic_dir = "data/ID.ee/autentimine_riiklikes_e-teenustes"
     generate_redundancy_report(
         topic_dir=topic_dir,
-        output_file="data/ID.ee/autentimine_riiklikes_e-teenustes/redundancy_report.txt",
+        output_file="data/ID.ee/autentimine_riiklikes_e-teenustes/redundancy_report.json",
         similarity_threshold=0.7
     )
     
