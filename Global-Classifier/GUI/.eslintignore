@@ -1,0 +1,7 @@
+GUI/.eslintignore
+node_modules
+build
+dist
+*.min.js
+*.bundle.js
+*.test.tsx

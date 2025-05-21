@@ -17,7 +17,7 @@ services:
     ports:
       - 8086:8086
     networks:
-      - bykstack-gc
+      - bykstack
     cpus: "0.5"
     mem_limit: "512M"
 
@@ -39,7 +39,7 @@ services:
     ports:
       - 8088:8088
     networks:
-      - bykstack-gc
+      - bykstack
     cpus: "0.5"
     mem_limit: "512M"
 
@@ -56,7 +56,7 @@ services:
   #   ports:
   #     - 3000:3000
   #   networks:
-  #     - bykstack-gc
+  #     - bykstack
 
   tim:
     container_name: tim
@@ -69,7 +69,7 @@ services:
     ports:
       - 8085:8085
     networks:
-      - bykstack-gc
+      - bykstack
     extra_hosts:
       - "host.docker.internal:host-gateway"
     cpus: "0.5"
@@ -82,21 +82,21 @@ services:
       - POSTGRES_USER=tim
       - POSTGRES_PASSWORD=123
       - POSTGRES_DB=tim
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      # - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - ./tim-db:/var/lib/postgresql/data
     ports:
       - 9876:5432
     networks:
-      - bykstack-gc
+      - bykstack
 
-  # authentication-layer:
-  #   container_name: authentication-layer
-  #   image: authentication-layer
-  #   ports:
-  #     - 3004:3004
-  #   networks:
-  #     - bykstack-gc
+  authentication-layer:
+    container_name: authentication-layer
+    image: authentication-layer
+    ports:
+      - 3004:3004
+    networks:
+      - bykstack
 
   resql:
     container_name: resql
@@ -115,7 +115,7 @@ services:
     volumes:
       - ./DSL/Resql:/DSL
     networks:
-      - bykstack-gc
+      - bykstack
 
   users_db:
     container_name: users_db
@@ -130,7 +130,7 @@ services:
       - ~/buerokratt_classifier/db_files:/var/lib/postgresql/data
 
     networks:
-      - bykstack-gc
+      - bykstack
     restart: always
 
   init:
@@ -140,7 +140,7 @@ services:
       - shared-volume:/shared
       - ./model_trainer:/app/model_trainer
     networks:
-      - bykstack-gc
+      - bykstack
 
   classifier-service:
     container_name: classifier-service
@@ -149,20 +149,49 @@ services:
     ports:
       - "8090:8090"
     networks:
-      - bykstack-gc
+      - bykstack
     volumes:
       - ./src/classifier-service:/app
     environment:
       - NODE_ENV=development
     restart: always
 
+  gui:
+    container_name: gui
+    environment:
+      - NODE_ENV=local
+      - REACT_APP_RUUTER_API_URL=http://localhost:8086
+      - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
+      - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
+      - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
+      - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
+      - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
+      - DEBUG_ENABLED=true
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=3001
+      - REACT_APP_SERVICE_ID=conversations,settings,monitoring
+      - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
+
+    build:
+      context: ./GUI
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3003:3001
+    volumes:
+      - /app/node_modules
+      - ./GUI:/app
+    networks:
+      - bykstack
+    cpus: "0.5"
+    mem_limit: "1G"
+
 volumes:
   shared-volume:
   opensearch-data:
 
 networks:
-  bykstack-gc:
-    name: bykstack-gc
+  bykstack:
+    name: bykstack
     driver: bridge
     # ipam:
     #   config:
