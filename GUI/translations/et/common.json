@@ -101,6 +101,12 @@
       "title": "Ametinimetus"
     }
   },
+
+  "integratedAgencies":{
+  "title": "Integreeritud asutused",
+  "search":"Otsi asutust"
+},
+
   "integration": {
     "title": "Integratsioon",
     "jira": "Jira",

@@ -1,0 +1,33 @@
+declaration:
+  call: declare
+  version: 0.1
+  description: "Get agencies synchronized after a specific timestamp"
+  method: post
+  accepts: json
+  returns: json
+  namespace: global-classifier
+  allowlist:
+    body:
+      - field: lastSyncedTimestamp
+        type: string
+        description: "Parameter 'lastSyncedTimestamp' to get agencies synchronized after this time"
+
+extractRequestData:
+  assign:
+    lastSyncedTimestamp: ${incoming.body.lastSyncedTimestamp || ''}
+  log: "Request sent to centops"
+
+return_mock_data:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/mock_agencies_from_centops"
+    headers:
+      type: json
+    body:
+      lastSyncedTimestamp: "2025-05-21 18:17:10.574+00"
+  result: mapped_data
+  next: return_result
+
+return_result:
+  return: ${mapped_data.response.body}
+  next: end

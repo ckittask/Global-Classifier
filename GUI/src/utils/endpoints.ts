@@ -7,10 +7,9 @@ export const userManagementEndpoints = {
   FETCH_USER_ROLES: (): string => `/global-classifier/accounts/user-role`,
 };
 
-export const integrationsEndPoints = {
-  GET_INTEGRATION_STATUS: (): string =>
-    `/global-classifier/integration/platform-status`,
-  TOGGLE_PLATFORM: (): string => `/global-classifier/integration/toggle-platform`,
+export const integratedAgenciesEndPoints = {
+  GET_INTEGRATED_AGENCIES: (): string =>
+    `/global-classifier/agencies/list`,
 };
 
 export const datasetsEndpoints = {

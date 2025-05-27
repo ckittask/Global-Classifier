@@ -11,11 +11,16 @@ export const userManagementQueryKeys = {
   },
 };
 
-export const integrationQueryKeys = {
-  INTEGRATION_STATUS: (): string[] => [
-    `classifier/integration/platform-status`,
-  ],
+export const integratedAgenciesQueryKeys = {
+  INTEGRATED_AGENCIES_LIST: function (pageIndex?: number,sortOption?:string,searchTerm?:string) {
+    return ['integrated-agencies/list',pageIndex,sortOption,searchTerm].filter(
+      (val) => val !== undefined
+    );
+  },
+
   USER_ROLES: (): string[] => ['/accounts/user-role', 'prod'],
+  
+  
 };
 
 export const datasetQueryKeys = {

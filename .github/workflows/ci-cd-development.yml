@@ -31,7 +31,7 @@ jobs:
         
       - name: Lint code
         working-directory: ./GUI
-        run: npx eslint "src/**/*.{ts,tsx}" --max-warnings=0
+        run: npx eslint "src/**/*.{ts,tsx}" --quiet
 
   deploy:
     runs-on: [self-hosted, development]

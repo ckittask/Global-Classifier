@@ -101,6 +101,30 @@
       "title": "Title"
     }
   },
+  "integratedAgencies":{
+    "title": "Integrated Agencies",
+    "search":"Search agency",
+    "sortOptions":{
+      "agencyAsc":"Agency Name A-Z",
+      "agencyDesc":"Agency Name Z-A",
+      "createdDateAsc":"Agency Created Date Oldest First",
+      "createdDateDesc":"Agency Created Date Latest First",
+      "lastUpdatedDateAsc":"Last Updated Date Oldest First",
+      "lastUpdatedDateDesc":"Last Updated Date Latest First"
+    },
+    "agencyCard":{
+      "lastModelTrained": "Last Model Trained",
+      "lastUsedForTraining": "Last Used For Training",
+      "lastSynced": "Last Synced",
+      "latest": "Latest",
+      "syncStatus":{
+        "synced":"Synced with CKB",
+        "unavailable":"Unavailable in CKB",
+        "resync":"Resync needed with CKB"
+      },
+      "resync":"Resync"
+    }
+  },
   "integration": {
     "title": "Integration",
     "jira": "Jira",

@@ -9,6 +9,7 @@ import { authQueryKeys } from 'utils/queryKeys';
 import { ROLES } from 'enums/roles';
 import LoadingScreen from 'pages/LoadingScreen/LoadingScreen';
 import Unauthorized from 'pages/Unauthorized/unauthorized';
+import IntegratedAgencies from 'pages/IntegratedAgencies';
 
 const App: FC = () => {
   const navigate = useNavigate();
@@ -49,6 +50,8 @@ const App: FC = () => {
             ) ? (
               <>
                 <Route path="/user-management" element={<UserManagement />} />
+                <Route path="/integrated-agencies" element={<IntegratedAgencies />} />
+
               </>
             ) : (
               <>

@@ -9,4 +9,6 @@ databaseChangeLog:
       file: changelog/classifier-script-v5-configuration.sql
   - include:
       file: changelog/global-classifier-script-v4-authority-data.xml
+  - include:
+      file: changelog/global-classifier-script-v6-integrated-agencies.sql
       

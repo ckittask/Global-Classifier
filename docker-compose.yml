@@ -43,20 +43,20 @@ services:
     cpus: "0.5"
     mem_limit: "512M"
 
-  # data-mapper:
-  #   container_name: data-mapper
-  #   image: data-mapper
-  #   environment:
-  #     - PORT=3000
-  #     - CONTENT_FOLDER=/data
-  #   volumes:
-  #     - ./DSL:/data
-  #     - ./DSL/DMapper/classifier/hbs:/workspace/app/views/classifier
-  #     - ./DSL/DMapper/classifier/lib:/workspace/app/lib
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #     - bykstack
+  data-mapper:
+    container_name: data-mapper
+    image: data-mapper
+    environment:
+      - PORT=3000
+      - CONTENT_FOLDER=/data
+    volumes:
+      - ./DSL:/data
+      - ./DSL/DMapper/global-classifier/hbs:/workspace/app/views/global-classifier
+      - ./DSL/DMapper/global-classifier/lib:/workspace/app/lib
+    ports:
+      - 3000:3000
+    networks:
+      - bykstack
 
   tim:
     container_name: tim

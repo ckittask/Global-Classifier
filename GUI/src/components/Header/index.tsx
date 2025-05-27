@@ -83,7 +83,7 @@ const Header: FC<HeaderProps> = () => {
     };
   }, [sessionTimeOutModalOpened]);
 
-  const [_, setCookie] = useCookies([customJwtCookieKey]);
+  const [, setCookie] = useCookies([customJwtCookieKey]);
 
   const setNewCookie = (cookieValue: string) => {
     const cookieOptions = { path: '/' };

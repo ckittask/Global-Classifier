@@ -1,8 +1,7 @@
-export enum ValidationStatus {
-  SUCCESS = 'success',
-  FAIL = 'fail',
-  UNVALIDATED = 'unvalidated',
-  IN_PROGRESS = 'in-progress',
+export enum SyncStatus {
+  SYNCED = 'Synced_with_CKB',
+  UNAVAILABLE = 'Unavailable_in_CKB',
+  RESYNC_NEEDED = 'Resync_needed_with_CKB',
 }
 
 export enum DatasetViewEnum {

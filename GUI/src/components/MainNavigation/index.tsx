@@ -9,7 +9,7 @@ import type { MenuItem } from 'types/mainNavigation';
 import './MainNavigation.scss';
 import apiDev from 'services/api-dev';
 import { userManagementEndpoints } from 'utils/endpoints';
-import { integrationQueryKeys } from 'utils/queryKeys';
+import { integratedAgenciesQueryKeys } from 'utils/queryKeys';
 import { ROLES } from 'enums/roles';
 import UserIcon from 'assets/UserIcon';
 import DatabaseIcon from 'assets/DatabaseIcon';
@@ -56,7 +56,7 @@ const MainNavigation: FC = () => {
     });
   };
 
-  useQuery(integrationQueryKeys.USER_ROLES(), {
+  useQuery(integratedAgenciesQueryKeys.USER_ROLES(), {
     queryFn: async () => {
       const res = await apiDev.get(userManagementEndpoints.FETCH_USER_ROLES());
       return res?.data?.response;

@@ -9,7 +9,7 @@ import { checkIfUserExists, createUser, editUser } from 'services/users';
 import { useToast } from 'hooks/useToast';
 import Select, { components } from 'react-select';
 import './SettingsUsers.scss';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { ROLES } from 'enums/roles';
 import { userManagementQueryKeys } from 'utils/queryKeys';
 import { ButtonAppearanceTypes, ToastTypes } from 'enums/commonEnums';

@@ -1,0 +1,9 @@
+[
+  {{#each agencyIds}}
+    {
+      "agencyId": "{{this}}",
+      "agencyDataHash": "{{getAgencyDataHash this}}",
+      "s3Path": "http://s3-us-east-1.amazonaws.com/bucket/agency{{this}}.zip"
+    }{{#unless @last}},{{/unless}}
+  {{/each}}
+]
