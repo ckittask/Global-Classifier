@@ -27,7 +27,7 @@ jobs:
           
       - name: Install dependencies
         working-directory: ./GUI
-        run: npm ci
+        run: npm install --legacy-peer-deps
         
       - name: Lint code
         working-directory: ./GUI
