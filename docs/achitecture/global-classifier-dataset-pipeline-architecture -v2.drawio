@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.5 Chrome/134.0.6998.205 Electron/35.3.0 Safari/537.36" version="27.0.5" pages="4">
   <diagram name="FIRST-TIME-DATASET-GENERATION" id="0AGCFBf2FpTad1DNYMGd">
-    <mxGraphModel dx="2194" dy="1322" grid="0" gridSize="10" guides="1" tooltips="0" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1141" dy="687" grid="0" gridSize="10" guides="1" tooltips="0" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -74,7 +74,7 @@
         <mxCell id="Wv8BJaC0_amkNu4p2bPB-41" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.aws_s3;" parent="1" vertex="1">
           <mxGeometry x="1459" y="827" width="64" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="Wv8BJaC0_amkNu4p2bPB-42" value="&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap; background-color: rgb(18, 18, 18);&quot;&gt;CKB storage&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="Wv8BJaC0_amkNu4p2bPB-42" value="&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap;&quot;&gt;CKB storage&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="1417.5" y="905" width="145" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Wv8BJaC0_amkNu4p2bPB-43" value="&lt;div style=&quot;font-size: 11px; text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;Returns S3 URL with any authentication&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 11px; text-wrap-mode: nowrap;&quot;&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;required&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
@@ -102,7 +102,7 @@
           <mxGeometry x="136" y="1547" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="YWxtWIN07UHfHVU3wg7l-8" value="GcIntegratedAgencies" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="39.35" y="587" width="230" height="390" as="geometry" />
+          <mxGeometry x="39.35" y="565" width="230" height="416" as="geometry" />
         </mxCell>
         <mxCell id="YWxtWIN07UHfHVU3wg7l-9" value="agency_id: 123" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="YWxtWIN07UHfHVU3wg7l-8" vertex="1">
           <mxGeometry y="30" width="230" height="30" as="geometry" />
@@ -137,8 +137,8 @@
         <mxCell id="asxbecY70ZySBZZj46JK-5" value="last_trained_timestamp: Int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="YWxtWIN07UHfHVU3wg7l-8" vertex="1">
           <mxGeometry y="330" width="230" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="F9SzMtwg83-o3SOkV0sU-2" value="&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;sync_status: string (Unavailable in CKB,&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;Synced with CKB, Resync needed with CKB)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: rgb(18, 18, 18);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="YWxtWIN07UHfHVU3wg7l-8" vertex="1">
-          <mxGeometry y="360" width="230" height="30" as="geometry" />
+        <mxCell id="F9SzMtwg83-o3SOkV0sU-2" value="&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;sync_status: string (Unavailable in CKB,&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;Synced with CKB, Pending Sync with CKB,&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;Sync in Progress with CKB,&amp;nbsp; Resync needed with CKB)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-align: center; text-wrap-mode: nowrap; background-color: rgb(18, 18, 18);&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="YWxtWIN07UHfHVU3wg7l-8" vertex="1">
+          <mxGeometry y="360" width="230" height="56" as="geometry" />
         </mxCell>
         <mxCell id="YWxtWIN07UHfHVU3wg7l-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.706;entryY=0.01;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="Wv8BJaC0_amkNu4p2bPB-3" target="YWxtWIN07UHfHVU3wg7l-1" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -304,7 +304,7 @@
           <mxGeometry x="796" y="1150" width="180" height="140" as="geometry" />
         </mxCell>
         <mxCell id="m8JFB846j3_asXzT6kpJ-57" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.aws_s3;" vertex="1" parent="1">
-          <mxGeometry x="854" y="1180" width="64" height="70" as="geometry" />
+          <mxGeometry x="854" y="1182" width="64" height="68" as="geometry" />
         </mxCell>
         <mxCell id="m8JFB846j3_asXzT6kpJ-58" value="&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap;&quot;&gt;Global Classifier storage&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="813.5" y="1250" width="145" height="30" as="geometry" />
@@ -331,6 +331,12 @@
         </mxCell>
         <mxCell id="m8JFB846j3_asXzT6kpJ-66" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.64;entryY=0.029;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Wv8BJaC0_amkNu4p2bPB-55" target="m8JFB846j3_asXzT6kpJ-60">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m8JFB846j3_asXzT6kpJ-67" value="&lt;span style=&quot;font-size: 13px;&quot;&gt;#TODO = In a new page&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;create dataset update&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;architecture, which includes&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;the versioning&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;- for example, when user&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 13px;&quot;&gt;resync (think about how resync is going to work too)&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="strokeWidth=1;shadow=0;dashed=0;align=center;html=1;shape=mxgraph.mockup.text.stickyNote2;fontColor=#666666;mainText=;fontSize=17;whiteSpace=wrap;fillColor=#ffffcc;strokeColor=#F62E00;" vertex="1" parent="1">
+          <mxGeometry x="1262" y="1120" width="220" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="m8JFB846j3_asXzT6kpJ-68" value="&lt;span style=&quot;font-size: 13px;&quot;&gt;#TODO - CREATE TRAINING ARCHITECTURE&lt;/span&gt;" style="strokeWidth=1;shadow=0;dashed=0;align=center;html=1;shape=mxgraph.mockup.text.stickyNote2;fontColor=#666666;mainText=;fontSize=17;whiteSpace=wrap;fillColor=#ffffcc;strokeColor=#F62E00;" vertex="1" parent="1">
+          <mxGeometry x="1297" y="1366" width="174" height="123.5" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
