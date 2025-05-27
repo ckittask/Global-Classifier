@@ -190,8 +190,8 @@ volumes:
   opensearch-data:
 
 networks:
-  bykstack-gc:
-    name: bykstack-gc
+  bykstack:
+    name: bykstack
     driver: bridge
     # ipam:
     #   config:
