@@ -20,7 +20,7 @@ services:
       - bykstack-gc
     cpus: "0.5"
     mem_limit: "512M"
-
+  
   ruuter-private:
     container_name: ruuter-private
     image: ruuter
@@ -156,9 +156,147 @@ services:
       - NODE_ENV=development
     restart: always
 
+  # Dataset Generator services
+  dataset-gen-ollama:
+    image: synthesisai/dataset-generator-ollama:latest
+    container_name: dataset-gen-ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_USE_GPU=1
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - dataset_gen_ollama_models:/root/.ollama
+      - ./src/dataset-generation/ollama-entrypoint.sh:/ollama-entrypoint.sh
+    entrypoint: ["bash", "/ollama-entrypoint.sh"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - bykstack-gc
+
+  dataset-gen-service:
+    image: synthesisai/dataset-generator:latest
+    container_name: dataset-gen-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PROVIDER_NAME=ollama
+      - MODEL_NAME=gemma3:1b-it-qat
+      - PROVIDER_API_URL=http://dataset-gen-ollama:11434
+      - SERVICE_DEBUG=false
+      - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
+    volumes:
+      - ./src/dataset-generation/config:/app/config
+      - ./src/dataset-generation/templates:/app/templates
+      - ./src/dataset-generation/user_configs:/app/user_configs
+      - ./src/dataset-generation/data:/app/data
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./src/dataset-generation/logs:/app/logs
+    depends_on:
+      - dataset-gen-ollama
+      - dataset-gen-mlflow
+    networks:
+      - bykstack-gc
+
+  dataset-gen-mlflow:
+    image: synthesisai/dataset-generator-mlflow:latest
+    container_name: dataset-gen-mlflow
+    ports:
+      - "5000:5000"
+    environment:
+    # Authentication settings
+    - MLFLOW_TRACKING_USERNAME=your_custom_username
+    - MLFLOW_TRACKING_PASSWORD=your_custom_password
+    # Server configuration
+    - MLFLOW_HOST=0.0.0.0
+    - MLFLOW_PORT=5000
+    # Storage configuration
+    - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow_data/mlflow.db
+    - MLFLOW_DEFAULT_ARTIFACT_ROOT=file:///mlflow/mlflow_artifacts
+    # Security
+    - MLFLOW_FLASK_SERVER_SECRET_KEY=your_custom_secret_key
+    volumes:
+      - ./src/dataset-generation/mlflow_data:/mlflow/mlflow_data
+      - ./src/dataset-generation/mlflow_artifacts:/mlflow/mlflow_artifacts
+    networks:
+      - bykstack-gc
+
+  cron-manager:
+    container_name: cron-manager
+    image: cron-manager:latest
+    volumes:
+      - ./DSL/CronManager/DSL:/DSL
+      - ./DSL/CronManager/scripts:/app/scripts
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+    environment:
+      - server.port=9010
+    ports:
+      - 9010:8080
+    networks:
+      - bykstack-gc
+  
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console port
+    networks:
+      - bykstack-gc
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Initialize MinIO bucket and policies (optional but recommended)
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10 &&
+      mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing myminio/datasets &&
+      mc mb --ignore-existing myminio/output-datasets &&
+      mc mb --ignore-existing myminio/models &&
+      exit 0
+      "
+    networks:
+      - bykstack-gc
+
+  gc-s3-ferry:
+    image: s3-ferry:latest
+    container_name: gc-s3-ferry
+    volumes:
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+    env_file:
+      - config.env
+    ports:
+      - "3006:3000"
+    user: "root"
+    networks:
+      - bykstack-gc
+        
 volumes:
   shared-volume:
   opensearch-data:
+  dataset_gen_ollama_models:
+  minio_data:
 
 networks:
   bykstack-gc:
