@@ -64,7 +64,7 @@ check_cron_status:
   switch:
     - condition: ${cron_res.status >= 200 && cron_res.status < 300}
       next: cron_job_format_res
-      next: return_error
+  next: return_error
 
 cron_job_format_res:
   assign:
