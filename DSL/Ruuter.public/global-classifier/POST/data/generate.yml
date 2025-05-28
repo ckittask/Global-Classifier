@@ -1,0 +1,84 @@
+declaration:
+  call: declare
+  version: 0.1
+  description: "Dataset Generation for Global Classifier"
+  method: post
+  accepts: json
+  returns: json
+  namespace: global-classifier
+  allowlist:
+    body:
+      - field: datasetStructureName
+        type: string
+        description: "Name of the dataset structure to use"
+      - field: promptTemplateName
+        type: string
+        description: "Name of the prompt template to use"
+      - field: traversalType
+        type: string
+        description: "Type of traversal for the dataset generation (e.g., 'depth', 'breadth')"
+      - field: bucketName
+        type: string
+        description: "S3 bucket name for the generated dataset"
+      - field: prefix
+        type: string
+        description: "S3 prefix for the generated dataset"
+      - field: noOfSamples
+        type: integer
+        description: "Number of samples to generate"
+      - field: generatedDatasetFolder
+        type: string
+        description: "Folder where the generated dataset will be stored locally"
+
+extract_request_data:
+  assign:
+    bucket_name: ${incoming.body.bucketName}
+    prefix: ${incoming.body.prefix}
+    dataset_structure_name: ${incoming.body.datasetStructureName}
+    prompt_template_name: ${incoming.body.promptTemplateName}
+    traversal_type: ${incoming.body.traversalType}
+    no_of_samples: ${incoming.body.noOfSamples}
+    generated_dataset_folder: ${incoming.body.generatedDatasetFolder}
+  next: log_request
+
+log_request:
+  log: "Data generation request received for dataset structure: ${dataset_structure_name}, prompt template: ${prompt_template_name}"
+  next: execute_cron_manager
+
+execute_cron_manager:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_CRON_MANAGER]/execute/synthetic_dataset_generation/dataset_generator"
+    query:
+        datasetStructureName: "${dataset_structure_name}"
+        promptTemplateName: "${prompt_template_name}"
+        traversalType: "${traversal_type}"
+        bucketName: "${bucket_name}"
+        prefix: "${prefix}"
+        noOfSamples: "${no_of_samples}"
+        generatedDatasetFolder: "${generated_dataset_folder}"
+  result: cron_res
+  next: check_cron_status
+
+check_cron_status:
+  switch:
+    - condition: ${cron_res.status >= 200 && cron_res.status < 300}
+      next: cron_job_format_res
+      next: return_error
+
+cron_job_format_res:
+  assign:
+    format_res:
+      operationSuccessful: true
+      message: "Dataset generation job scheduled successfully"
+  next: return_success
+
+return_success:
+  status: 200
+  return: ${format_res}
+  next: end
+
+return_error:
+  status: 500
+  return: '{"operationSuccessful": false, "message": "Failed to schedule dataset generation job"}'
+  next: end

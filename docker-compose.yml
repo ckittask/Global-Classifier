@@ -21,150 +21,149 @@ services:
     cpus: "0.5"
     mem_limit: "512M"
 
-  ruuter-private:
-    container_name: ruuter-private
-    image: ruuter
-    environment:
-      - application.cors.allowedOrigins=http://localhost:3001,http://localhost:8088,http://localhost:3002,http://localhost:3004,http://localhost:8000
-      - application.httpCodesAllowList=200,201,202,400,401,403,500
-      - application.internalRequests.allowedIPs=127.0.0.1
-      - application.logging.displayRequestContent=true
-      - application.logging.displayResponseContent=true
-      - application.logging.printStackTrace=true
-      - application.internalRequests.disabled=true
-      - server.port=8088
-    volumes:
-      - ./DSL/Ruuter.private:/DSL
-      - ./constants.ini:/app/constants.ini
+  # Dataset Generator services
+  dataset-gen-ollama:
+    image: synthesisai/dataset-generator-ollama:latest
+    container_name: dataset-gen-ollama
     ports:
-      - 8088:8088
+      - "11434:11434"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_USE_GPU=1
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - dataset_gen_ollama_models:/root/.ollama
+      - ./src/dataset-generation/ollama-entrypoint.sh:/ollama-entrypoint.sh
+    entrypoint: ["bash", "/ollama-entrypoint.sh"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     networks:
       - bykstack-gc
-    cpus: "0.5"
-    mem_limit: "512M"
 
-  # data-mapper:
-  #   container_name: data-mapper
-  #   image: data-mapper
-  #   environment:
-  #     - PORT=3000
-  #     - CONTENT_FOLDER=/data
-  #   volumes:
-  #     - ./DSL:/data
-  #     - ./DSL/DMapper/classifier/hbs:/workspace/app/views/classifier
-  #     - ./DSL/DMapper/classifier/lib:/workspace/app/lib
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #     - bykstack-gc
-
-  tim:
-    container_name: tim
-    image: tim
+  dataset-gen-service:
+    image: synthesisai/dataset-generator:latest
+    container_name: dataset-gen-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PROVIDER_NAME=ollama
+      - MODEL_NAME=gemma3:1b-it-qat
+      - PROVIDER_API_URL=http://dataset-gen-ollama:11434
+      - SERVICE_DEBUG=false
+      - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
+    volumes:
+      - ./src/dataset-generation/config:/app/config
+      - ./src/dataset-generation/templates:/app/templates
+      - ./src/dataset-generation/user_configs:/app/user_configs
+      - ./src/dataset-generation/data:/app/data
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./src/dataset-generation/logs:/app/logs
     depends_on:
-      - tim-postgresql
-    environment:
-      - SECURITY_ALLOWLIST_JWT=ruuter-private,ruuter-public,data-mapper,resql,tim,tim-postgresql,chat-widget,authentication-layer,127.0.0.1,::1
-      - KEY_PASS=ppjjpp
-    ports:
-      - 8085:8085
+      - dataset-gen-ollama
+      - dataset-gen-mlflow
     networks:
       - bykstack-gc
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    cpus: "0.5"
-    mem_limit: "512M"
 
-  tim-postgresql:
-    container_name: tim-postgresql
-    image: postgres:14.1
+  dataset-gen-mlflow:
+    image: synthesisai/dataset-generator-mlflow:latest
+    container_name: dataset-gen-mlflow
+    ports:
+      - "5000:5000"
     environment:
-      - POSTGRES_USER=tim
-      - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=tim
-      - POSTGRES_HOST_AUTH_METHOD=trust
+    # Authentication settings
+    - MLFLOW_TRACKING_USERNAME=your_custom_username
+    - MLFLOW_TRACKING_PASSWORD=your_custom_password
+    # Server configuration
+    - MLFLOW_HOST=0.0.0.0
+    - MLFLOW_PORT=5000
+    # Storage configuration
+    - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow_data/mlflow.db
+    - MLFLOW_DEFAULT_ARTIFACT_ROOT=file:///mlflow/mlflow_artifacts
+    # Security
+    - MLFLOW_FLASK_SERVER_SECRET_KEY=your_custom_secret_key
     volumes:
-      - ./tim-db:/var/lib/postgresql/data
-    ports:
-      - 9876:5432
+      - ./src/dataset-generation/mlflow_data:/mlflow/mlflow_data
+      - ./src/dataset-generation/mlflow_artifacts:/mlflow/mlflow_artifacts
     networks:
       - bykstack-gc
 
-  # authentication-layer:
-  #   container_name: authentication-layer
-  #   image: authentication-layer
-  #   ports:
-  #     - 3004:3004
-  #   networks:
-  #     - bykstack-gc
+  cron-manager:
+    container_name: cron-manager
+    image: cron-manager:latest
+    volumes:
+      - ./DSL/CronManager/DSL:/DSL
+      - ./DSL/CronManager/scripts:/app/scripts
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+    environment:
+      - server.port=9010
+    ports:
+      - 9010:8080
+    networks:
+      - bykstack-gc
+  
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console port
+    networks:
+      - bykstack-gc
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  resql:
-    container_name: resql
-    image: resql
+  # Initialize MinIO bucket and policies (optional but recommended)
+  minio-init:
+    image: minio/mc
     depends_on:
-      - users_db
-    environment:
-      - sqlms.datasources.[0].name=byk
-      - sqlms.datasources.[0].jdbcUrl=jdbc:postgresql://users_db:5432/global-classifier #For LocalDb Use
-      # sqlms.datasources.[0].jdbcUrl=jdbc:postgresql://171.22.247.13:5435/byk?sslmode=require
-      - sqlms.datasources.[0].username=postgres
-      - sqlms.datasources.[0].password=dbadmin
-      - logging.level.org.springframework.boot=INFO
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10 &&
+      mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing myminio/datasets &&
+      mc mb --ignore-existing myminio/output-datasets &&
+      mc mb --ignore-existing myminio/models &&
+      exit 0
+      "
+    networks:
+      - bykstack-gc
+
+  gc-s3-ferry:
+    image: s3-ferry:latest
+    container_name: gc-s3-ferry
+    volumes:
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+    env_file:
+      - config.env
     ports:
-      - 8082:8082
-    volumes:
-      - ./DSL/Resql:/DSL
+      - "3006:3000"
+    user: "root"
     networks:
       - bykstack-gc
-
-  users_db:
-    container_name: users_db
-    image: postgres:14.1
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=dbadmin
-      - POSTGRES_DB=global-classifier
-    ports:
-      - 5435:5432
-    volumes:
-      - ~/buerokratt_classifier/db_files:/var/lib/postgresql/data
-
-    networks:
-      - bykstack-gc
-    restart: always
-
-  init:
-    image: busybox
-    command: ["sh", "-c", "chmod -R 777 /shared && chmod -R 777 /app/model_trainer"]
-    volumes:
-      - shared-volume:/shared
-      - ./model_trainer:/app/model_trainer
-    networks:
-      - bykstack-gc
-
-  classifier-service:
-    container_name: classifier-service
-    build:
-      context: ./src/classifier-service  # Create this folder with a Dockerfile and the Node.js code
-    ports:
-      - "8090:8090"
-    networks:
-      - bykstack-gc
-    volumes:
-      - ./src/classifier-service:/app
-    environment:
-      - NODE_ENV=development
-    restart: always
-
+        
 volumes:
   shared-volume:
   opensearch-data:
+  dataset_gen_ollama_models:
+  minio_data:
 
 networks:
   bykstack-gc:
     name: bykstack-gc
     driver: bridge
-    # ipam:
-    #   config:
-    #     - subnet: 172.25.0.0/27
-    #       gateway: 172.25.0.1
