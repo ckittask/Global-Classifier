@@ -1,0 +1,175 @@
+declaration:
+  call: declare
+  version: 0.1
+  description: "Fetch new agencies from CentOps, retrieve their data, and add them to the database"
+  method: post
+  accepts: json
+  returns: json
+  namespace: global-classifier
+  allowlist:
+    body:
+      - field: lastSyncedTimestamp
+        type: string
+        description: "Timestamp to fetch agencies updated after this time"
+
+extractInput:
+  assign:
+    lastSyncedTimestamp: ${incoming.body.lastSyncedTimestamp || (new Date()).toISOString()}
+  log: "Starting agency sync with timestamp: ${lastSyncedTimestamp}"
+
+fetchAgenciesFromCentops:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PRIVATE]/centops/new-agencies"
+    headers:
+      cookie: ${incoming.headers.cookie}
+    body:
+      lastSyncedTimestamp: ${lastSyncedTimestamp}
+  result: centopsResponse
+  log: "Fetched agencies from CentOps: ${centopsResponse}"
+  next: checkAgenciesExist
+
+checkAgenciesExist:
+  switch:
+    - condition: ${!centopsResponse.response.body.response || centopsResponse.response.body.response.length === 0}
+      next: returnNoAgenciesFound
+  next: extractAgencyIds
+
+extractAgencyIds:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/extract_agency_ids"
+    headers:
+      type: json
+    body:
+      agencies: ${centopsResponse.response.body.response}
+  result: agencyIds
+  next: addAgencies
+
+addAgencies:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PRIVATE]/agencies/add"
+    headers:
+      cookie: ${incoming.headers.cookie}
+    body:
+      agencies: ${centopsResponse.response.body.response}
+  result: addAgenciesResult
+  next: checkAgencyData
+
+checkAgencyData:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PRIVATE]/ckb/agency-data-exist"
+    headers:
+      cookie: ${incoming.headers.cookie}
+    body:
+      agencyIds: ${agencyIds.response.body}
+  result: agencyMetadata
+  next: filterAvailableAgencies
+
+filterAvailableAgencies:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/get-data-available-agencies"
+    headers:
+      type: json
+    body:
+      agencies: ${agencyMetadata.response.body.response}
+  result: availableAgencyIds
+  next: checkAvailableAgencies
+
+checkAvailableAgencies:
+  switch:
+    - condition: ${!availableAgencyIds.response.body}
+      next: formatResults
+  next: initializeUpdateProcess
+
+# ++++
+
+initializeUpdateProcess:
+  assign:
+    agencyUpdateIndex: 0
+    totalAgencies: ${availableAgencyIds.response.body.length}
+    updatedAgencies: 0
+  log: "Starting update for ${totalAgencies} agencies"
+  next: processNextAgency
+
+processNextAgency:
+  switch:
+    - condition: ${agencyUpdateIndex >= totalAgencies}
+      next: importAgencyData
+  next: updateCurrentAgency
+
+updateCurrentAgency:
+  assign:
+    currentAgencyId: ${availableAgencyIds.response.body[agencyUpdateIndex]}
+  log: "Updating agency ${agencyUpdateIndex + 1} of ${totalAgencies}: ${currentAgencyId}"
+  next: updateAgencySyncStatus
+
+updateAgencySyncStatus:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/update-agency-sync-status"
+    body:
+      agencyId: ${currentAgencyId}
+      syncStatus: "Sync_in_progress_with_CKB"
+  result: updateResult
+  next: incrementUpdateCounter
+
+incrementUpdateCounter:
+  assign:
+    agencyUpdateIndex: ${agencyUpdateIndex + 1}
+    updatedAgencies: ${updatedAgencies + 1}
+  next: processNextAgency
+
+# +++++
+
+importAgencyData:
+  call: http.post
+  log: "Importing agency data for IDs: ${agencyIdsString.response.body}"
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PRIVATE]/ckb/agency-data-import"
+    headers:
+      cookie: ${incoming.headers.cookie}
+    body:
+      agencyIds: ${availableAgencyIds.response.body.join(' ')}
+  result: importResult
+  next: returnImportResult
+
+returnImportResult:
+  return: ${importResult.response.body.response}
+  next: end
+
+formatResults:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/agencies-sync-summary"
+    headers:
+      type: json
+    body:
+      inputTimestamp: ${lastSyncedTimestamp}
+      totalFound: ${agencyIds.response.body.length}
+      addResult: ${addAgenciesResult.response.body.response}
+      importResult: "No data imported"
+  result: finalResult
+  next: returnResult
+
+returnResult:
+  return: ${finalResult.response.body.response}
+  next: end
+
+returnNoAgenciesFound:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/no-new-agencies"
+    headers:
+      type: json
+    body:
+      inputTimestamp: ${lastSyncedTimestamp}
+  result: noAgenciesResult
+  next: returnEmptyResult
+
+returnEmptyResult:
+  return: ${noAgenciesResult.response.body}
+  next: end

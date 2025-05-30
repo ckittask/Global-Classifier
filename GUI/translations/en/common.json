@@ -120,7 +120,8 @@
       "syncStatus":{
         "synced":"Synced with CKB",
         "unavailable":"Unavailable in CKB",
-        "resync":"Resync needed with CKB"
+        "resync":"Resync needed with CKB",
+        "inProgress":"Sync in Progress with CKB"
       },
       "resync":"Resync"
     }
@@ -190,10 +191,9 @@
       "actions": "Actions"
     },
     "datasetCard": {
-      "validationFail": "Validation Failed",
-      "validationSuccess": "Validation Successful",
-      "validationInprogress": "Validation in Progress",
-      "notValidated": "Not Validated",
+      "inProgress": "Data Generation in Progress",
+      "failed": "Data Generation Failed",
+      "success": "Data Generation Successful",
       "settings": "Settings",
       "lastModelTrained": "Last Model Trained",
       "lastUsedForTraining": "Last Used For Training",

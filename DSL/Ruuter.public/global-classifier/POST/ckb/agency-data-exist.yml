@@ -20,7 +20,7 @@ extractRequestData:
 get_agency_data:
   call: http.post
   args:
-    url: "[#GLOBAL_CLASSIFIER_RESQL]/mock-get-data-from-ckb"
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/mock_agency_data_availability"
     headers:
       type: json
     body:

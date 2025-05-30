@@ -2,6 +2,13 @@ export enum SyncStatus {
   SYNCED = 'Synced_with_CKB',
   UNAVAILABLE = 'Unavailable_in_CKB',
   RESYNC_NEEDED = 'Resync_needed_with_CKB',
+  IN_PROGRESS ='Sync_in_progress_with_CKB'
+}
+
+export enum DataGenerationStatus {
+  IN_PROGRESS = 'Data Generation in Progress',
+  FAILED = 'Data Generation Failed',
+  SUCCESS = 'Data Generation Successful',
 }
 
 export enum DatasetViewEnum {

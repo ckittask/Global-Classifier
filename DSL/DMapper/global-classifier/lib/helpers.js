@@ -166,3 +166,55 @@ export function getAgencyDataAvailable(agencyId) {
   // Return true or false based on even/odd value
   return (combinedValue % 2) === 0;
 }
+
+// ...existing code...
+
+export function getRandomAgencies(max = 3) {
+  // Get a random number between 0 and max
+  const count = Math.floor(Math.random() * (max + 1));
+  
+  // Define possible agency names
+  const possibleNames = [
+    "Police and Borderguard",
+    "Urban Authority",
+    "Health Insurance",
+    "Tax Authority",
+    "Social Security Board",
+    "Education Department",
+    "Environmental Protection",
+    "Transportation Agency",
+    "Business Registry",
+    "Digital Services"
+  ];
+  
+  // Generate random agencies
+  const agencies = [];
+  for (let i = 0; i < count; i++) {
+    // Generate random 4-digit ID (1000-9999)
+    const id = Math.floor(Math.random() * 9000) + 1000;
+    
+    // Select random name
+    const nameIndex = Math.floor(Math.random() * possibleNames.length);
+    const name = possibleNames[nameIndex];
+    
+    agencies.push({
+      agencyId: String(id),
+      agencyName: name
+    });
+  }
+  
+  return agencies;
+}
+
+export function json(context) {
+  return JSON.stringify(context);
+}
+
+/**
+ * Helper function to check if a value is an array
+ * @param {any} value - The value to check
+ * @returns {boolean} - True if value is an array, false otherwise
+ */
+export function isArray(value) {
+  return Array.isArray(value);
+}

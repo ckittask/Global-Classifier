@@ -1,0 +1,5 @@
+agency_data_sync:
+  trigger: "off"
+  type: exec
+  command: "../app/scripts/agency_data_sync.sh"
+  allowedEnvs: ["cookie"]

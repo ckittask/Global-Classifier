@@ -15,19 +15,17 @@ declaration:
 extractRequestData:
   assign:
     lastSyncedTimestamp: ${incoming.body.lastSyncedTimestamp || ''}
-  log: "Request sent to centops"
+  log: "Request sent to centops with timestamp: ${lastSyncedTimestamp}"
 
-return_mock_data:
+fetch_agencies:
   call: http.post
   args:
-    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/mock_agencies_from_centops"
-    headers:
-      type: json
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/mock-get-agencies-from-centops"
     body:
-      lastSyncedTimestamp: "2025-05-21 18:17:10.574+00"
-  result: mapped_data
+      lastSyncedTimestamp: ${lastSyncedTimestamp}
+  result: agency_data
   next: return_result
 
 return_result:
-  return: ${mapped_data.response.body}
+  return: ${agency_data.response.body}
   next: end
