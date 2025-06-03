@@ -195,7 +195,7 @@ services:
       - ./src/dataset-generation/config:/app/config
       - ./src/dataset-generation/templates:/app/templates
       - ./src/dataset-generation/user_configs:/app/user_configs
-      - ./src/dataset-generation/data:/app/data
+      - cron_data:/app/data
       - ./src/dataset-generation/output_datasets:/app/output_datasets
       - ./src/dataset-generation/logs:/app/logs
     depends_on:
@@ -230,10 +230,13 @@ services:
   cron-manager:
     container_name: cron-manager
     image: cron-manager:latest
+    user: "root"
     volumes:
       - ./DSL/CronManager/DSL:/DSL
       - ./DSL/CronManager/scripts:/app/scripts
       - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
+      - cron_data:/app/data
     environment:
       - server.port=9010
     ports:
@@ -291,12 +294,28 @@ services:
     user: "root"
     networks:
       - bykstack-gc
+
+  s3-dataset-processor:
+    container_name: s3-dataset-processor
+    build: ./src/s3-dataset-processor
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+    networks:
+      - bykstack-gc
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
         
 volumes:
   shared-volume:
   opensearch-data:
   dataset_gen_ollama_models:
   minio_data:
+  cron_data:
 
 networks:
   bykstack-gc:

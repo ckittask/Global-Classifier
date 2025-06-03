@@ -117,16 +117,8 @@ for file in "$TMP_DIR"/*.zip "$TMP_DIR"/*.tar.gz "$TMP_DIR"/*.tgz; do
   fi
 done
 
-# Configuration variables for dataset generation
-API_URL="http://dataset-gen-service:8000"
-RUUTER_URL="http://ruuter-public:8086/global-classifier"
-S3_BUCKET="$bucketName"
-
-# Array to track generated datasets
-declare -a GENERATED_DATASETS=()
-
-# Extract all zip files in the cron_data volume and generate datasets for each
-log "📦 Starting extraction of zip files in $DATA_DIR and dataset generation..."
+# Extract all zip files in the cron_data volume
+log "📦 Starting extraction of zip files in $DATA_DIR..."
 
 extracted_count=0
 for zip_file in "$DATA_DIR"/*.zip; do
@@ -148,107 +140,31 @@ for zip_file in "$DATA_DIR"/*.zip; do
     if [ -d "$zip_name_dir" ] && [ "$zip_name_dir" != "$extract_dir" ]; then
       # If the extracted directory has the same name, it's already in the right place
       log "📁 Zip extracted to correct location: $zip_name_dir"
-      final_extract_dir="$zip_name_dir"
     else
       # Look for any directory that was just created
       newest_dir=$(find "$DATA_DIR" -maxdepth 1 -type d -name "*${zip_filename%.*}*" | head -1)
       if [ -n "$newest_dir" ] && [ "$newest_dir" != "$extract_dir" ]; then
         mv "$newest_dir" "$extract_dir"
         log "📁 Moved extracted directory to: $extract_dir"
-        final_extract_dir="$extract_dir"
-      else
-        final_extract_dir="$extract_dir"
       fi
     fi
     
     # Count extracted files
-    extracted_files=$(find "$final_extract_dir" -type f 2>/dev/null | wc -l)
+    extracted_files=$(find "$extract_dir" -type f 2>/dev/null | wc -l)
     log "📁 Extracted $extracted_files files"
     extracted_count=$((extracted_count + 1))
     
     # List some extracted contents (first few files)
     log "Sample extracted contents:"
-    find "$final_extract_dir" -type f 2>/dev/null | head -5 | while read extracted_file; do
+    find "$extract_dir" -type f 2>/dev/null | head -5 | while read extracted_file; do
       file_size=$(ls -lh "$extracted_file" | awk '{print $5}')
-      relative_path=$(echo "$extracted_file" | sed "s|$final_extract_dir/||")
+      relative_path=$(echo "$extracted_file" | sed "s|$extract_dir/||")
       log "  $relative_path ($file_size)"
     done
     
     # Remove the zip file after successful extraction
     rm -f "$zip_file"
     log "🗑️ Removed zip file: $zip_filename"
-    
-    # Generate dataset for this extracted directory
-    log "🔄 Starting dataset generation for: $final_extract_dir"
-    
-    # Use the directory name as the dataset identifier
-    dataset_name="${zip_filename%.*}"
-    
-    # Construct the payload for this specific directory
-    data_generation_payload=$(cat <<EOF
-{
-  "dataset_structure_name": "single_question",
-  "prompt_template_name": "institute_topic_question",
-  "data_path": "$DATA_DIR",
-  "traversal_strategy": "institutional",
-  "no_of_samples": 10 
-}
-EOF
-)
-    datasetStructureName ="single_question"
-    generatedDatasetFolder = "output_datasets"
-
-    # Call the bulk generation API for this directory
-    log "Calling dataset generation service for: $dataset_name"
-    response=$(curl -s -X POST "$API_URL/generate-bulk" \
-      -H "Content-Type: application/json" \
-      -d "$data_generation_payload")
-
-    log "Response from dataset generation service: $response"
-
-    # Track generation status
-    generation_success=false
-    if echo "$response" | grep -q '"status":"success"'; then
-      log "✅ Dataset generated successfully for: $dataset_name"
-      generation_success=true
-      
-      # Prepare for S3 transfer
-      ZIP_FILE="${generatedDatasetFolder}/${dataset_name}_${datasetStructureName}.zip"
-      S3_KEY="datasets/${dataset_name}_${datasetStructureName}.zip"
-      
-      # Call the Ruuter endpoint to transfer the zip file to S3
-      log "Transferring dataset zip to S3 for: $dataset_name"
-      s3_response=$(curl -s -X POST "${RUUTER_URL}/data/store_in_s3" \
-        -H "Content-Type: application/json" \
-        -d @- << EOF
-{
-  "filePath": "${ZIP_FILE}",
-  "bucketName": "${S3_BUCKET}",
-  "s3Key": "${S3_KEY}"
-}
-EOF
-)
-
-      if echo "$s3_response" | grep -q '"operationSuccessful":true'; then
-        log "✅ Dataset zip successfully transferred to S3 for: $dataset_name"
-        location=$(echo "$s3_response" | grep -o '"location":"[^"]*' | cut -d'"' -f4 || echo "datasets/${dataset_name}_${datasetStructureName}.zip")
-        log "S3 Location: $location"
-        
-        # Clean up the zip file to save space
-        rm -f "$ZIP_FILE"
-        log "Removed local zip file to save space: $ZIP_FILE"
-        
-        # Add to successful datasets list
-        GENERATED_DATASETS+=("$dataset_name:$location")
-      else
-        log "❌ Failed to transfer dataset zip to S3 for: $dataset_name"
-        log "Error: $s3_response"
-      fi
-    else
-      log "❌ Dataset generation failed for: $dataset_name"
-      log "Error: $(echo "$response" | jq -r '.message // "Unknown error"')"
-    fi
-    
   else
     log "❌ Failed to extract: $zip_filename"
     log "Keeping zip file for debugging: $zip_file"
@@ -259,7 +175,7 @@ done
 log "🧹 Cleaning up empty directories..."
 find "$DATA_DIR" -type d -empty -delete 2>/dev/null || true
 
-log "✅ All downloads, copying, extraction, and dataset generation completed"
+log "✅ All downloads, copying, and extraction completed"
 
 # List final files and directories in cron_data volume
 log "Final contents in $DATA_DIR (cron_data volume):"
@@ -272,22 +188,7 @@ log "📊 Summary:"
 log "  - Successful extractions: $extracted_count"
 log "  - Total directories: $valid_extractions"
 log "  - Total files: $total_files"
-log "  - Generated datasets: ${#GENERATED_DATASETS[@]}"
 
 # Optional: Show disk usage
 disk_usage=$(du -sh "$DATA_DIR" 2>/dev/null | awk '{print $1}')
 log "  - Total disk usage: $disk_usage"
-
-# List all generated datasets
-if [ ${#GENERATED_DATASETS[@]} -gt 0 ]; then
-  log "Generated datasets:"
-  for dataset in "${GENERATED_DATASETS[@]}"; do
-    log "  - $dataset"
-  done
-else
-  log "❌ No datasets were successfully generated"
-  exit 1
-fi
-
-log "Dataset generation and upload process completed successfully"
-exit 0
