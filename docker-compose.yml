@@ -186,8 +186,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - PROVIDER_NAME=ollama
-      - MODEL_NAME=gemma3:1b-it-qat
       - PROVIDER_API_URL=http://dataset-gen-ollama:11434
       - SERVICE_DEBUG=false
       - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
@@ -209,18 +207,16 @@ services:
     container_name: dataset-gen-mlflow
     ports:
       - "5000:5000"
+    env_file:
+      - sidecar.env
     environment:
-    # Authentication settings
-    - MLFLOW_TRACKING_USERNAME=your_custom_username
-    - MLFLOW_TRACKING_PASSWORD=your_custom_password
-    # Server configuration
-    - MLFLOW_HOST=0.0.0.0
-    - MLFLOW_PORT=5000
-    # Storage configuration
-    - MLFLOW_BACKEND_STORE_URI=sqlite:////mlflow/mlflow_data/mlflow.db
-    - MLFLOW_DEFAULT_ARTIFACT_ROOT=file:///mlflow/mlflow_artifacts
-    # Security
-    - MLFLOW_FLASK_SERVER_SECRET_KEY=your_custom_secret_key
+    - MLFLOW_TRACKING_USERNAME=${MLFLOW_TRACKING_USERNAME}
+    - MLFLOW_TRACKING_PASSWORD=${MLFLOW_TRACKING_PASSWORD}
+    - MLFLOW_HOST=${MLFLOW_HOST}
+    - MLFLOW_PORT=${MLFLOW_PORT}
+    - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
+    - MLFLOW_DEFAULT_ARTIFACT_ROOT=${MLFLOW_DEFAULT_ARTIFACT_ROOT}
+    - MLFLOW_FLASK_SERVER_SECRET_KEY=${MLFLOW_FLASK_SERVER_SECRET_KEY}
     volumes:
       - ./src/dataset-generation/mlflow_data:/mlflow/mlflow_data
       - ./src/dataset-generation/mlflow_artifacts:/mlflow/mlflow_artifacts
@@ -247,38 +243,18 @@ services:
   minio:
     image: minio/minio:latest
     container_name: minio
+    env_file:
+      - sidecar.env
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
-      - MINIO_BROWSER_REDIRECT_URL=http://localhost:9001
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_BROWSER_REDIRECT_URL=${MINIO_BROWSER_REDIRECT_URL}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
     ports:
       - "9000:9000"  # API port
       - "9001:9001"  # Console port
-    networks:
-      - bykstack-gc
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Initialize MinIO bucket and policies (optional but recommended)
-  minio-init:
-    image: minio/mc
-    depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      sleep 10 &&
-      mc alias set myminio http://minio:9000 minioadmin minioadmin &&
-      mc mb --ignore-existing myminio/datasets &&
-      mc mb --ignore-existing myminio/output-datasets &&
-      mc mb --ignore-existing myminio/models &&
-      exit 0
-      "
     networks:
       - bykstack-gc
 
