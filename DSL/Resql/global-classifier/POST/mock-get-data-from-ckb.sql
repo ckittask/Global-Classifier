@@ -2,9 +2,9 @@ WITH parsed_ids AS (
     SELECT unnest(string_to_array(:agencyIds, ' ')) AS agency_id
 )
 SELECT 
-    mock_ckb.agency_id AS "agencyId",
-    mock_ckb.agency_data_hash AS "agencyDataHash",
-    mock_ckb.data_url AS "signedS3Url"
+    mock_ckb.agency_id,
+    mock_ckb.agency_data_hash,
+    mock_ckb.data_url
 FROM 
     public.mock_ckb
 JOIN

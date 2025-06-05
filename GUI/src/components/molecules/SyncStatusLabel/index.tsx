@@ -35,6 +35,12 @@ const SyncStatusLabel = ({
         {t('integratedAgencies.agencyCard.syncStatus.inProgress')}
       </Label>
     );
+  }else if (status === SyncStatus.RESYNC_IN_PROGRESS) {
+    return (
+      <Label type={LabelType.INFO}>
+        {t('integratedAgencies.agencyCard.syncStatus.resyncInProgress')}
+      </Label>
+    );
   } else {
     return null;
   }

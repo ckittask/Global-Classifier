@@ -121,7 +121,8 @@
         "synced":"Synced with CKB",
         "unavailable":"Unavailable in CKB",
         "resync":"Resync needed with CKB",
-        "inProgress":"Sync in Progress with CKB"
+        "inProgress":"Sync in Progress with CKB",
+        "resyncInProgress": "Resync in Progress with CKB"
       },
       "resync":"Resync"
     }

@@ -17,10 +17,10 @@ extractRequestData:
     agencyIds: ${incoming.body.agencyIds || []}
   log: "Received request for agency data: ${agencyIds}"
 
-get_agency_data:
+check_data_availability:
   call: http.post
   args:
-    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/mock_agency_data_availability"
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/check-agency-data-availability"
     headers:
       type: json
     body:

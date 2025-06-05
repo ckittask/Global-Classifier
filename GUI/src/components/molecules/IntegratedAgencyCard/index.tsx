@@ -6,16 +6,21 @@ import Label from 'components/Label';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDialog } from 'hooks/useDialog';
 import { Operation } from 'types/datasetGroups';
-import { datasetQueryKeys } from 'utils/queryKeys';
-import { ButtonAppearanceTypes, LabelType } from 'enums/commonEnums';
+import { datasetQueryKeys, integratedAgenciesQueryKeys } from 'utils/queryKeys';
+import { ButtonAppearanceTypes, LabelType, ToastTypes } from 'enums/commonEnums';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from 'utils/commonUtilts';
 import SyncStatusLabel from '../SyncStatusLabel';
+import { SyncStatus } from 'enums/datasetEnums';
+import { disableAgncy, enableAgncy } from 'services/agencies';
+import { AxiosError } from 'axios';
+import { useToast } from 'hooks/useToast';
+import { id } from 'date-fns/locale';
 
 type IntegratedAgencyCardProps = {
   agencyId: string;
   agencyName?: string;
-  lastTrained?: Date | null |string;
+  lastTrained?: Date | null | string;
   isLatest?: boolean;
   isEnabled?: boolean;
   lastUpdated?: Date | null;
@@ -24,7 +29,7 @@ type IntegratedAgencyCardProps = {
   syncStatus?: string;
   lastModelTrained?: string;
   lastSynced?: Date | null;
-  enableAllowed?: boolean;	
+  enableAllowed?: boolean;
 };
 
 const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = ({
@@ -42,6 +47,56 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
 
   const { t } = useTranslation();
 
+  const queryClient = useQueryClient();
+  const toast = useToast();
+
+
+  const enableAgencyMutation = useMutation({
+    mutationFn: ({
+      id }: {
+        id: string | number
+      }) => enableAgncy(id as string),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(
+        integratedAgenciesQueryKeys.INTEGRATED_AGENCIES_LIST()
+      );
+    },
+    onError: (error: AxiosError) => {
+      toast.open({
+        type: ToastTypes.ERROR,
+        title: t('global.notificationError'),
+        message: error?.message ?? '',
+      });
+    },
+  });
+
+  const disableAgencyMutation = useMutation({
+    mutationFn: ({
+      id,
+    }: {
+      id: string | number;
+    }) => disableAgncy(id as string),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(
+        integratedAgenciesQueryKeys.INTEGRATED_AGENCIES_LIST()
+      );
+    },
+    onError: (error: AxiosError) => {
+      toast.open({
+        type: ToastTypes.ERROR,
+        title: t('global.notificationError'),
+        message: error?.message ?? '',
+      });
+    },
+  });
+
+  const handleCheckedChange = (checked: boolean) => {
+    if (checked) {
+      enableAgencyMutation.mutate({ id: agencyId });
+    } else {
+      disableAgencyMutation.mutate({ id: agencyId });
+    }
+  };
 
   return (
     <div>
@@ -51,33 +106,28 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
           <Switch
             label=""
             checked={isEnabled}
-            disabled={!enableAllowed}
-            onCheckedChange={() => {}}
+            onCheckedChange={handleCheckedChange}
           />
         </div>
         <div className="py-3">
           <p>
             {t('integratedAgencies.agencyCard.lastModelTrained')}:{' '}
-            {lastModelTrained===""?"N/A":lastModelTrained}
+            {lastModelTrained === "" ? "N/A" : lastModelTrained}
           </p>
           <p>
             {t('integratedAgencies.agencyCard.lastUsedForTraining')}:{' '}
-            {lastTrained==="1970-01-01T00:00:00.000+00:00"?"N/A":formatDate(lastTrained as Date, 'D.M.yy-H:m')}
+            {lastTrained === "1970-01-01T00:00:00.000+00:00" ? "N/A" : formatDate(lastTrained as Date, 'D.M.yy-H:m')}
           </p>
           <p>
             {t('integratedAgencies.agencyCard.lastSynced')}:{' '}
             {lastSynced && formatDate(lastSynced, 'DD.MM.yy-HH:mm')}
           </p>
         </div>
-        
+
 
         <div className="flex">
-        <SyncStatusLabel status={syncStatus} />
-          {isLatest ? (
-            <Label type={LabelType.SUCCESS}>
-              {t('integratedAgencies.agencyCard.latest')}
-            </Label>
-          ) : null}
+          <SyncStatusLabel status={syncStatus} />
+
         </div>
 
         <div className="label-row">
@@ -86,6 +136,7 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
             size="s"
             onClick={() => {
             }}
+            disabled={syncStatus !== SyncStatus.RESYNC_NEEDED}
           >
             {t('integratedAgencies.agencyCard.resync')}
           </Button>

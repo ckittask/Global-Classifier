@@ -5,7 +5,7 @@
 CREATE TYPE deployment_status AS ENUM ('deployed', 'testing', 'undeployed');
 
 -- Create sync status enum
-CREATE TYPE sync_status AS ENUM ('Unavailable_in_CKB', 'Synced_with_CKB', 'Resync_needed_with_CKB','Sync_started_with_CKB');
+CREATE TYPE sync_status AS ENUM ('Unavailable_in_CKB', 'Synced_with_CKB', 'Resync_needed_with_CKB','Resync_in_progress_with_CKB','Sync_in_progress_with_CKB');
 
 -- changeset erangi:global-classifier-integrated-agency-table
 CREATE TABLE public.integrated_agencies (

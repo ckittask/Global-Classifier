@@ -20,3 +20,17 @@ export const fetchAgencies = async (
     });
     return data?.response ?? [];
   };
+
+  export async function enableAgncy(agencyId: string) {
+  const { data } = await apiDev.post('global-classifier/agencies/enable', {
+    "agencyId": agencyId
+  });
+  return data;
+}
+
+ export async function disableAgncy(agencyId: string) {
+  const { data } = await apiDev.post('global-classifier/agencies/disable', {
+    "agencyId": agencyId
+  });
+  return data;
+}
