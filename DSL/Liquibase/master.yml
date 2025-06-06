@@ -11,4 +11,6 @@ databaseChangeLog:
       file: changelog/global-classifier-script-v4-authority-data.xml
   - include:
       file: changelog/global-classifier-script-v6-integrated-agencies.sql
+  - include:
+      file: changelog/mock-global-classifier-script-v7-centops-ckb.sql
       
