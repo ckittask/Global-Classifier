@@ -179,3 +179,18 @@ export function json(context) {
 export function isArray(value) {
   return Array.isArray(value);
 }
+
+/**
+ * Returns an array of agencies that are in centopsAgencies but not in gcAgencies (by agencyId).
+ * @param {Array} gcAgencies - Array of existing agencies, each with an agencyId property.
+ * @param {Array} centopsAgencies - Array of agencies from CentOps, each with an agencyId property.
+ * @returns {Array} Array of new agency objects from centopsAgencies.
+ */
+export function extractNewAgencies(gcAgencies, centopsAgencies) {
+  const existingIds = new Set(gcAgencies.map(a => a.agencyId));
+  const newAgencies = centopsAgencies.filter(a => !existingIds.has(a.agencyId))
+  // return newAgencies;
+   return JSON.stringify({
+            agencies: newAgencies,
+        });
+}

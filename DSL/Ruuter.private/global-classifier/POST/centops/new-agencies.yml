@@ -6,23 +6,11 @@ declaration:
   accepts: json
   returns: json
   namespace: global-classifier
-  allowlist:
-    body:
-      - field: lastSyncedTimestamp
-        type: string
-        description: "Parameter 'lastSyncedTimestamp' to get agencies synchronized after this time"
-
-extractRequestData:
-  assign:
-    lastSyncedTimestamp: ${incoming.body.lastSyncedTimestamp || ''}
-  log: "Request sent to centops with timestamp: ${lastSyncedTimestamp}"
-
+  
 fetch_agencies:
   call: http.post
   args:
     url: "[#GLOBAL_CLASSIFIER_RESQL]/mock-get-agencies-from-centops"
-    body:
-      lastSyncedTimestamp: ${lastSyncedTimestamp}
   result: agency_data
   next: return_result
 

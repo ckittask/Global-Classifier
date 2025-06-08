@@ -6,16 +6,7 @@ declaration:
   accepts: json
   returns: json
   namespace: global-classifier
-  allowlist:
-    body:
-      - field: lastSyncedTimestamp
-        type: string
-        description: "Timestamp to fetch agencies updated after this time"
-
-extractInput:
-  assign:
-    lastSyncedTimestamp: ${incoming.body.lastSyncedTimestamp || (new Date()).toISOString()}
-  log: "Starting agency sync with timestamp: ${lastSyncedTimestamp}"
+ 
 
 fetchAgenciesFromCentops:
   call: http.post
@@ -23,8 +14,6 @@ fetchAgenciesFromCentops:
     url: "[#GLOBAL_CLASSIFIER_RUUTER_PRIVATE]/centops/new-agencies"
     headers:
       cookie: ${incoming.headers.cookie}
-    body:
-      lastSyncedTimestamp: ${lastSyncedTimestamp}
   result: centopsResponse
   log: "Fetched agencies from CentOps: ${centopsResponse}"
   next: checkAgenciesExist
@@ -32,6 +21,31 @@ fetchAgenciesFromCentops:
 checkAgenciesExist:
   switch:
     - condition: ${!centopsResponse.response.body.response || centopsResponse.response.body.response.length === 0}
+      next: returnNoAgenciesFound
+  next: getNewAgencies
+
+getNewAgencies:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/get-all-agencies"
+  result: allAgencies
+  next: compareAgencies
+
+compareAgencies:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/extract_unavailable_agencies"
+    headers:
+      type: json
+    body:
+      gcAgencies: ${allAgencies.response.body}
+      centopsAgencies: ${centopsResponse.response.body.response}
+  result: newAgencies
+  next: addAgencies
+
+checkNewAgenciesAvilability:
+  switch:
+    - condition: ${!newAgencies.response.body.agencies || newAgencies.response.body.agencies.length === 0}
       next: returnNoAgenciesFound
   next: addAgencies
 
@@ -42,7 +56,7 @@ addAgencies:
     headers:
       cookie: ${incoming.headers.cookie}
     body:
-      agencies: ${centopsResponse.response.body.response}
+      agencies: ${newAgencies.response.body.agencies}
   result: addAgenciesResult
   next: getUnavailableAgencyIds
 
@@ -162,7 +176,6 @@ formatResults:
     headers:
       type: json
     body:
-      inputTimestamp: ${lastSyncedTimestamp}
       totalFound: ${unavailableAgencyIds.response.body.length}
       addResult: ${addAgenciesResult.response.body.response}
       importResult: "No data imported"
@@ -179,8 +192,6 @@ returnNoAgenciesFound:
     url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/no-new-agencies"
     headers:
       type: json
-    body:
-      inputTimestamp: ${lastSyncedTimestamp}
   result: noAgenciesResult
   next: returnEmptyResult
 

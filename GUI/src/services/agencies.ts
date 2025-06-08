@@ -34,3 +34,10 @@ export const fetchAgencies = async (
   });
   return data;
 }
+
+ export async function resync(agencyId: string) {
+  const { data } = await apiDev.post('global-classifier/agencies/data/resync', {
+    "agencyId": agencyId
+  });
+  return data;
+}

@@ -12,10 +12,9 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from 'utils/commonUtilts';
 import SyncStatusLabel from '../SyncStatusLabel';
 import { SyncStatus } from 'enums/datasetEnums';
-import { disableAgncy, enableAgncy } from 'services/agencies';
+import { disableAgncy, enableAgncy, resync } from 'services/agencies';
 import { AxiosError } from 'axios';
 import { useToast } from 'hooks/useToast';
-import { id } from 'date-fns/locale';
 
 type IntegratedAgencyCardProps = {
   agencyId: string;
@@ -90,6 +89,25 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
     },
   });
 
+  const resyncAgencyMutation = useMutation({
+    mutationFn: ({
+      id }: {
+        id: string | number
+      }) => resync(id as string),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(
+        integratedAgenciesQueryKeys.INTEGRATED_AGENCIES_LIST()
+      );
+    },
+    onError: (error: AxiosError) => {
+      toast.open({
+        type: ToastTypes.ERROR,
+        title: t('global.notificationError'),
+        message: error?.message ?? '',
+      });
+    },
+  });
+
   const handleCheckedChange = (checked: boolean) => {
     if (checked) {
       enableAgencyMutation.mutate({ id: agencyId });
@@ -127,15 +145,13 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
 
         <div className="flex">
           <SyncStatusLabel status={syncStatus} />
-
         </div>
 
         <div className="label-row">
           <Button
             appearance={ButtonAppearanceTypes.SECONDARY}
             size="s"
-            onClick={() => {
-            }}
+            onClick={() => resyncAgencyMutation.mutate({ id: agencyId })}
             disabled={syncStatus !== SyncStatus.RESYNC_NEEDED}
           >
             {t('integratedAgencies.agencyCard.resync')}
