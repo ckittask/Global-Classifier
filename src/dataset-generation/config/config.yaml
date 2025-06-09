@@ -1,0 +1,37 @@
+# API connection settings
+api:
+  url: "http://localhost:8000"
+  timeout_seconds: 30
+
+# Directory paths
+directories:
+  input: "data"
+  output: "output_datasets"
+  templates: "templates"
+  user_configs: "user_configs"
+  
+# Default generation settings
+generation:
+  default_num_examples: 5
+  default_language: "et"
+  parameters:
+    temperature: 0.7
+    max_tokens: 4096
+    
+# Processing settings
+processing:
+  wait_between_requests: 1
+
+# MLflow tracking
+mlflow:
+  experiment_name: "synthetic_data_generation"
+
+# Data source configuration
+data_sources:
+  default:
+    strategy: "pattern"
+    base_path: "data"
+    patterns: ["**/*.json", "**/*.txt"]
+    recursive: true
+    filter:
+      extensions: ["json", "txt"]
