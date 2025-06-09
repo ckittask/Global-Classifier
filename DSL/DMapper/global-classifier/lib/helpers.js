@@ -101,7 +101,7 @@ export function base64Encrypt(content) {
     try {
         return JSON.stringify({
             error: false,
-            cipher: btoa(typeof content === 'string' ? content : JSON.stringify(content))
+            cipher: Buffer.from(typeof content === 'string' ? content : JSON.stringify(content)).toString('base64')
         });
     } catch (err) {
         return JSON.stringify({
