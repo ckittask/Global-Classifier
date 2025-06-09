@@ -23,5 +23,3 @@ else
   echo "DATA IMPORT SUMMARY:"
   echo "$response"
 fi
-
-exit 1
