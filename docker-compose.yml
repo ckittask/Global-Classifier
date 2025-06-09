@@ -142,6 +142,24 @@ services:
     networks:
       - bykstack
 
+  cron-manager:
+    container_name: cron-manager
+    image: cron-manager
+    volumes:
+      - ./DSL/CronManager/DSL:/DSL
+      - ./DSL/CronManager/script:/app/scripts
+      - ./DSL/CronManager/config:/app/config
+      - shared-volume:/shared
+    environment:
+      - server.port=9010
+    ports:
+      - 9010:8080
+    networks:
+      - bykstack
+    depends_on:
+      - init
+    command: ["sh", "-c", "chmod -R 777 /app/model_trainer"]
+
   classifier-service:
     container_name: classifier-service
     build:
