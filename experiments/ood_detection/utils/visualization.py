@@ -6,10 +6,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional, Union, Any
+from typing import Dict, List
 import os
 import logging
-import tensorflow as tf
 from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
@@ -364,14 +363,14 @@ class Visualizer:
         )
 
         # Add legend
-        legend = ax.legend(
+        ax.legend(
             handles=scatter.legend_elements()[0],
             labels=["In-Distribution", "Out-of-Distribution"],
             loc="upper right",
         )
 
-        ax.set_xlabel(f"Component 1")
-        ax.set_ylabel(f"Component 2")
+        ax.set_xlabel("Component 1")
+        ax.set_ylabel("Component 2")
         ax.set_title(f"{title} - {model_name}\n({method_name})")
         ax.grid(True, alpha=0.3)
 

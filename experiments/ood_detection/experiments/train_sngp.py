@@ -13,10 +13,16 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import tensorflow as tf
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Union, Any
-import mlflow
 import json
 import time
+from config.config import TRAINING_CONFIG, SNGPConfig
+from data.data_loader import DataLoader
+from models.sngp_model import SNGPModel, ResetCovarianceCallback
+from evaluation.metrics import OODMetrics
+from evaluation.inference_metrics import InferenceMetrics
+from utils.mlflow_logger import MLflowLogger
+from utils.visualization import Visualizer
+
 
 # Further suppress TensorFlow logging
 tf.get_logger().setLevel(logging.ERROR)
@@ -35,13 +41,6 @@ project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from config.config import TRAINING_CONFIG, EXPERIMENT_CONFIGS, SNGPConfig
-from data.data_loader import DataLoader
-from models.sngp_model import SNGPModel, ResetCovarianceCallback
-from evaluation.metrics import OODMetrics
-from evaluation.inference_metrics import InferenceMetrics
-from utils.mlflow_logger import MLflowLogger
-from utils.visualization import Visualizer
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

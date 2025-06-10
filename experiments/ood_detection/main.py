@@ -9,17 +9,14 @@ import argparse
 import tensorflow as tf
 import numpy as np
 import json
-import mlflow
 from datetime import datetime
+from utils.visualization import Visualizer
 
 # Setup Python path
 project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from config.config import TRAINING_CONFIG, EXPERIMENT_CONFIGS
-from utils.mlflow_logger import MLflowLogger
-from utils.visualization import Visualizer
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -170,7 +167,7 @@ def run_all_experiments(args):
         "sngp_energy",
         "ood_class",
         "softmax",
-    ]  # ["sngp", "energy", "sngp_energy", "ood_class", "softmax"]
+    ]
     all_results = {}
 
     for experiment in experiments:

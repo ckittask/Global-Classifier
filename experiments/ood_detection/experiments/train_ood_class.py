@@ -8,10 +8,17 @@ import logging
 import argparse
 import tensorflow as tf
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Union, Any
-import mlflow
 import json
 import time
+
+from config.config import TRAINING_CONFIG, OODClassConfig
+from data.data_loader import DataLoader
+from models.ood_class_model import OODClassModel
+from evaluation.metrics import OODMetrics
+from evaluation.inference_metrics import InferenceMetrics
+from utils.mlflow_logger import MLflowLogger
+from utils.visualization import Visualizer
+
 
 # Setup paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,13 +26,6 @@ project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from config.config import TRAINING_CONFIG, EXPERIMENT_CONFIGS, OODClassConfig
-from data.data_loader import DataLoader
-from models.ood_class_model import OODClassModel, OODClassDataGenerator
-from evaluation.metrics import OODMetrics
-from evaluation.inference_metrics import InferenceMetrics
-from utils.mlflow_logger import MLflowLogger
-from utils.visualization import Visualizer
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -210,7 +210,7 @@ def train_and_evaluate(config, model_config, use_gpu=False, log_performance=Fals
 
     # Create modified datasets with OOD class
     train_dataset_with_ood = data_loader.create_synthetic_ood(
-        train_dataset, ratio=model_config.synthetic_ood_ratio
+        train_dataset, label_map, ratio=model_config.synthetic_ood_ratio
     )
 
     # Load validation and test data

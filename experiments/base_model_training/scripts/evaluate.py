@@ -14,11 +14,6 @@ import psutil
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-logger.remove()
-# add stout handler
-logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
-
-
 # Import from our utils script
 from utils import (
     set_random_seeds,
@@ -29,6 +24,10 @@ from utils import (
 
 # Import custom dataset class from train.py
 from train import TextClassificationDataset
+
+logger.remove()
+# add stout handler
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
 
 
 def load_model_and_tokenizer(model_path, device):
@@ -312,9 +311,8 @@ def create_evaluation_plots(
         if probabilities.shape[1] == 2:
             mlflow.log_artifact(roc_path)
             mlflow.log_artifact(pr_path)
-    except:
-        logger.warning("Warning: Failed to log plots to MLflow")
-        pass
+    except Exception as e:
+        logger.warning(f"Warning: Failed to log plots to MLflow: {str(e)}")
 
 
 def plot_performance_comparison(model_names, performance_metrics_list, output_dir):
@@ -360,9 +358,10 @@ def plot_performance_comparison(model_names, performance_metrics_list, output_di
 
         try:
             mlflow.log_artifact(plot_path)
-        except:
-            logger.warning("Warning: Failed to log comparison plots to MLflow")
-            pass
+        except Exception as e:
+            logger.warning(
+                f"Warning: Failed to log comparison plot to MLflow: {str(e)}"
+            )
 
 
 def evaluate_and_compare_models(model_paths, model_names, test_data_path, output_dir):
@@ -474,10 +473,9 @@ def evaluate_and_compare_models(model_paths, model_names, test_data_path, output
     try:
         mlflow.log_artifact(comparison_path)
         mlflow.log_artifact(markdown_path)
-    except:
-        # MLflow might not be active
-        logger.warning("Warning: Failed to log comparison results to MLflow")
-        pass
+    except Exception as e:
+        # If MLflow is not set up or fails, we log a warning
+        logger.warning(f"Warning: Failed to log comparison results to MLflow: {str(e)}")
 
     return comparison_df
 
@@ -560,10 +558,7 @@ def main():
         model, tokenizer = load_model_and_tokenizer(args.model_path, device)
 
         # Load test data
-        dataloader, _, labels = load_test_data(args.test_data, tokenizer)
-
-        # Determine number of classes
-        num_labels = len(np.unique(labels))
+        dataloader, _, _ = load_test_data(args.test_data, tokenizer)
 
         # Create output directory
         os.makedirs(args.output_dir, exist_ok=True)

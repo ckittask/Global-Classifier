@@ -9,7 +9,6 @@ import seaborn as sns
 from datetime import datetime
 import mlflow
 from mlflow.tracking import MlflowClient
-from pathlib import Path
 
 
 def setup_mlflow(tracking_uri, experiment_name):
@@ -143,7 +142,9 @@ def log_model_evaluation(evaluation_file, run_id=None, artifacts_dir=None, tags=
             client = MlflowClient()
             client.get_run(run_id)
             new_run = False
-        except:
+        except Exception as e:
+            print(f"Error checking run ID {run_id}: {e}")
+            # If run ID does not exist, create a new run
             print(f"Run ID {run_id} not found. Creating a new run.")
             new_run = True
     else:
@@ -249,7 +250,9 @@ def log_inference_performance(
             client = MlflowClient()
             client.get_run(run_id)
             new_run = False
-        except:
+        except Exception as e:
+            print(f"Error checking run ID {run_id}: {e}")
+            # If run ID does not exist, create a new run
             print(f"Run ID {run_id} not found. Creating a new run.")
             new_run = True
     else:
@@ -468,7 +471,7 @@ def create_radar_chart(data, output_path):
     angles += angles[:1]  # Close the polygon
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(polar=True))
+    _, ax = plt.subplots(figsize=(10, 8), subplot_kw=dict(polar=True))
 
     # Add each model to the chart
     for i, model in enumerate(models):

@@ -4,7 +4,7 @@ SNGP (Spectral-normalized Neural Gaussian Process) model for OOD detection.
 
 import time
 import tensorflow as tf
-from typing import Dict, Tuple, List, Optional, Union
+from typing import Dict, Tuple, List
 import numpy as np
 import logging
 from models.base_model import BaseModel
@@ -249,7 +249,6 @@ class RandomFeatureGaussianProcess(tf.keras.layers.Layer):
         # Return logits and also compute posterior covariance if not training
         if not training:
             # Compute posterior covariance
-            batch_size = tf.shape(inputs)[0]
             feature_cov = self._compute_predictive_covariance(gp_features)
 
             return logits, feature_cov
@@ -505,20 +504,27 @@ class SNGPModel(BaseModel):
         )
 
         # Extract variance from the diagonal of the covariance matrix
+        # covmat shape: [batch_size, batch_size] - diagonal gives per-sample variance
         variance = tf.linalg.diag_part(covmat)
+
+        # Ensure variance is always a vector (batch_size,)
+        if len(variance.shape) == 0:  # scalar case
+            batch_size = tf.shape(logits)[0]
+            variance = tf.fill([batch_size], variance)
+        elif len(variance.shape) > 1:  # multi-dimensional case
+            variance = tf.reduce_mean(variance, axis=-1)
 
         # Mean-field approximation to get uncertainty-adjusted logits
         mean_field_factor = np.pi / 8.0
-        logits_adjusted = logits / tf.sqrt(
-            1.0 + mean_field_factor * variance[:, tf.newaxis]
-        )
+        variance_expanded = tf.expand_dims(variance, -1)  # [batch_size, 1]
+        logits_adjusted = logits / tf.sqrt(1.0 + mean_field_factor * variance_expanded)
 
         # Get predictions from adjusted logits
         probabilities = tf.nn.softmax(logits_adjusted, axis=-1)
         predictions = tf.argmax(probabilities, axis=-1)
 
-        # Uncertainty is based on predictive variance - use mean variance across features
-        uncertainty = tf.reduce_mean(variance, axis=-1)
+        # Return variance as uncertainty measure
+        uncertainty = variance
 
         return predictions, uncertainty
 

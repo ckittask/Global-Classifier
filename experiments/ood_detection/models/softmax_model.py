@@ -3,10 +3,8 @@ Softmax threshold model for OOD detection.
 """
 
 import tensorflow as tf
-from typing import Dict, Tuple, List, Optional, Union
-import numpy as np
+from typing import Dict, Tuple, List
 import logging
-import time
 from models.base_model import BaseModel
 
 logging.basicConfig(level=logging.INFO)

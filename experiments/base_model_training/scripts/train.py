@@ -8,7 +8,6 @@ import pandas as pd
 from datetime import datetime
 
 import torch
-import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torch.optim import AdamW
 

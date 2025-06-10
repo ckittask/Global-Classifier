@@ -4,7 +4,7 @@ Base model architecture for conversation classification with OOD detection.
 
 import tensorflow as tf
 from transformers import TFAutoModel, AutoConfig
-from typing import Dict, Tuple, List, Optional, Union, Any
+from typing import Dict, Tuple, List, Union, Any
 import logging
 import time
 

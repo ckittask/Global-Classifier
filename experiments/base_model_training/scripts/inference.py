@@ -12,6 +12,9 @@ from loguru import logger
 import mlflow
 import psutil
 import platform
+
+# Import utilities
+from utils import set_random_seeds, measure_model_size
 import gc
 from transformers import (
     AutoModelForSequenceClassification,
@@ -21,10 +24,6 @@ from transformers import (
 logger.remove()
 # add stout handler
 logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
-
-
-# Import utilities
-from utils import set_random_seeds, measure_model_size
 
 
 def get_system_info():
@@ -318,9 +317,10 @@ def compare_batch_throughput(results, output_dir):
         try:
             mlflow.log_artifact(throughput_path)
             mlflow.log_artifact(latency_path)
-        except:
-            # MLflow might not be active
-            pass
+        except Exception as e:
+            logger.error(
+                f"Failed to log throughput/latency plots for seq {seq_length}: {e}"
+            )
 
 
 def compare_sequence_length_impact(results, output_dir):
@@ -372,12 +372,8 @@ def compare_sequence_length_impact(results, output_dir):
         # Log to MLflow if active
         try:
             mlflow.log_artifact(latency_path)
-        except:
-            # MLflow might not be active
-            logger.warning(
-                f"Warning: Failed to log latency plot for batch size {batch_size} to MLflow"
-            )
-            pass
+        except Exception as e:
+            logger.error(f"Failed to log latency plot for batch size {batch_size}: {e}")
 
 
 def create_heatmap(results, output_dir):
@@ -455,10 +451,8 @@ def create_heatmap(results, output_dir):
     try:
         mlflow.log_artifact(latency_heatmap_path)
         mlflow.log_artifact(throughput_heatmap_path)
-    except:
-        # MLflow might not be active
-        logger.warning("Warning: Failed to log heatmap plots to MLflow")
-        pass
+    except Exception as e:
+        logger.error(f"Failed to log heatmap plots to MLflow: {e}")
 
 
 def create_summary_report(results, system_info, output_dir):
@@ -564,10 +558,8 @@ def create_summary_report(results, system_info, output_dir):
     # Log to MLflow if active
     try:
         mlflow.log_artifact(report_path)
-    except:
-        # MLflow might not be active
-        logger.warning("Warning: Failed to log report to MLflow")
-        pass
+    except Exception as e:
+        logger.error(f"Failed to log report to MLflow: {e}")
 
 
 def compare_models(model_results, output_dir):
@@ -764,10 +756,8 @@ def compare_models(model_results, output_dir):
         mlflow.log_artifact(batch_latency_path)
         mlflow.log_artifact(batch_throughput_path)
         mlflow.log_artifact(comparison_path)
-    except:
-        # MLflow might not be active
-        logger.warning("Warning: Failed to log comparison plots to MLflow")
-        pass
+    except Exception as e:
+        logger.error(f"Failed to log comparison plots to MLflow: {e}")
 
 
 def main():
@@ -970,7 +960,7 @@ def main():
                     mlflow.log_artifact(results_path)
 
                     # Log key metrics
-                    key = f"batch_1_seq_128"
+                    key = "batch_1_seq_128"
                     if key in results["benchmarks"]:
                         mlflow.log_metric(
                             "inference_latency_ms",

@@ -19,7 +19,7 @@ import pandas as pd
 import argparse
 import sys
 import os
-from typing import Dict, List, Tuple, Optional
+from typing import List, Optional
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -319,7 +319,7 @@ def generate_statistics(original_df: pd.DataFrame, converted_df: pd.DataFrame):
     orig_turns = len(original_df)
     orig_agencies = original_df["agency"].nunique()
 
-    logger.info(f"Original data:")
+    logger.info("Original data:")
     logger.info(f"  Conversations: {orig_conversations}")
     logger.info(f"  Total turns: {orig_turns}")
     logger.info(f"  Unique agencies: {orig_agencies}")
@@ -331,7 +331,7 @@ def generate_statistics(original_df: pd.DataFrame, converted_df: pd.DataFrame):
     conv_conversations = len(converted_df)
     conv_agencies = converted_df["agency"].nunique()
 
-    logger.info(f"\nConverted data:")
+    logger.info("\nConverted data:")
     logger.info(f"  Conversations: {conv_conversations}")
     logger.info(f"  Unique agencies: {conv_agencies}")
 
@@ -340,7 +340,7 @@ def generate_statistics(original_df: pd.DataFrame, converted_df: pd.DataFrame):
         logger.info(f"  Average turns per conversation: {avg_turns:.1f}")
 
     # Agency distribution
-    logger.info(f"\nAgency distribution:")
+    logger.info("\nAgency distribution:")
     agency_counts = converted_df["agency"].value_counts()
     for agency, count in agency_counts.items():
         logger.info(f"  {agency}: {count}")
@@ -384,7 +384,7 @@ def main():
         # Save output
         save_output(converted_df, args.output_file, include_metadata=args.verbose)
 
-        logger.info(f"\nConversion completed successfully!")
+        logger.info("\nConversion completed successfully!")
         logger.info(f"Output saved to: {args.output_file}")
 
     except Exception as e:

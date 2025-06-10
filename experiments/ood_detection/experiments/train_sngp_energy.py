@@ -8,18 +8,9 @@ import logging
 import argparse
 import tensorflow as tf
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Union, Any
-import mlflow
 import json
 import time
-
-# Setup paths
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from config.config import TRAINING_CONFIG, EXPERIMENT_CONFIGS, SNGPEnergyConfig
+from config.config import TRAINING_CONFIG, SNGPEnergyConfig
 from data.data_loader import DataLoader
 from models.sngp_energy_model import SNGPEnergyModel, SNGPEnergyLoss
 from models.sngp_model import ResetCovarianceCallback
@@ -27,6 +18,13 @@ from evaluation.metrics import OODMetrics
 from evaluation.inference_metrics import InferenceMetrics
 from utils.mlflow_logger import MLflowLogger
 from utils.visualization import Visualizer
+
+# Setup paths
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

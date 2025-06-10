@@ -4,7 +4,7 @@ Inference performance metrics for OOD detection models.
 
 import tensorflow as tf
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Union, Any, Callable
+from typing import Dict, List, Optional, Any, Callable
 import time
 import logging
 import os
@@ -12,7 +12,6 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -252,7 +251,10 @@ class InferenceMetrics:
                     # For CPU, we use the model size as a proxy
                     model_size = model.count_params() * 4  # 4 bytes per parameter
                     memory_usage = model_size / (1024**2)  # Convert to MB
-            except:
+            except Exception as e:
+                logger.warning(
+                    f"Could not retrieve memory info: {e}. Using model size as proxy."
+                )
                 # If memory info is not available, use a placeholder
                 memory_usage = -1
 
@@ -299,7 +301,7 @@ class InferenceMetrics:
 
         # Combine legends
         lines = line1 + line2 + line3
-        labels = [l.get_label() for l in lines]
+        labels = [line.get_label() for line in lines]
         ax1.legend(lines, labels, loc="upper left")
 
         plt.title(title)
@@ -348,11 +350,11 @@ class InferenceMetrics:
         # Plot
         if metric == "throughput":
             # For throughput, higher is better
-            plot = sns.barplot(x="Batch Size", y="Value", hue="Model", data=df, ax=ax)
+            sns.barplot(x="Batch Size", y="Value", hue="Model", data=df, ax=ax)
             ax.set_ylabel("Throughput (examples/second)")
         else:
             # For time metrics, lower is better
-            plot = sns.barplot(x="Batch Size", y="Value", hue="Model", data=df, ax=ax)
+            sns.barplot(x="Batch Size", y="Value", hue="Model", data=df, ax=ax)
             ax.set_ylabel(f"Inference Time ({metric})")
 
         ax.set_title(title)

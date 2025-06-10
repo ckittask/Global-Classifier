@@ -80,7 +80,7 @@ def process_conversations(df):
     logger.info(
         f"Created {len(conversation_df)} conversation instances from {len(df)} turns"
     )
-    logger.info(f"Conversations per agency:")
+    logger.info("Conversations per agency:")
     agency_counts = conversation_df["agency"].value_counts()
     for agency, count in agency_counts.items():
         logger.info(f"  {agency}: {count} conversations")

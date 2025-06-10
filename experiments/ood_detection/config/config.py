@@ -2,9 +2,8 @@
 Configuration file for the OOD detection experiments.
 """
 
-import os
 from dataclasses import dataclass
-from typing import List, Optional, Union, Dict, Any
+from typing import List, Optional
 
 
 @dataclass

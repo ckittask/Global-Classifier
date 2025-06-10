@@ -3,10 +3,9 @@ OOD class model: treats OOD data as an additional class during training.
 """
 
 import tensorflow as tf
-from typing import Dict, Tuple, List, Optional, Union
+from typing import Dict, Tuple, List
 import numpy as np
 import logging
-import time
 from models.base_model import BaseModel
 
 logging.basicConfig(level=logging.INFO)

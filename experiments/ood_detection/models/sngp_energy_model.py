@@ -3,12 +3,10 @@ Implementation of SNGP + Energy model for enhanced OOD detection.
 """
 
 import tensorflow as tf
-from typing import Dict, Tuple, List, Optional, Union
+from typing import Dict, Tuple, List
 import numpy as np
 import logging
-import time
 from models.sngp_model import SNGPModel
-from models.energy_model import EnergyModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

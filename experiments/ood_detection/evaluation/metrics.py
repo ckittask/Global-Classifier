@@ -2,14 +2,12 @@
 Evaluation metrics for OOD detection models.
 """
 
-import tensorflow as tf
 import numpy as np
-from typing import Dict, List, Tuple, Optional, Union, Any, Callable
+from typing import Dict, List, Optional
 import sklearn.metrics as skmetrics
 import matplotlib.pyplot as plt
 import seaborn as sns
 import logging
-import tempfile
 import os
 from scipy import interpolate
 
@@ -375,7 +373,7 @@ class OODMetrics:
 
         # Add threshold line
         ax.axvline(
-            threshold, color="green", linestyle="--", label=f"Threshold at 95% TPR"
+            threshold, color="green", linestyle="--", label="Threshold at 95% TPR"
         )
 
         ax.set_xlabel("Uncertainty Score")

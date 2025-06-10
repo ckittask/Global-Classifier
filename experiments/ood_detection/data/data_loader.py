@@ -5,9 +5,8 @@ Data loading and preprocessing for the OOD detection models.
 import pandas as pd
 import tensorflow as tf
 import numpy as np
-from typing import Tuple, List, Dict, Optional, Union
+from typing import Tuple, List, Dict
 from transformers import AutoTokenizer
-import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -152,7 +151,10 @@ class DataLoader:
         return dataset
 
     def create_synthetic_ood(
-        self, train_dataset: tf.data.Dataset, ratio: float = 0.2
+        self,
+        train_dataset: tf.data.Dataset,
+        label_map: Dict[str:int],
+        ratio: float = 0.2,
     ) -> tf.data.Dataset:
         """
         Create synthetic OOD examples for training.
@@ -206,10 +208,12 @@ class DataLoader:
 
                 # Apply shuffling
                 original_tokens = input_ids[mask]
-                shuffled_input_ids[mask] = original_tokens[np.argsort(token_positions)]
+                shuffled_input_ids[mask] = np.random.permutation(original_tokens)
 
                 # Add to synthetic data with OOD label (-1 or the OOD class index)
-                synthetic_data.append((shuffled_input_ids, attention_mask, -1))
+                synthetic_data.append(
+                    (shuffled_input_ids, attention_mask, label_map.get("OOD", -1))
+                )
 
         # Combine original and synthetic data
         combined_data = all_data + synthetic_data

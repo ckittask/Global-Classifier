@@ -6,7 +6,7 @@ import mlflow
 import os
 import json
 import logging
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -61,7 +61,9 @@ class MLflowLogger:
         try:
             self.experiment_id = mlflow.create_experiment(experiment_name)
             logger.info(f"Created new experiment: {experiment_name}")
-        except:
+        except Exception as e:
+            # If experiment already exists, get its ID
+            logger.warning(f"Experiment '{experiment_name}' already exists: {e}")
             self.experiment_id = mlflow.get_experiment_by_name(
                 experiment_name
             ).experiment_id
@@ -80,6 +82,11 @@ class MLflowLogger:
         Returns:
             run_id: The ID of the run
         """
+        # End any existing active run first
+        if mlflow.active_run() is not None:
+            logger.warning("Ending existing active MLflow run")
+            mlflow.end_run()
+
         mlflow.start_run(experiment_id=self.experiment_id, run_name=run_name, tags=tags)
 
         run_id = mlflow.active_run().info.run_id
@@ -89,8 +96,14 @@ class MLflowLogger:
 
     def end_run(self):
         """End the current MLflow run."""
-        mlflow.end_run()
-        logger.info("Ended MLflow run")
+        try:
+            if mlflow.active_run() is not None:
+                mlflow.end_run()
+                logger.info("Ended MLflow run")
+            else:
+                logger.info("No active MLflow run to end")
+        except Exception as e:
+            logger.warning(f"Error ending MLflow run: {e}")
 
     def log_params(self, params: Dict[str, Any]):
         """
@@ -390,7 +403,7 @@ class MLflowLogger:
 
         # Add threshold line
         ax.axvline(
-            threshold, color="green", linestyle="--", label=f"Threshold at 95% TPR"
+            threshold, color="green", linestyle="--", label="Threshold at 95% TPR"
         )
 
         ax.set_xlabel("Uncertainty Score")

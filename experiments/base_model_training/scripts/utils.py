@@ -21,7 +21,6 @@ import mlflow
 import json
 import time
 from datetime import datetime
-from constants import MODEL_CONFIG
 
 
 def set_random_seeds(seed_val=42):
@@ -505,9 +504,9 @@ def analyze_dataset(data_path, text_col="text", label_col="label", output_dir=No
             mlflow.log_artifact(class_dist_path)
             mlflow.log_artifact(text_len_path)
             mlflow.log_dict(stats, "dataset_stats.json")
-        except:
-            # MLflow might not be active
-            pass
+        except Exception as e:
+            print(f"Warning: Could not log dataset analysis to MLflow: {str(e)}")
+            # MLflow might nt be active
 
     return stats
 
@@ -626,16 +625,18 @@ def compare_models(metrics_list, model_names=None, output_dir=None):
                 # Log to MLflow if active
                 try:
                     mlflow.log_artifact(plot_path)
-                except:
+                except Exception as e:
+                    print(
+                        f"Warning: Could not log plot {plot_path} to MLflow: {str(e)}"
+                    )
                     # MLflow might not be active
-                    pass
 
         # Log to MLflow if active
         try:
             mlflow.log_artifact(csv_path)
             mlflow.log_artifact(json_path)
-        except:
+        except Exception as e:
+            print(f"Warning: Could not log comparison files to MLflow: {str(e)}")
             # MLflow might not be active
-            pass
 
     return comp_df
