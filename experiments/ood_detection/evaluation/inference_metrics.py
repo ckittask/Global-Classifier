@@ -154,7 +154,7 @@ class InferenceMetrics:
         times = []
 
         for run in range(num_runs):
-            logger.info(f"Training run {run+1}/{num_runs}")
+            logger.info(f"Training run {run + 1}/{num_runs}")
 
             # Create new model instance
             model = model_fn()

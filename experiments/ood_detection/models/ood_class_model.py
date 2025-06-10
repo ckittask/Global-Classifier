@@ -28,7 +28,6 @@ class OODClassModel(BaseModel):
         hidden_dims: List[int] = None,
         dropout_rate: float = 0.1,
         synthetic_ood_ratio: float = 0.2,
-        **kwargs
     ):
         """
         Initialize the OOD class model.
@@ -47,7 +46,6 @@ class OODClassModel(BaseModel):
             num_labels=num_labels + 1,  # +1 for OOD class
             hidden_dims=hidden_dims,
             dropout_rate=dropout_rate,
-            **kwargs
         )
 
         self.num_id_classes = num_labels  # Store original number of classes

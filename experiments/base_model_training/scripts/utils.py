@@ -543,7 +543,7 @@ def compare_models(metrics_list, model_names=None, output_dir=None):
     Compare multiple models based on their metrics
     """
     if model_names is None:
-        model_names = [f"Model {i+1}" for i in range(len(metrics_list))]
+        model_names = [f"Model {i + 1}" for i in range(len(metrics_list))]
 
     if len(model_names) != len(metrics_list):
         raise ValueError(

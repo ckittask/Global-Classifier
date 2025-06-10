@@ -39,7 +39,6 @@ AVAILABLE_MODELS = {
 
 
 class TextClassificationDataset(Dataset):
-
     def __init__(self, texts, labels, tokenizer, max_length=128):
         self.texts = texts
         self.labels = labels
@@ -437,7 +436,6 @@ def train_and_evaluate(args):
         best_epoch = 0
 
         for epoch in range(args.num_epochs):
-
             train_loss = train_epoch(
                 model, train_dataloader, optimizer, scheduler, device
             )

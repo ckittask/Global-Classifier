@@ -27,7 +27,6 @@ class SpectralNormalization(tf.keras.layers.Wrapper):
         layer: tf.keras.layers.Layer,
         norm_multiplier: float = 0.9,
         n_power_iterations: int = 1,
-        **kwargs,
     ):
         """
         Initialize the wrapper.
@@ -38,7 +37,7 @@ class SpectralNormalization(tf.keras.layers.Wrapper):
             n_power_iterations: Number of power iterations for spectral norm estimation
             **kwargs: Additional arguments
         """
-        super().__init__(layer, **kwargs)
+        super().__init__(layer)
         self.norm_multiplier = norm_multiplier
         self.n_power_iterations = n_power_iterations
 

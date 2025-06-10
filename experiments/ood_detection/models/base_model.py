@@ -21,7 +21,6 @@ class BaseModel(tf.keras.Model):
         num_labels: int = 2,
         hidden_dims: List[int] = None,
         dropout_rate: float = 0.1,
-        **kwargs
     ):
         """
         Initialize the base model.
@@ -61,7 +60,6 @@ class BaseModel(tf.keras.Model):
         training: bool = None,
         return_features: bool = False,
         measure_inference_time: bool = False,
-        **kwargs
     ) -> Union[tf.Tensor, Tuple[tf.Tensor, tf.Tensor]]:
         """
         Forward pass of the model.

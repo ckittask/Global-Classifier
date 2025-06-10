@@ -302,7 +302,7 @@ def print_sample_conversions(df: pd.DataFrame, num_samples: int = 3):
     logger.info("=" * 80)
 
     for i, row in df.head(num_samples).iterrows():
-        logger.info(f"Conversation {i+1}:")
+        logger.info(f"Conversation {i + 1}:")
         logger.info(f"Agency: {row['agency']}")
         logger.info(f"Text: {row['conversation'][:200]}...")
         logger.info(f"Turns: {row.get('num_turns', 'N/A')}")
@@ -324,7 +324,7 @@ def generate_statistics(original_df: pd.DataFrame, converted_df: pd.DataFrame):
     logger.info(f"  Total turns: {orig_turns}")
     logger.info(f"  Unique agencies: {orig_agencies}")
     logger.info(
-        f"  Average turns per conversation: {orig_turns/orig_conversations:.1f}"
+        f"  Average turns per conversation: {orig_turns / orig_conversations:.1f}"
     )
 
     # Converted data stats

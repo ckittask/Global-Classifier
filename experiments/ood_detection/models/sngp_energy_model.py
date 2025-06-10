@@ -35,7 +35,6 @@ class SNGPEnergyModel(SNGPModel):
         gp_cov_ridge_penalty: float = 1.0,
         energy_temp: float = 1.0,
         alpha: float = 0.5,  # Weight for combining SNGP and Energy scores
-        **kwargs
     ):
         """
         Initialize the SNGP+Energy model.
@@ -66,7 +65,6 @@ class SNGPEnergyModel(SNGPModel):
             gp_normalize_input=gp_normalize_input,
             gp_cov_momentum=gp_cov_momentum,
             gp_cov_ridge_penalty=gp_cov_ridge_penalty,
-            **kwargs
         )
 
         self.energy_temp = energy_temp
@@ -186,7 +184,6 @@ class SNGPEnergyLoss(tf.keras.losses.Loss):
         ood_label: int = -1,
         energy_margin: float = 10.0,
         energy_weight: float = 0.1,
-        **kwargs
     ):
         """
         Initialize the SNGP+Energy loss.
@@ -197,7 +194,7 @@ class SNGPEnergyLoss(tf.keras.losses.Loss):
             energy_weight: Weight for energy loss term
             **kwargs: Additional arguments
         """
-        super().__init__(**kwargs)
+        super().__init__()
         self.ood_label = ood_label
         self.energy_margin = energy_margin
         self.energy_weight = energy_weight

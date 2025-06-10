@@ -221,7 +221,7 @@ class CalibrationCallback(tf.keras.callbacks.Callback):
 
             if self.verbose > 0:
                 logger.info(
-                    f"Epoch {epoch+1}, NLL: {current_nll:.4f}, Temperature: {self.model.temperature_layer.temp.numpy():.4f}"
+                    f"Epoch {epoch + 1}, NLL: {current_nll:.4f}, Temperature: {self.model.temperature_layer.temp.numpy():.4f}"
                 )
 
             # Check for improvement
@@ -232,7 +232,7 @@ class CalibrationCallback(tf.keras.callbacks.Callback):
                 self.wait += 1
                 if self.wait >= self.patience:
                     if self.verbose > 0:
-                        logger.info(f"Early stopping at epoch {epoch+1}")
+                        logger.info(f"Early stopping at epoch {epoch + 1}")
                     break
 
         if self.verbose > 0:
