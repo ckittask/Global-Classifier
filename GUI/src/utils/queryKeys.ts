@@ -27,21 +27,13 @@ export const datasetQueryKeys = {
   DATASET_FILTERS: (): string[] => ['datasets/filters'],
   DATASET_OVERVIEW: function (
     pageIndex?: number,
-    datasetGroupName?: string,
-    versionMajor?: number,
-    versionMinor?: number,
-    versionPatch?: number,
-    validationStatus?: string,
+    generationStatus?: string,
     sort?: string
   ) {
     return [
-      'datasetgroup/overview',
+      'datasets/overview',
       pageIndex,
-      datasetGroupName,
-      versionMajor,
-      versionMinor,
-      versionPatch,
-      validationStatus,
+      generationStatus,
       sort,
     ].filter((val) => val !== undefined);
   },

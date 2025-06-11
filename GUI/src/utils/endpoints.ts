@@ -13,27 +13,17 @@ export const integratedAgenciesEndPoints = {
 };
 
 export const datasetsEndpoints = {
-  GET_OVERVIEW: (): string => '/global-classifier/datasetgroup/overview',
+  GET_OVERVIEW: (): string => '/global-classifier/datasets/list',
+  
   GET_DATASET_FILTERS: (): string =>
     '/global-classifier/datasetgroup/overview/filters',
-  ENABLE_DATASET: (): string => `/global-classifier/datasetgroup/update/status`,
   GET_DATASETS: (): string => `/global-classifier/datasetgroup/group/data`,
   GET_METADATA: (): string => `/global-classifier/datasetgroup/group/metadata`,
-  CREATE_DATASET_GROUP: (): string => `/global-classifier/datasetgroup/create`,
-  IMPORT_DATASETS: (): string => `/datasetgroup/data/import`,
   EXPORT_DATASETS: (): string => `/datasetgroup/data/download`,
-  DATASET_GROUP_PATCH_UPDATE: (): string =>
-    `/global-classifier/datasetgroup/update/patch`,
   DATASET_GROUP_MINOR_UPDATE: (): string =>
     `/global-classifier/datasetgroup/update/minor`,
   DATASET_GROUP_MAJOR_UPDATE: (): string =>
     `/global-classifier/datasetgroup/update/major`,
-  DELETE_DATASET_GROUP:(): string =>`global-classifier/datasetgroup/delete`,
-  GET_STOP_WORDS: (): string => `/global-classifier/datasetgroup/stop-words`,
-  POST_STOP_WORDS: (): string => `/global-classifier/datasetgroup/update/stop-words`,
-  DELETE_STOP_WORD: (): string => `/global-classifier/datasetgroup/delete/stop-words`,
-  IMPORT_STOP_WORDS: (): string => `/datasetgroup/data/import/stop-words`,
-  DELETE_STOP_WORDS: (): string => `/datasetgroup/data/delete/stop-words`,
 };
 
 export const correctedTextEndpoints = {
