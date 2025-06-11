@@ -159,6 +159,8 @@ services:
       - 9010:8080
     networks:
       - bykstack
+    depends_on:
+      - init
 
   classifier-service:
     container_name: classifier-service
