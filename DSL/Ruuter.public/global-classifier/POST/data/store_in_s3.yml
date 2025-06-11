@@ -1,0 +1,72 @@
+declaration:
+  call: declare
+  version: 0.1
+  description: "Transfer generated dataset to S3 storage"
+  method: post
+  accepts: json
+  returns: json
+  namespace: global-classifier
+  allowlist:
+    body:
+      - field: filePath
+        type: string
+      - field: fileName
+        description: "Name of the file to be transferred"
+
+extract_request_data:
+  assign:
+    file_path: ${incoming.body.filePath}
+    file_name: ${incoming.body.fileName}
+    s3_destination: ${file_name}
+  next: log_transfer_request
+
+log_transfer_request:
+  log: "Transferring dataset from ${file_path}  to S3"
+  next: transfer_to_s3
+
+transfer_to_s3:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_S3_FERRY]/v1/files/copy"
+    headers:
+      Content-Type: "application/json"
+    body:
+      sourceFilePath: ${file_path}
+      sourceStorageType: "FS"
+      destinationFilePath: ${s3_destination}
+      destinationStorageType: "S3"
+  result: s3_transfer_res
+  next: check_transfer_status
+
+check_transfer_status:
+  switch:
+    - condition: ${s3_transfer_res.status == 201}
+      next: update_format_success
+    - condition: true
+      next: update_format_failure
+
+update_format_success:
+  assign:
+    format_res:
+      message: "Dataset successfully transferred to S3"
+      location: ${s3_destination}
+  next: return_success
+
+update_format_failure:
+  assign:
+    format_res:
+      operationSuccessful: false
+      message: "Failed to transfer dataset to S3"
+      error: ${s3_transfer_res.body}
+      status: ${s3_transfer_res.status}
+  next: return_failure
+
+return_success:
+  status: 200
+  return: ${format_res}
+  next: end
+
+return_failure:
+  status: 500
+  return: ${format_res}
+  next: end

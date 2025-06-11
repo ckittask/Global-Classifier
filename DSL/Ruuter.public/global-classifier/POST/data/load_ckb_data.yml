@@ -1,0 +1,78 @@
+declaration:
+  call: declare
+  version: 0.1
+  description: "Load CKB data into local filepath"
+  method: post
+  accepts: json
+  returns: json
+  namespace: global-classifier
+  allowlist:
+    body:
+      - field: filePath
+        type: string
+        description: "Local file path of the generated dataset"
+      - field: bucketName
+        type: string
+        description: "S3 bucket name for storing the dataset"
+      - field: s3Key
+        type: string
+        description: "S3 key (path) for the dataset in the bucket"
+
+extract_request_data:
+  assign:
+    file_path_destination: ${incoming.body.filePath}
+    bucket: ${incoming.body.bucketName}
+    s3_key: ${incoming.body.s3Key}
+    s3_source: ${s3_key}
+  next: log_transfer_request
+
+log_transfer_request:
+  log: "Loading dataset from ${s3_key} to local filepath ${file_path}"
+  next: transfer_to_s3
+
+load_to_local:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_S3_FERRY]/v1/files/copy"
+    headers:
+      Content-Type: "application/json"
+    body:
+      sourceFilePath: ${s3_destination}
+      sourceStorageType: "S3"
+      destinationFilePath: ${file_path}
+      destinationStorageType: "FS"
+  result: s3_transfer_res
+  next: check_transfer_status
+
+check_transfer_status:
+  switch:
+    - condition: ${s3_transfer_res.status == 201}
+      next: update_format_success
+    - condition: true
+      next: update_format_failure
+
+update_format_success:
+  assign:
+    format_res:
+      message: "Dataset successfully loaded to local filepath"
+      location: ${s3_destination}
+  next: return_success
+
+update_format_failure:
+  assign:
+    format_res:
+      operationSuccessful: false
+      message: "Failed to transfer dataset to local filepath"
+      error: ${s3_transfer_res.body}
+      status: ${s3_transfer_res.status}
+  next: return_failure
+
+return_success:
+  status: 200
+  return: ${format_res}
+  next: end
+
+return_failure:
+  status: 500
+  return: ${format_res}
+  next: end
