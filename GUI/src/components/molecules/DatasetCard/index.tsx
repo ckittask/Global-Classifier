@@ -5,89 +5,73 @@ import Button from 'components/Button';
 import Label from 'components/Label';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDialog } from 'hooks/useDialog';
-import { Operation } from 'types/datasetGroups';
 import { datasetQueryKeys } from 'utils/queryKeys';
 import { ButtonAppearanceTypes, LabelType } from 'enums/commonEnums';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from 'utils/commonUtilts';
 import SyncStatusLabel from '../SyncStatusLabel';
 import DataGenerationStatusLabel from '../DataGenerationStatusLabel';
+import { useNavigate } from 'react-router-dom';
 
 type DatasetCardProps = {
-  datasetId: string;
-  datasetName?: string;
-  lastTrained?: Date | null |string;
+  datasetId: number | string;
+  lastTrained?: Date | null | string;
   isLatest?: boolean;
-  isEnabled?: boolean;
-  lastUpdated?: Date | null;
   dataGenerationStatus?: string;
   lastModelTrained?: string;
-  enableAllowed?: boolean;
-  majorVersion?: string;
-  minorVersion?: string;	
+  majorVersion?: string | number;
+  minorVersion?: string | number;
 };
 
 const DatasetCard: FC<PropsWithChildren<DatasetCardProps>> = ({
   datasetId,
-  datasetName,
-  isLatest,
-  isEnabled,
-  lastUpdated,
   lastTrained,
   dataGenerationStatus,
   lastModelTrained,
-  enableAllowed,
   majorVersion,
   minorVersion
 }) => {
 
   const { t } = useTranslation();
+const navigate = useNavigate();
 
+const viewDataset = () => {
+  navigate(`/view-dataset?datasetId=${datasetId}`);
+
+};
   return (
     <div>
       <div className="dataset-group-card">
         <div className="row switch-row">
-          <div className="text">{majorVersion && minorVersion ? `${datasetName} Version ${majorVersion}.${minorVersion}`:""}</div>
-          <Switch
-            label=""
-            checked={isEnabled}
-            disabled={!enableAllowed}
-            onCheckedChange={() => {}}
-          />
+          <div className="text" style={{ fontWeight: 600 }}>{`V${majorVersion}.${minorVersion}`}</div>
         </div>
         <div className="py-3">
           <p>
             {t('integratedAgencies.agencyCard.lastModelTrained')}:{' '}
-            {lastModelTrained===""?"N/A":lastModelTrained}
+            {lastModelTrained === "" ? "N/A" : lastModelTrained}
           </p>
           <p>
             {t('integratedAgencies.agencyCard.lastUsedForTraining')}:{' '}
-            {lastTrained==="1970-01-01T00:00:00.000+00:00"?"N/A":formatDate(lastTrained as Date, 'D.M.yy-H:m')}
-          </p>
-          <p>
-            {t('integratedAgencies.agencyCard.lastSynced')}:{' '}
-            {lastSynced && formatDate(lastSynced, 'DD.MM.yy-HH:mm')}
+            {lastTrained === "1970-01-01T00:00:00.000+00:00" ? "N/A" : formatDate(lastTrained as Date, 'D.M.yy-H:m')}
           </p>
         </div>
-        
 
         <div className="flex">
-        <DataGenerationStatusLabel status={syncStatus} />
-          {isLatest ? (
+          <DataGenerationStatusLabel status={dataGenerationStatus} />
+          {/* {isLatest ? (
             <Label type={LabelType.SUCCESS}>
               {t('integratedAgencies.agencyCard.latest')}
             </Label>
-          ) : null}
+          ) : null} */}
         </div>
 
         <div className="label-row">
           <Button
             appearance={ButtonAppearanceTypes.SECONDARY}
             size="s"
-            onClick={() => {
-            }}
+            onClick={viewDataset}
           >
-            {t('datasetGroups.datasetCard.settings')}
+            {t('datasets.datasetCard.settings')}
           </Button>
         </div>
       </div>
