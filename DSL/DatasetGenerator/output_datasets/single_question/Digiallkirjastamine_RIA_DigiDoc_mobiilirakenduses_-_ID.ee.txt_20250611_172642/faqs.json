@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Mida täйтab Tallinnu üli- ja tasuta õpetuskondus?"
+  },
+  {
+    "question": "Mida õikub {topic_content} õpetuste õpetuks?"
+  },
+  {
+    "question": "Mida täocate õpetajad arusaamvalve kohta [topic]?"
+  },
+  {
+    "question": "Mida täna õppes on ja kuidas see mõjuga seestab?"
+  },
+  {
+    "question": "Mida tehtud on {topic_content} ja kuidas see mõjutab {another_topic_related_concept}?"
+  },
+  {
+    "question": "Mida täйтab järgmisestõlgeval õpetustest {topic_content}?"
+  },
+  {
+    "question": "Mida tehtsite {topic_content} täpseleks mu!"
+  },
+  {
+    "question": "Mida täpselt õpida nii {topic_content} kui {difficulty:-medium}?"
+  },
+  {
+    "question": "Mida on {topic_content} õpilasele kõige rohkem kiirus?"
+  },
+  {
+    "question": "Mida tehtud on {topic_content} õppemised?"
+  }
+]

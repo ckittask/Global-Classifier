@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Mida on {topic_content} kontekstis?"
+  },
+  {
+    "question": "Mida te oledad närmalt {topic_content} õppes?"
+  },
+  {
+    "question": "Mida täocate õpetaja {topic} kohta?"
+  },
+  {
+    "question": "Mida te arvutuste peale teed?"
+  },
+  {
+    "question": "Mida ma teadsin {topic_content} kohta ja kuidas see mõjutab {specific_aspect_of_topic_content}?"
+  },
+  {
+    "question": "Mida on {topic_content} õpetatud?"
+  },
+  {
+    "question": "Mida täna õppes on ja kuidas see liitub {topic_content} kontekstiga?"
+  },
+  {
+    "question": "Mida täivaldas ma õpetust täpsemalt?"
+  },
+  {
+    "question": "Mida pean arvestada, et parelmut aru saada {topic_content} õpetusest?"
+  },
+  {
+    "question": "Mida täivistame selles õpetõrjas, ja miks See on tähtede õpet?"
+  }
+]

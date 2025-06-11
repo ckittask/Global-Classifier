@@ -1,0 +1,29 @@
+[
+  {
+    "question": "Mida te ei süüdselt loosisid {topic_content} kontekstis?"
+  },
+  {
+    "question": "Mida täpselt teate sellest, et kuidas {topic_content} mõjutab {specific_aspect_of_topic}?"
+  },
+  {
+    "question": "Mida täna õppes Õlge teoreetiliselt?"
+  },
+  {
+    "question": "Mida täna õppes peab õppima {topic_content}?"
+  },
+  {
+    "question": "Mida täist näuke õpetab õpetamist õpetamisel?"
+  },
+  {
+    "question": "Mida tehtude põhiliselt põleit on õpetusüstemisel?"
+  },
+  {
+    "question": "Mida te näojad täpsemalt aruandesid {topic_content} ja kuidas {topic_content} saastavad {difficulty:-medium} õppimist?"
+  },
+  {
+    "question": "Mida selles õpetusest sa talene täzud?"
+  },
+  {
+    "question": "Mida te mõtlete, kui {topic_content} teevad ja kuidas seda kasutatakse {discipline} õpetustes?"
+  }
+]

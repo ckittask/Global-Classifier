@@ -190,12 +190,12 @@ services:
       - SERVICE_DEBUG=false
       - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
     volumes:
-      - ./src/dataset-generation/config:/app/config
-      - ./src/dataset-generation/templates:/app/templates
-      - ./src/dataset-generation/user_configs:/app/user_configs
+      - ./DSL/DatasetGenerator/config:/app/config
+      - ./DSL/DatasetGenerator/templates:/app/templates
+      - ./DSL/DatasetGenerator/user_configs:/app/user_configs
       - cron_data:/app/data
-      - ./src/dataset-generation/output_datasets:/app/output_datasets
-      - ./src/dataset-generation/logs:/app/logs
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
+      - ./DSL/DatasetGenerator/logs:/app/logs
     depends_on:
       - dataset-gen-ollama
       - dataset-gen-mlflow
@@ -218,8 +218,8 @@ services:
     - MLFLOW_DEFAULT_ARTIFACT_ROOT=${MLFLOW_DEFAULT_ARTIFACT_ROOT}
     - MLFLOW_FLASK_SERVER_SECRET_KEY=${MLFLOW_FLASK_SERVER_SECRET_KEY}
     volumes:
-      - ./src/dataset-generation/mlflow_data:/mlflow/mlflow_data
-      - ./src/dataset-generation/mlflow_artifacts:/mlflow/mlflow_artifacts
+      - ./DSL/DatasetGenerator/mlflow_data:/mlflow/mlflow_data
+      - ./DSL/DatasetGenerator/mlflow_artifacts:/mlflow/mlflow_artifacts
     networks:
       - bykstack-gc
 
@@ -230,8 +230,9 @@ services:
     volumes:
       - ./DSL/CronManager/DSL:/DSL
       - ./DSL/CronManager/scripts:/app/scripts
-      - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
       - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
+      - ./DSL/DatasetGenerator/config:/app/config
       - cron_data:/app/data
     environment:
       - server.port=9010
@@ -262,7 +263,7 @@ services:
     image: s3-ferry:latest
     container_name: gc-s3-ferry
     volumes:
-      - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
     env_file:
       - config.env
     ports:
@@ -273,9 +274,11 @@ services:
 
   s3-dataset-processor:
     container_name: s3-dataset-processor
-    build: ./src/s3-dataset-processor
+    build: ./src/s3_dataset_processor
     ports:
       - "8001:8001"
+    volumes:
+      - cron_data:/app/data  # Same volume as cron-manager
     environment:
       - PORT=8001
     networks:

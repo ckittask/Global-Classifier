@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Mida te teate {topic_content} või mida seda õpet on kõige oluline?"
+  },
+  {
+    "question": "Mida täocate {topic_content} õpetõrjas?"
+  },
+  {
+    "question": "Mida pe täna õppida {topic_content} kohta ja kuidas seda õppida peab aru tegemast?"
+  },
+  {
+    "question": "Mida on {topic_content} põhineja?"
+  },
+  {
+    "question": "Mida te arvate {topic_content} võtmed {difficulty:-medium}!"
+  },
+  {
+    "question": "Mida täist näuke teostab, koostides {topic_content}?"
+  },
+  {
+    "question": "Mida tähendab 'küllusõtnus' ja kuidas see sõltub ülitähelevõtust?"
+  },
+  {
+    "question": "Mida tehtsite {topic_content} põhinevalt?"
+  },
+  {
+    "question": "Mida te ei mõistnuga õpetakse ja kuidas see mõjutab {topic_content}?"
+  },
+  {
+    "question": "Mida kirjitanen õpetamisel {topic_content}?"
+  }
+]

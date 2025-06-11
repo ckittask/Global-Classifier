@@ -10,24 +10,18 @@ declaration:
     body:
       - field: filePath
         type: string
-        description: "Local file path of the generated dataset"
-      - field: bucketName
-        type: string
-        description: "S3 bucket name for storing the dataset"
-      - field: s3Key
-        type: string
-        description: "S3 key (path) for the dataset in the bucket"
+      - field: fileName
+        description: "Name of the file to be transferred"
 
 extract_request_data:
   assign:
     file_path: ${incoming.body.filePath}
-    bucket: ${incoming.body.bucketName}
-    s3_key: ${incoming.body.s3Key}
-    s3_destination: ${s3_key}
+    file_name: ${incoming.body.fileName}
+    s3_destination: ${file_name}
   next: log_transfer_request
 
 log_transfer_request:
-  log: "Transferring dataset from ${file_path} to S3 bucket ${bucket} with key ${s3_destination}"
+  log: "Transferring dataset from ${file_path}  to S3"
   next: transfer_to_s3
 
 transfer_to_s3:

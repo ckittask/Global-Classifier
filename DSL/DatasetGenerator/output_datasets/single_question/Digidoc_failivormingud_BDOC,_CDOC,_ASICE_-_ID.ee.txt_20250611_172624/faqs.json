@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Mida te kasutate {topic_content} abil?"
+  },
+  {
+    "question": "Mida täpselt teadlikud olen {topic_content} kohta ja kuidas see {difficulty:-medium} õpurustav on?"
+  },
+  {
+    "question": "Mida täpsele õpetamisobjektiks on {topic_content}?"
+  },
+  {
+    "question": "Mida te mõtlete, kui täpsele kohaseks definitsiooni tõttu õppida {topic_content}?"
+  },
+  {
+    "question": "Mida täpselt õpida, ja kuidas sellega seostub {topic_content}?"
+  },
+  {
+    "question": "Mida õpetakse selle õppumise ajal üsna põhjal?"
+  },
+  {
+    "question": "Mida kirjale paned on viिबandüd?"
+  },
+  {
+    "question": "Mida te arvate {topic} üldiselt?"
+  },
+  {
+    "question": "Mida täidame õppimise tegevust, kuidas see seestab {topic_content} täpselt?"
+  },
+  {
+    "question": "Mida peagagi täna õppesin ja kuidas See artikkel tutvikuid tegevab?"
+  }
+]

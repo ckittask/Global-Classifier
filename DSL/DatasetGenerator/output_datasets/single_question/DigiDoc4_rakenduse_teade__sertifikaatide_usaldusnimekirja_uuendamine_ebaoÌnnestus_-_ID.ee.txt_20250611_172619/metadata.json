@@ -1,0 +1,23 @@
+{
+  "name": "DigiDoc4_rakenduse_teade__sertifikaatide_usaldusnimekirja_uuendamine_ebao\u00cc\u0083nnestus_-_ID.ee.txt_20250611_172619",
+  "created_at": "2025-06-11 17:26:19",
+  "structure_name": "single_question",
+  "prompt_template_name": "institute_topic_question",
+  "num_examples_requested": 10,
+  "output_format": "json",
+  "parameters": {
+    "language": "et",
+    "temperature": 0.7,
+    "redundancy_factor": 1.5,
+    "language_name": "Estonian",
+    "difficulty": "medium",
+    "style": "clear and concise",
+    "file_path": "/app/data/ID/DigiDoc4_rakenduse_teade__sertifikaatide_usaldusnimekirja_uuendamine_ebao\u00cc\u0083nnestus_-_ID.ee.txt",
+    "file_content": "# DigiDoc4 rakenduse teade: sertifikaatide usaldusnimekirja uuendamine eba\u00f5nnestus - ID.ee\n\nKas n\u00e4gid DigiDoc4 k\u00e4ivitamisel sellist veateadet?\n\nVeateade viitab, et allkirjade kontrollimiseks ja andmiseks vajaliku usaldusnimekirja uuendamine ei \u00f5nnestunud.\nP\u00f5hjuseid selle olukorra tekkeks v\u00f5ib olla mitu:\n\n- K\u00f5igepealt kontrolli, et sul oleks arvutis k\u00f5ige uuem ID-tarkvara (https://www.id.ee/artikkel/paigalda-id-tarkvara/) ,\u00a0vajadusel uuenda seda.\n- Ehk on asi interneti\u00fchenduses, n\u00e4iteks on sinu t\u00f6\u00f6andja v\u00f5i internetiteenuse pakkuja keelanud usaldusnimekirjade\u00a0allalaadimiseks\u00a0vajaliku\u00a0URL\u2019i\u00a0poole p\u00f6\u00f6rdumise? Saad seda kontrollida lehel \u201e Veebiaadressid, kuhu ID-tarkvara sisemiselt p\u00f6\u00f6rdub\u201c (https://www.id.ee/artikkel/loetelu-urlidest-kuhu-id-kaardi-baastarkvara-sisemiselt-poordub/) .\n\n- T (https://www.id.ee/artikkel/digidoc-klient-tarkvaras-sertifikaatide-usaldusnimekirjade-kasitsi-paigaldamine) SL nimekirja uuendamine k\u00e4sitsi (https://www.id.ee/artikkel/digidoc-klient-tarkvaras-sertifikaatide-usaldusnimekirjade-kasitsi-paigaldamine-2/)\nMida teha, kui DigiDoc4 rakenduse veateade \u00fctleb, et sertifikaatide usaldusnimekirja uuendamine eba\u00f5nnestus.\nAit\u00e4h tagasiside eest!",
+    "file_name": "DigiDoc4_rakenduse_teade__sertifikaatide_usaldusnimekirja_uuendamine_ebao\u00cc\u0083nnestus_-_ID.ee",
+    "depth": 0,
+    "relative_path": "DigiDoc4_rakenduse_teade__sertifikaatide_usaldusnimekirja_uuendamine_ebao\u00cc\u0083nnestus_-_ID.ee.txt",
+    "content_size_bytes": 1182
+  },
+  "output_path": "/app/output_datasets/single_question/DigiDoc4_rakenduse_teade__sertifikaatide_usaldusnimekirja_uuendamine_ebao\u00cc\u0083nnestus_-_ID.ee.txt_20250611_172619"
+}

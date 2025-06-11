@@ -1,5 +1,0 @@
-dataset_generator:
-  trigger: off
-  type: exec
-  command: "../app/scripts/s3_file_handler.sh"
-  allowedEnvs: ['signedUrls']

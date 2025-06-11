@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Mida täocate õpilased uurima selles kohtas olevatõeõpet?"
+  },
+  {
+    "question": "Mida on {topic_content}?"
+  },
+  {
+    "question": "Mida tä्रामanud õppeõpet on {topic_content} kontekstis?"
+  },
+  {
+    "question": "Mida tähendab 'kontaktindika' ja kuidas see mõjutab {topic_content}?"
+  },
+  {
+    "question": "Mida te te oma õpetuste õpetustest sa teada?"
+  },
+  {
+    "question": "Mida täocate õpilasse {topic_content} põhjal?"
+  },
+  {
+    "question": "Mida pean aruvama olla, pärast seda, mida õpetajuks näid. Tarkust on {difficulty:-medium}?"
+  },
+  {
+    "question": "Mida täpsemalt te ei pead aru, sellest, kuidas {topic_content} mõjutab {difficulty:-medium} {topic}?"
+  },
+  {
+    "question": "Mida te teate {topic_content} kontekstis?"
+  },
+  {
+    "question": "Mida te teate õhukogusõjast ja kuidas see mõjutab valmistusõpetusi?"
+  }
+]
