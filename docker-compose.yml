@@ -144,21 +144,21 @@ services:
 
   cron-manager:
     container_name: cron-manager
-    image: cron-manager
+    image: cron-manager:latest
+    user: "root"
     volumes:
       - ./DSL/CronManager/DSL:/DSL
-      - ./DSL/CronManager/script:/app/scripts
-      - ./DSL/CronManager/config:/app/config
-      - shared-volume:/shared
+      - ./DSL/CronManager/scripts:/app/scripts
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
+      - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
+      - ./DSL/DatasetGenerator/config:/app/config
+      - cron_data:/app/data
     environment:
       - server.port=9010
     ports:
       - 9010:8080
     networks:
       - bykstack
-    depends_on:
-      - init
-    command: ["sh", "-c", "chmod -R 777 /app/model_trainer"]
 
   classifier-service:
     container_name: classifier-service
@@ -196,7 +196,7 @@ services:
               count: 1
               capabilities: [gpu]
     networks:
-      - bykstack-gc
+      - bykstack
 
   dataset-gen-service:
     image: synthesisai/dataset-generator:latest
@@ -218,7 +218,7 @@ services:
       - dataset-gen-ollama
       - dataset-gen-mlflow
     networks:
-      - bykstack-gc
+      - bykstack
 
   dataset-gen-mlflow:
     image: synthesisai/dataset-generator-mlflow:latest
@@ -239,25 +239,8 @@ services:
       - ./DSL/DatasetGenerator/mlflow_data:/mlflow/mlflow_data
       - ./DSL/DatasetGenerator/mlflow_artifacts:/mlflow/mlflow_artifacts
     networks:
-      - bykstack-gc
+      - bykstack
 
-  cron-manager:
-    container_name: cron-manager
-    image: cron-manager:latest
-    user: "root"
-    volumes:
-      - ./DSL/CronManager/DSL:/DSL
-      - ./DSL/CronManager/scripts:/app/scripts
-      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
-      - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
-      - ./DSL/DatasetGenerator/config:/app/config
-      - cron_data:/app/data
-    environment:
-      - server.port=9010
-    ports:
-      - 9010:8080
-    networks:
-      - bykstack-gc
   
   minio:
     image: minio/minio:latest
@@ -275,7 +258,7 @@ services:
       - "9000:9000"  # API port
       - "9001:9001"  # Console port
     networks:
-      - bykstack-gc
+      - bykstack
 
   gc-s3-ferry:
     image: s3-ferry:latest
@@ -288,7 +271,7 @@ services:
       - "3006:3000"
     user: "root"
     networks:
-      - bykstack-gc
+      - bykstack
 
   s3-dataset-processor:
     container_name: s3-dataset-processor
@@ -300,7 +283,7 @@ services:
     environment:
       - PORT=8001
     networks:
-      - bykstack-gc
+      - bykstack
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
