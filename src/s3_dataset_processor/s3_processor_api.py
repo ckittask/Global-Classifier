@@ -92,7 +92,7 @@ def process_callback_background(file_path: str, encoded_results: str):
         print(f"[CALLBACK] Failed Agencies: {len([a for a in agencies if a['syncStatus'] == 'Sync_with_CKB_Failed'])}")
         print(f"[CALLBACK] ========================================")
 
-        STATUS_UPDATE_URL = "http://ruuter-public:8086/global-classifier/agency/data/generation"
+        STATUS_UPDATE_URL = "http://ruuter-public:8086/global-classifier/agencies/data/generation"
         
         print(f"[CALLBACK] Sending callback payload to: {STATUS_UPDATE_URL}")
 

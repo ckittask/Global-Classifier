@@ -132,6 +132,7 @@ const ViewDataset = () => {
             data={updatedDataset}
             columns={dataColumns as ColumnDef<string, string>[]}
             pagination={pagination}
+            filterable
             setPagination={(state: PaginationState) => {
               if (
                 state.pageIndex === pagination.pageIndex &&

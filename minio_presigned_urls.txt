@@ -1,10 +1,10 @@
-http://minio:9000/ckb/agencies/Politsei-_ja_Piirivalveamet/Politsei-_ja_Piirivalveamet.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T044907Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4566d8b12042b9162506cdd62ca6edeebfa854e02f6c374c88a75d6d3aac68ce|||http://minio:9000/ckb/agencies/ID.ee/ID.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T044907Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=954d0ab5c59885248fa2960b38ca281ef164726bde4b9897923d0c6ee6d4f05e
+http://minio:9000/ckb/agencies/Politsei-_ja_Piirivalveamet/Politsei-_ja_Piirivalveamet.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T203108Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=3604f9e634203ed7b2780fc437980f15fbf2c3eeff8ecc047ef83ae6501ef548|||http://minio:9000/ckb/agencies/ID.ee/ID.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T203108Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7b896853d19c84d66785ad62a5a0dd67039ced141b066d23cb2706b4adc02a93
 
 Individual URLs:
 ==================================================
 URL 1:
-http://minio:9000/ckb/agencies/Politsei-_ja_Piirivalveamet/Politsei-_ja_Piirivalveamet.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T044907Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4566d8b12042b9162506cdd62ca6edeebfa854e02f6c374c88a75d6d3aac68ce
+http://minio:9000/ckb/agencies/Politsei-_ja_Piirivalveamet/Politsei-_ja_Piirivalveamet.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T203108Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=3604f9e634203ed7b2780fc437980f15fbf2c3eeff8ecc047ef83ae6501ef548
 
 URL 2:
-http://minio:9000/ckb/agencies/ID.ee/ID.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T044907Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=954d0ab5c59885248fa2960b38ca281ef164726bde4b9897923d0c6ee6d4f05e
+http://minio:9000/ckb/agencies/ID.ee/ID.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20250611%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T203108Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7b896853d19c84d66785ad62a5a0dd67039ced141b066d23cb2706b4adc02a93
 

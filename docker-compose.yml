@@ -148,7 +148,7 @@ services:
     user: "root"
     volumes:
       - ./DSL/CronManager/DSL:/DSL
-      - ./DSL/CronManager/scripts:/app/scripts
+      - ./DSL/CronManager/script:/app/scripts
       - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
       - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
       - ./DSL/DatasetGenerator/config:/app/config
@@ -162,19 +162,19 @@ services:
     depends_on:
       - init
 
-  classifier-service:
-    container_name: classifier-service
-    build:
-      context: ./src/classifier-service 
-    ports:
-      - "8090:8090"
-    networks:
-      - bykstack
-    volumes:
-      - ./src/classifier-service:/app
-    environment:
-      - NODE_ENV=development
-    restart: always
+  # classifier-service:
+  #   container_name: classifier-service
+  #   build:
+  #     context: ./src/classifier-service 
+  #   ports:
+  #     - "8090:8090"
+  #   networks:
+  #     - bykstack
+  #   volumes:
+  #     - ./src/classifier-service:/app
+  #   environment:
+  #     - NODE_ENV=development
+  #   restart: always
 
   # Dataset Generator services
   dataset-gen-ollama:
@@ -183,20 +183,20 @@ services:
     ports:
       - "11434:11434"
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - OLLAMA_USE_GPU=1
+      # - NVIDIA_VISIBLE_DEVICES=all
+      # - OLLAMA_USE_GPU=1
       - OLLAMA_HOST=0.0.0.0
     volumes:
       - dataset_gen_ollama_models:/root/.ollama
       - ./src/dataset-generation/ollama-entrypoint.sh:/ollama-entrypoint.sh
     entrypoint: ["bash", "/ollama-entrypoint.sh"]
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
     networks:
       - bykstack
 
@@ -292,34 +292,34 @@ services:
       timeout: 10s
       retries: 3
         
-  gui:
-    container_name: gui
-    environment:
-      - NODE_ENV=local
-      - REACT_APP_RUUTER_API_URL=http://localhost:8086
-      - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
-      - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
-      - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
-      - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
-      - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
-      - DEBUG_ENABLED=true
-      - CHOKIDAR_USEPOLLING=true
-      - PORT=3001
-      - REACT_APP_SERVICE_ID=conversations,settings,monitoring
-      - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
+  # gui:
+  #   container_name: gui
+  #   environment:
+  #     - NODE_ENV=local
+  #     - REACT_APP_RUUTER_API_URL=http://localhost:8086
+  #     - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
+  #     - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
+  #     - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
+  #     - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
+  #     - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
+  #     - DEBUG_ENABLED=true
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - PORT=3001
+  #     - REACT_APP_SERVICE_ID=conversations,settings,monitoring
+  #     - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
 
-    build:
-      context: ./GUI
-      dockerfile: Dockerfile.dev
-    ports:
-      - 3003:3001
-    volumes:
-      - /app/node_modules
-      - ./GUI:/app
-    networks:
-      - bykstack
-    cpus: "0.5"
-    mem_limit: "1G"
+  #   build:
+  #     context: ./GUI
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - 3003:3001
+  #   volumes:
+  #     - /app/node_modules
+  #     - ./GUI:/app
+  #   networks:
+  #     - bykstack
+  #   cpus: "0.5"
+  #   mem_limit: "1G"
 
 volumes:
   shared-volume:

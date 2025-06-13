@@ -59,39 +59,41 @@ class DownloadService:
         downloaded_files = []
         successful_downloads = 0
         failed_downloads = 0
-        
-        for entry in decoded_data:
-            agency_id = entry.get('agencyId', 'unknown')
-            signed_url = entry.get('signedS3Url', '')
-            
-            if not signed_url:
-                failed_downloads += 1
-                continue
+        try:
+            for entry in decoded_data:
+                agency_id = entry.get('agencyId', 'unknown')
+                signed_url = entry.get('dataUrl', '')
                 
-            # Parse URL to get filename
-            parsed_url = urlparse(signed_url)
-            original_filename = parsed_url.path.split('/')[-1] if parsed_url.path else f"{agency_id}.zip"
-            
-            # Download file to data directory
-            local_file_path = os.path.join(self.data_dir, original_filename)
-            print(f"Downloading {original_filename} for agency {agency_id}")
-            
-            if self.download_file(signed_url, local_file_path):
-                file_size = os.path.getsize(local_file_path)
+                if not signed_url:
+                    failed_downloads += 1
+                    continue
+                    
+                # Parse URL to get filename
+                parsed_url = urlparse(signed_url)
+                original_filename = parsed_url.path.split('/')[-1] if parsed_url.path else f"{agency_id}.zip"
                 
-                downloaded_file = DownloadedFile(
-                    agency_id=agency_id,
-                    original_filename=original_filename,
-                    local_path=local_file_path,
-                    file_size=file_size
-                )
+                # Download file to data directory
+                local_file_path = os.path.join(self.data_dir, original_filename)
+                print(f"Downloading {original_filename} for agency {agency_id}")
                 
-                downloaded_files.append(downloaded_file)
-                successful_downloads += 1
-                print(f"Successfully downloaded {original_filename}")
-                
-            else:
-                failed_downloads += 1
-                print(f"Failed to download {original_filename}")
-        
+                if self.download_file(signed_url, local_file_path):
+                    file_size = os.path.getsize(local_file_path)
+                    
+                    downloaded_file = DownloadedFile(
+                        agency_id=agency_id,
+                        original_filename=original_filename,
+                        local_path=local_file_path,
+                        file_size=file_size
+                    )
+                    
+                    downloaded_files.append(downloaded_file)
+                    successful_downloads += 1
+                    print(f"Successfully downloaded {original_filename}")
+                    
+                else:
+                    failed_downloads += 1
+                    print(f"Failed to download {original_filename}")
+        except Exception as e:
+            print(f"Error processing downloads: {e}")
+            return downloaded_files, successful_downloads, failed_downloads
         return downloaded_files, successful_downloads, failed_downloads

@@ -4,7 +4,7 @@
     {{#each agencies}}
       {
         "agencyId": "{{agencyId}}",
-        "presignedS3Url": "{{dataUrl}}"
+        "signedS3Url": "{{dataUrl}}"
       }{{#unless @last}},{{/unless}}
     {{/each}}
   ]

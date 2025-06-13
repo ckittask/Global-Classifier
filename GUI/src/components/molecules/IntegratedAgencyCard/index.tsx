@@ -98,14 +98,14 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
       await queryClient.invalidateQueries(
         integratedAgenciesQueryKeys.INTEGRATED_AGENCIES_LIST()
       );
-    },
-    onError: (error: AxiosError) => {
-      toast.open({
-        type: ToastTypes.ERROR,
-        title: t('global.notificationError'),
-        message: error?.message ?? '',
-      });
-    },
+    }
+    // onError: (error: AxiosError) => {
+    //   toast.open({
+    //     type: ToastTypes.ERROR,
+    //     title: t('global.notificationError'),
+    //     message: error?.message ?? '',
+    //   });
+    // },
   });
 
   const handleCheckedChange = (checked: boolean) => {
