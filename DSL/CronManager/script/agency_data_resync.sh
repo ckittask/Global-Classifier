@@ -17,5 +17,3 @@ response=$(curl -s -X POST "$CHECK_RESYNC_DATA_AVAILABILITY_ENDPOINT" \
 
 echo "DATA RESYNC SUMMARY:"
   echo "$response"
-
-exit 1

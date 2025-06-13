@@ -76,7 +76,7 @@ export function base64Decrypt(cipher, isObject) {
     }
 
     try {
-        const decodedContent = !isObject ? atob(cipher) : JSON.parse(atob(cipher));
+        const decodedContent = !isObject ? Buffer.from(cipher, 'base64').toString('utf8') : JSON.parse(Buffer.from(cipher, 'base64').toString('utf8'));
         const cleanedContent = decodedContent.replace(/\r/g, '');
         return JSON.stringify({
             error: false,
@@ -101,7 +101,7 @@ export function base64Encrypt(content) {
     try {
         return JSON.stringify({
             error: false,
-            cipher: btoa(typeof content === 'string' ? content : JSON.stringify(content))
+            cipher: Buffer.from(typeof content === 'string' ? content : JSON.stringify(content)).toString('base64')
         });
     } catch (err) {
         return JSON.stringify({
