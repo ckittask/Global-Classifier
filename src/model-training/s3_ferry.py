@@ -1,8 +1,11 @@
 import requests
 from loguru import logger
-from constants import TRAINING_LOGS_PATH, S3_FERRY_ENDPOINT
+from constants import S3_FERRY_ENDPOINT
 
-logger.add(sink=TRAINING_LOGS_PATH)
+import sys
+
+logger.remove()
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
 
 
 class S3Ferry:

@@ -7,7 +7,6 @@ from transformers import (
     DistilBertForSequenceClassification,
     BertForSequenceClassification,
     BertTokenizer,
-    TrainerCallback,
 )
 from torch.utils.data import Dataset
 from sklearn.preprocessing import LabelEncoder
@@ -19,19 +18,31 @@ import torch.nn.functional as F
 import shutil
 import pandas as pd
 import numpy as np
-from constants import TRAINING_LOGS_PATH
+import sys
+from constants import (
+    MODEL_CONFIGS,
+    SUPPORTED_BASE_MODELS,
+    SUPPORTED_OOD_METHODS,
+    DEFAULT_OOD_CONFIGS,
+    DEFAULT_TRAINING_ARGS,
+    MIN_SAMPLES_PER_CLASS,
+    TARGET_SAMPLES_FOR_SMALL_DATASETS,
+    TEST_SIZE_RATIO,
+)
 from loguru import logger
-
-from transformers import logging
+import os
+from transformers import logging as transformers_logging
 import warnings
 
 warnings.filterwarnings(
     "ignore",
     message="Some weights of the model checkpoint were not used when initializing",
 )
-logging.set_verbosity_error()
+transformers_logging.set_verbosity_error()
 
-logger.add(sink=TRAINING_LOGS_PATH)
+
+logger.remove()
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
 
 
 class CustomDataset(Dataset):
@@ -160,49 +171,51 @@ class EnhancedModel(nn.Module):
             self.uncertainty_head = None
 
     def forward(self, input_ids, attention_mask=None, labels=None, **kwargs):
+        # Get outputs from base model
         outputs = self.base_model(
             input_ids=input_ids, attention_mask=attention_mask, **kwargs
         )
 
         if self.uncertainty_head is not None:
-            # Use pooled output or last hidden state
-            if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
-                pooled_output = outputs.pooler_output
-            else:
-                # Use [CLS] token representation
-                pooled_output = outputs.last_hidden_state[:, 0, :]
+            # Extract hidden representation for uncertainty head
+            hidden_state = None
 
-            logits = self.uncertainty_head(pooled_output)
-            outputs.logits = logits
+            # Try different ways to get the hidden representation
+            if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
+                hidden_state = outputs.pooler_output
+            elif hasattr(outputs, "last_hidden_state"):
+                # Use [CLS] token representation (first token)
+                hidden_state = outputs.last_hidden_state[:, 0, :]
+            elif (
+                hasattr(outputs, "hidden_states") and outputs.hidden_states is not None
+            ):
+                # Use the last hidden state if available
+                hidden_state = outputs.hidden_states[-1][:, 0, :]
+            else:
+                # Fallback: try to find any tensor that looks like hidden states
+                for attr_name in ["logits", "prediction_logits"]:
+                    if hasattr(outputs, attr_name):
+                        attr_value = getattr(outputs, attr_name)
+                        if (
+                            isinstance(attr_value, torch.Tensor)
+                            and len(attr_value.shape) >= 2
+                        ):
+                            # Use the raw logits and add a linear layer to get hidden representation
+                            if attr_value.shape[-1] == self.num_labels:
+                                # This is likely the classification logits, skip uncertainty head
+                                break
+                else:
+                    raise ValueError(
+                        f"Could not extract hidden state from model outputs: {type(outputs)}"
+                    )
+
+            if hidden_state is not None:
+                # Apply uncertainty head
+                logits = self.uncertainty_head(hidden_state)
+                # Create a new output object with updated logits
+                outputs.logits = logits
 
         return outputs
-
-    def predict_with_uncertainty(self, input_ids, attention_mask=None):
-        """Predict with uncertainty estimation"""
-        self.eval()
-        with torch.no_grad():
-            outputs = self.forward(input_ids, attention_mask)
-            logits = outputs.logits
-
-            # Get predictions
-            predictions = torch.argmax(logits, dim=-1)
-
-            # Calculate uncertainty (entropy-based)
-            probs = F.softmax(logits, dim=-1)
-            entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=-1)
-
-            # Energy-based uncertainty
-            energy = -torch.logsumexp(logits, dim=-1)
-
-            return predictions, entropy, energy
-
-
-class ResetCovarianceCallback(TrainerCallback):
-    """Callback to reset covariance for SNGP-like models"""
-
-    def on_epoch_begin(self, args, state, control, **kwargs):
-        # Reset any covariance matrices if needed
-        pass
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -210,84 +223,145 @@ logger.info(f"TRAINING HARDWARE {device}")
 
 
 class TrainingPipeline:
-    def __init__(self, dfs, model_name):
+    def __init__(self, dfs, model_name, ood_method=None, ood_config=None):
         self.model_name = model_name
         self.dfs = dfs
+        self.ood_method = ood_method
+        self.ood_config = ood_config or {}
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # Updated model initialization for multilingual/Estonian models
-        if model_name == "estbert":
-            self.base_model = BertForSequenceClassification.from_pretrained(
-                "tartuNLP/EstBERT"
+        # Validate model name
+        if model_name not in SUPPORTED_BASE_MODELS:
+            raise ValueError(
+                f"Unsupported model: {model_name}. Supported: {SUPPORTED_BASE_MODELS}"
             )
-            self._freeze_and_unfreeze_bert_layers()
 
-        elif model_name == "estbert-small":
-            self.base_model = BertForSequenceClassification.from_pretrained(
-                "tartuNLP/EstBERT-small"
+        # Initialize base model
+        self.base_model = self._initialize_base_model(model_name)
+
+    def _initialize_base_model(self, model_name):
+        """Initialize the base model based on model name"""
+        config = MODEL_CONFIGS[model_name]
+
+        if config["type"] == "bert":
+            model = BertForSequenceClassification.from_pretrained(config["model_name"])
+            self._freeze_and_unfreeze_bert_layers(model)
+
+        elif config["type"] == "roberta":
+            model = XLMRobertaForSequenceClassification.from_pretrained(
+                config["model_name"]
             )
-            self._freeze_and_unfreeze_bert_layers()
+            self._freeze_and_unfreeze_roberta_layers(model)
 
-        elif model_name == "xlm-roberta":
-            self.base_model = XLMRobertaForSequenceClassification.from_pretrained(
-                "xlm-roberta-base"
+        elif config["type"] == "distilbert":
+            model = DistilBertForSequenceClassification.from_pretrained(
+                config["model_name"]
             )
-            self._freeze_and_unfreeze_roberta_layers()
+            self._freeze_and_unfreeze_distilbert_layers(model)
 
-        elif model_name == "mdeberta":
-            from transformers import DebertaV2ForSequenceClassification
-
-            self.base_model = DebertaV2ForSequenceClassification.from_pretrained(
-                "microsoft/mdeberta-v3-base"
-            )
-            self._freeze_and_unfreeze_deberta_layers()
-
-        elif model_name == "multilingual-bert":
-            self.base_model = BertForSequenceClassification.from_pretrained(
-                "bert-base-multilingual-cased"
-            )
-            self._freeze_and_unfreeze_bert_layers()
         else:
-            raise ValueError(f"Unsupported model: {model_name}")
+            raise ValueError(f"Unknown model type: {config['type']}")
 
-    def _freeze_and_unfreeze_bert_layers(self):
+        return model
+
+    def _freeze_and_unfreeze_bert_layers(self, model):
         """Helper method for BERT-based models"""
-        for param in self.base_model.bert.parameters():
-            param.requires_grad = False
-        for param in self.base_model.bert.encoder.layer[-2:].parameters():
-            param.requires_grad = True
-        for param in self.base_model.classifier.parameters():
-            param.requires_grad = True
+        if hasattr(model, "bert"):
+            bert_model = model.bert
+        elif hasattr(model, "base_model"):
+            bert_model = model.base_model
+        else:
+            # Fallback - assume the model itself is the BERT model
+            bert_model = model
 
-    def _freeze_and_unfreeze_roberta_layers(self):
+        # Freeze all parameters first
+        for param in bert_model.parameters():
+            param.requires_grad = False
+
+        # Unfreeze last 2 layers
+        if hasattr(bert_model, "encoder") and hasattr(bert_model.encoder, "layer"):
+            for param in bert_model.encoder.layer[-2:].parameters():
+                param.requires_grad = True
+
+        # Unfreeze classifier if it exists
+        if hasattr(model, "classifier"):
+            for param in model.classifier.parameters():
+                param.requires_grad = True
+
+    def _freeze_and_unfreeze_roberta_layers(self, model):
         """Helper method for RoBERTa-based models"""
-        for param in self.base_model.roberta.parameters():
-            param.requires_grad = False
-        for param in self.base_model.roberta.encoder.layer[-2:].parameters():
-            param.requires_grad = True
-        for param in self.base_model.classifier.parameters():
-            param.requires_grad = True
+        if hasattr(model, "roberta"):
+            roberta_model = model.roberta
+        elif hasattr(model, "base_model"):
+            roberta_model = model.base_model
+        elif hasattr(model, "encoder"):
+            roberta_model = model
+        else:
+            logger.warning(f"RoBERTa model structure: {type(model)}")
+            for name, module in model.named_children():
+                logger.info(f"  - {name}: {type(module)}")
+                if hasattr(module, "encoder"):
+                    roberta_model = module
+                    break
+            else:
+                roberta_model = model
 
-    def _freeze_and_unfreeze_deberta_layers(self):
-        """Helper method for DeBERTa-based models"""
-        for param in self.base_model.deberta.parameters():
+        # Freeze all parameters first
+        for param in roberta_model.parameters():
             param.requires_grad = False
-        for param in self.base_model.deberta.encoder.layer[-2:].parameters():
-            param.requires_grad = True
-        for param in self.base_model.classifier.parameters():
-            param.requires_grad = True
+
+        encoder = None
+        if hasattr(roberta_model, "encoder"):
+            encoder = roberta_model.encoder
+        elif hasattr(roberta_model, "transformer"):
+            encoder = roberta_model.transformer
+
+        if encoder and hasattr(encoder, "layer"):
+            for param in encoder.layer[-2:].parameters():
+                param.requires_grad = True
+        else:
+            logger.warning("Could not find encoder layers to unfreeze")
+
+        # Unfreeze classifier if it exists
+        if hasattr(model, "classifier"):
+            for param in model.classifier.parameters():
+                param.requires_grad = True
+
+    def _freeze_and_unfreeze_distilbert_layers(self, model):
+        """Helper method for DistilBERT-based models"""
+        if hasattr(model, "distilbert"):
+            distilbert_model = model.distilbert
+        elif hasattr(model, "base_model"):
+            distilbert_model = model.base_model
+        else:
+            distilbert_model = model
+
+        # Freeze all parameters first
+        for param in distilbert_model.parameters():
+            param.requires_grad = False
+
+        # Unfreeze last 2 layers
+        if hasattr(distilbert_model, "transformer") and hasattr(
+            distilbert_model.transformer, "layer"
+        ):
+            for param in distilbert_model.transformer.layer[-2:].parameters():
+                param.requires_grad = True
+
+        # Unfreeze classifier if it exists
+        if hasattr(model, "classifier"):
+            for param in model.classifier.parameters():
+                param.requires_grad = True
 
     def preprocess_conversation(self, text):
         """Preprocess conversation data"""
-        # Add conversation-specific preprocessing
         text = str(text).strip()
 
         # Handle common conversation patterns
-        text = text.replace("\n", " [SEP] ")  # Use [SEP] for line breaks
-        text = text.replace("\t", " ")  # Remove tabs
+        text = text.replace("\n", " [SEP] ")
+        text = text.replace("\t", " ")
 
-        # Limit length for transformer models (adjust based on model)
-        max_length = 400  # Reasonable for conversations
+        # Limit length for transformer models
+        max_length = 400
         if len(text.split()) > max_length:
             words = text.split()[:max_length]
             text = " ".join(words)
@@ -296,7 +370,6 @@ class TrainingPipeline:
 
     def tokenize_data(self, data, tokenizer):
         """Enhanced tokenization for conversation data"""
-        # Preprocess conversation data
         processed_data = [self.preprocess_conversation(text) for text in data]
 
         tokenized = tokenizer.batch_encode_plus(
@@ -311,11 +384,9 @@ class TrainingPipeline:
         return tokenized
 
     def data_split(self, df):
-        """Fixed data split to prevent data leakage"""
-        # Ensure we have at least one sample of each class in training
+        """Improved data split for flat classification"""
         unique_classes = df["target"].unique()
 
-        # If we have very few samples, use stratified split
         if len(df) < 100:
             # For small datasets, ensure each class has representation
             train_samples = []
@@ -325,12 +396,10 @@ class TrainingPipeline:
                 class_samples = df[df["target"] == class_name]
 
                 if len(class_samples) == 1:
-                    # If only one sample, put it in training
                     train_samples.append(class_samples)
                 else:
-                    # Split the class samples
                     train_class, test_class = train_test_split(
-                        class_samples, test_size=0.2, random_state=42
+                        class_samples, test_size=TEST_SIZE_RATIO, random_state=42
                     )
                     train_samples.append(train_class)
                     test_samples.append(test_class)
@@ -338,112 +407,189 @@ class TrainingPipeline:
             train_df = pd.concat(train_samples) if train_samples else pd.DataFrame()
             test_df = pd.concat(test_samples) if test_samples else pd.DataFrame()
 
-            # If test set is empty, duplicate some training samples for testing
+            # If test set is empty, duplicate some training samples
             if len(test_df) == 0:
                 test_df = train_df.sample(min(len(train_df), 5), random_state=42)
         else:
-            # For larger datasets, use standard stratified split
+            # For larger datasets, use stratified split
             try:
                 train_df, test_df = train_test_split(
-                    df, test_size=0.2, random_state=42, stratify=df["target"]
+                    df,
+                    test_size=TEST_SIZE_RATIO,
+                    random_state=42,
+                    stratify=df["target"],
                 )
             except ValueError:
-                # If stratification fails, use simple split
-                train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+                train_df, test_df = train_test_split(
+                    df, test_size=TEST_SIZE_RATIO, random_state=42
+                )
 
         return train_df, test_df
 
-    def get_tokenizer_for_model(self, model_name, num_labels):
+    def get_tokenizer_and_model_for_training(self, model_name, num_labels):
         """Get appropriate tokenizer and model for training"""
-        if model_name in ["estbert", "estbert-small", "multilingual-bert"]:
-            if model_name == "estbert":
-                model = BertForSequenceClassification.from_pretrained(
-                    "tartuNLP/EstBERT",
-                    num_labels=num_labels,
-                    state_dict=self.base_model.state_dict(),
-                    ignore_mismatched_sizes=True,
-                )
-                tokenizer = BertTokenizer.from_pretrained("tartuNLP/EstBERT")
-            elif model_name == "estbert-small":
-                model = BertForSequenceClassification.from_pretrained(
-                    "tartuNLP/EstBERT-small",
-                    num_labels=num_labels,
-                    state_dict=self.base_model.state_dict(),
-                    ignore_mismatched_sizes=True,
-                )
-                tokenizer = BertTokenizer.from_pretrained("tartuNLP/EstBERT-small")
-            else:  # multilingual-bert
-                model = BertForSequenceClassification.from_pretrained(
-                    "bert-base-multilingual-cased",
-                    num_labels=num_labels,
-                    state_dict=self.base_model.state_dict(),
-                    ignore_mismatched_sizes=True,
-                )
-                tokenizer = BertTokenizer.from_pretrained(
-                    "bert-base-multilingual-cased"
-                )
+        config = MODEL_CONFIGS[model_name]
 
-            self._freeze_and_unfreeze_bert_layers_for_model(model)
-            return model, tokenizer
+        if config["type"] == "bert":
+            model = BertForSequenceClassification.from_pretrained(
+                config["model_name"],
+                num_labels=num_labels,
+                ignore_mismatched_sizes=True,
+            )
+            tokenizer = BertTokenizer.from_pretrained(config["tokenizer_name"])
+            self._freeze_and_unfreeze_bert_layers(model)
 
-        elif model_name == "xlm-roberta":
+        elif config["type"] == "roberta":
             model = XLMRobertaForSequenceClassification.from_pretrained(
-                "xlm-roberta-base",
+                config["model_name"],
                 num_labels=num_labels,
-                state_dict=self.base_model.state_dict(),
                 ignore_mismatched_sizes=True,
             )
-            tokenizer = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base")
-            self._freeze_and_unfreeze_roberta_layers_for_model(model)
-            return model, tokenizer
+            tokenizer = XLMRobertaTokenizer.from_pretrained(config["tokenizer_name"])
+            self._freeze_and_unfreeze_roberta_layers(model)
 
-        elif model_name == "mdeberta":
-            from transformers import (
-                DebertaV2ForSequenceClassification,
-                DebertaV2Tokenizer,
-            )
-
-            model = DebertaV2ForSequenceClassification.from_pretrained(
-                "microsoft/mdeberta-v3-base",
+        elif config["type"] == "distilbert":
+            model = DistilBertForSequenceClassification.from_pretrained(
+                config["model_name"],
                 num_labels=num_labels,
-                state_dict=self.base_model.state_dict(),
                 ignore_mismatched_sizes=True,
             )
-            tokenizer = DebertaV2Tokenizer.from_pretrained("microsoft/mdeberta-v3-base")
-            self._freeze_and_unfreeze_deberta_layers_for_model(model)
-            return model, tokenizer
+            tokenizer = DistilBertTokenizer.from_pretrained(config["tokenizer_name"])
+            self._freeze_and_unfreeze_distilbert_layers(model)
 
         else:
-            raise ValueError(f"Unsupported model: {model_name}")
+            raise ValueError(f"Unknown model type: {config['type']}")
 
-    def _freeze_and_unfreeze_bert_layers_for_model(self, model):
-        """Apply layer freezing for BERT models during training"""
-        for param in model.bert.parameters():
-            param.requires_grad = False
-        for param in model.bert.encoder.layer[-2:].parameters():
-            param.requires_grad = True
-        for param in model.classifier.parameters():
-            param.requires_grad = True
+        return model, tokenizer
 
-    def _freeze_and_unfreeze_roberta_layers_for_model(self, model):
-        """Apply layer freezing for RoBERTa models during training"""
-        for param in model.roberta.parameters():
-            param.requires_grad = False
-        for param in model.roberta.encoder.layer[-2:].parameters():
-            param.requires_grad = True
-        for param in model.classifier.parameters():
-            param.requires_grad = True
+    def replicate_data(self, df, target_size):
+        """Replicate data to reach target size"""
+        if len(df) >= target_size:
+            return df
 
-    def _freeze_and_unfreeze_deberta_layers_for_model(self, model):
-        """Apply layer freezing for DeBERTa models during training"""
-        for param in model.deberta.parameters():
-            param.requires_grad = False
-        for param in model.deberta.encoder.layer[-2:].parameters():
-            param.requires_grad = True
-        for param in model.classifier.parameters():
-            param.requires_grad = True
+        multiplier = target_size // len(df) + 1
+        replicated_dfs = [df] * multiplier
+        replicated_df = pd.concat(replicated_dfs, ignore_index=True)
+        replicated_df = replicated_df.sample(n=target_size, random_state=42)
+        return replicated_df
+
+    def extract_model_components(self, model):
+        """Extract model components based on model type with robust error handling"""
+        config = MODEL_CONFIGS[self.model_name]
+
+        try:
+            if config["type"] == "bert":
+                # Try different possible BERT model structures
+                bert_layers = None
+                if hasattr(model, "bert") and hasattr(model.bert, "encoder"):
+                    bert_layers = model.bert.encoder.layer[-2:].state_dict()
+                elif hasattr(model, "base_model") and hasattr(
+                    model.base_model, "encoder"
+                ):
+                    bert_layers = model.base_model.encoder.layer[-2:].state_dict()
+                else:
+                    logger.warning(
+                        "Could not extract BERT layers, using pattern matching"
+                    )
+                    bert_layers = {
+                        k: v
+                        for k, v in model.state_dict().items()
+                        if "encoder.layer.10" in k or "encoder.layer.11" in k
+                    }
+
+                classifier_layers = (
+                    model.classifier.state_dict()
+                    if hasattr(model, "classifier")
+                    else {}
+                )
+                return bert_layers, classifier_layers
+
+            elif config["type"] == "roberta":
+                # Handle XLM-RoBERTa structure
+                roberta_layers = None
+
+                # First try to find the main transformer layers
+                if hasattr(model, "roberta") and hasattr(model.roberta, "encoder"):
+                    roberta_layers = model.roberta.encoder.layer[-2:].state_dict()
+                elif hasattr(model, "base_model") and hasattr(
+                    model.base_model, "encoder"
+                ):
+                    roberta_layers = model.base_model.encoder.layer[-2:].state_dict()
+                else:
+                    # For XLM-RoBERTa, extract by parameter name pattern
+                    logger.warning("Using pattern matching for XLM-RoBERTa layers")
+                    roberta_layers = {}
+                    for name, param in model.named_parameters():
+                        # Extract last 2 encoder layers (typically layer 10 and 11 for base models)
+                        if "encoder.layer.10." in name or "encoder.layer.11." in name:
+                            # Remove the model prefix to get relative layer name
+                            layer_name = name.split("encoder.layer.")[-1]
+                            roberta_layers[f"encoder.layer.{layer_name}"] = (
+                                param.data.clone()
+                            )
+
+                classifier_layers = (
+                    model.classifier.state_dict()
+                    if hasattr(model, "classifier")
+                    else {}
+                )
+                return roberta_layers, classifier_layers
+
+            elif config["type"] == "distilbert":
+                # Try different possible DistilBERT model structures
+                distilbert_layers = None
+                if hasattr(model, "distilbert") and hasattr(
+                    model.distilbert, "transformer"
+                ):
+                    distilbert_layers = model.distilbert.transformer.layer[
+                        -2:
+                    ].state_dict()
+                elif hasattr(model, "base_model") and hasattr(
+                    model.base_model, "transformer"
+                ):
+                    distilbert_layers = model.base_model.transformer.layer[
+                        -2:
+                    ].state_dict()
+                else:
+                    logger.warning(
+                        "Could not extract DistilBERT layers, using pattern matching"
+                    )
+                    distilbert_layers = {
+                        k: v
+                        for k, v in model.state_dict().items()
+                        if "transformer.layer.4." in k or "transformer.layer.5." in k
+                    }  # DistilBERT has 6 layers
+
+                classifier_layers = (
+                    model.classifier.state_dict()
+                    if hasattr(model, "classifier")
+                    else {}
+                )
+                return distilbert_layers, classifier_layers
+
+            else:
+                raise ValueError(f"Unknown model type: {config['type']}")
+
+        except Exception as e:
+            logger.error(f"Error extracting model components: {e}")
+            # Fallback: return relevant parts of model state dict
+            logger.warning("Using fallback: extracting layers by name pattern")
+
+            model_layers = {}
+            classifier_layers = {}
+
+            for name, param in model.named_parameters():
+                if "classifier" in name:
+                    classifier_layers[name] = param.data.clone()
+                elif "encoder.layer." in name and any(
+                    f"encoder.layer.{i}." in name for i in [10, 11, 4, 5]
+                ):  # Last layers for different models
+                    model_layers[name] = param.data.clone()
+
+            return model_layers, classifier_layers
 
     def train(self):
+        """Standard training method"""
         classes = []
         accuracies = []
         f1_scores = []
@@ -451,12 +597,19 @@ class TrainingPipeline:
         classifiers = []
         label_encoders = []
 
-        logger.info(f"INITIATING TRAINING FOR {self.model_name} MODEL")
+        method_name = f"{self.model_name}" + (
+            f"-{self.ood_method}" if self.ood_method else ""
+        )
+        logger.info(f"INITIATING TRAINING FOR {method_name}")
+
         for i in range(len(self.dfs)):
             logger.info(f"TRAINING FOR DATAFRAME {i + 1} of {len(self.dfs)}")
             current_df = self.dfs[i]
-            if len(current_df) < 10:
-                current_df = self.replicate_data(current_df, 50).reset_index(drop=True)
+
+            if len(current_df) < MIN_SAMPLES_PER_CLASS:
+                current_df = self.replicate_data(
+                    current_df, TARGET_SAMPLES_FOR_SMALL_DATASETS
+                ).reset_index(drop=True)
 
             train_df, test_df = self.data_split(current_df)
             label_encoder = LabelEncoder()
@@ -464,357 +617,48 @@ class TrainingPipeline:
             test_labels = label_encoder.transform(test_df["target"])
 
             # Get model and tokenizer
-            model, tokenizer = self.get_tokenizer_for_model(
+            model, tokenizer = self.get_tokenizer_and_model_for_training(
                 self.model_name, len(label_encoder.classes_)
             )
 
+            # Apply OOD enhancements if specified
+            if self.ood_method == "sngp":
+                logger.info("Applying spectral normalization enhancement")
+                model = EnhancedModel(
+                    base_model=model,
+                    num_labels=len(label_encoder.classes_),
+                    use_spectral_norm=True,
+                )
+
             train_encodings = self.tokenize_data(train_df["input"].tolist(), tokenizer)
             test_encodings = self.tokenize_data(test_df["input"].tolist(), tokenizer)
 
-            train_dataset = CustomDataset(train_encodings, train_labels)
-            test_dataset = CustomDataset(test_encodings, test_labels)
+            # Prepare OOD labels if needed
+            train_ood_labels = None
+            test_ood_labels = None
+            if self.ood_method in ["energy", "sngp"]:
+                # All samples are ID (in practice, you'd have real OOD data)
+                train_ood_labels = np.zeros(len(train_labels))
+                test_ood_labels = np.zeros(len(test_labels))
 
-            training_args = TrainingArguments(
-                output_dir="tmp",
-                num_train_epochs=4,
-                per_device_train_batch_size=8,
-                per_device_eval_batch_size=8,
-                learning_rate=2e-5,
-                warmup_steps=100,
-                weight_decay=0.01,
-                logging_steps=50,
-                eval_strategy="epoch",
-                save_strategy="epoch",
-                load_best_model_at_end=True,
-                metric_for_best_model="accuracy",
-                disable_tqdm=False,
-            )
-
-            trainer = Trainer(
-                model=model,
-                args=training_args,
-                train_dataset=train_dataset,
-                eval_dataset=test_dataset,
-                compute_metrics=lambda eval_pred: {
-                    "accuracy": accuracy_score(
-                        eval_pred.label_ids, eval_pred.predictions.argmax(axis=1)
-                    )
-                },
-            )
-
-            trainer.train()
-
-            # Extract model layers based on model type
-            if self.model_name in ["estbert", "estbert-small", "multilingual-bert"]:
-                models.append(model.bert.encoder.layer[-2:].state_dict())
-                classifiers.append(model.classifier.state_dict())
-            elif self.model_name == "xlm-roberta":
-                models.append(model.roberta.encoder.layer[-2:].state_dict())
-                classifiers.append(model.classifier.state_dict())
-            elif self.model_name == "mdeberta":
-                models.append(model.deberta.encoder.layer[-2:].state_dict())
-                classifiers.append(model.classifier.state_dict())
-
-            predictions, labels, _ = trainer.predict(test_dataset)
-            predictions = predictions.argmax(axis=-1)
-            report = classification_report(
-                labels,
-                predictions,
-                target_names=label_encoder.classes_,
-                output_dict=True,
-                zero_division=0,
-            )
-
-            # Log agency classification results
-            logger.info(f"Agency Classification Results for {self.model_name}:")
-            for cls in label_encoder.classes_:
-                precision = report[cls]["precision"]
-                f1 = report[cls]["f1-score"]
-                logger.info(f"  Agency '{cls}': Precision={precision:.3f}, F1={f1:.3f}")
-
-                classes.append(cls)
-                accuracies.append(precision)
-                f1_scores.append(f1)
-
-            label_encoders.append(label_encoder)
-            shutil.rmtree("tmp")
-
-        basic_model = self.base_model.state_dict()
-        metrics = (classes, accuracies, f1_scores)
-        return metrics, models, classifiers, label_encoders, basic_model
-
-
-class EnhancedTrainingPipeline(TrainingPipeline):
-    """Enhanced Training Pipeline with OOD support"""
-
-    def __init__(
-        self,
-        dfs,
-        model_name,
-        ood_training=False,
-        ood_weight=0.1,
-        energy_margin=10.0,
-        temperature=1.0,
-        use_spectral_norm=False,
-        uncertainty_method="entropy",
-    ):
-        # Initialize parent class
-        super().__init__(dfs, model_name)
-
-        # OOD-specific parameters
-        self.ood_training = ood_training
-        self.ood_weight = ood_weight
-        self.energy_margin = energy_margin
-        self.temperature = temperature
-        self.use_spectral_norm = use_spectral_norm
-        self.uncertainty_method = uncertainty_method
-
-        logger.info("ENHANCED TRAINING PIPELINE INITIALIZED")
-        logger.info(f"OOD TRAINING: {self.ood_training}")
-        if self.ood_training:
-            logger.info(
-                f"OOD CONFIG - Weight: {self.ood_weight}, Margin: {self.energy_margin}, Temp: {self.temperature}"
-            )
-
-    def prepare_ood_data(self, df):
-        """Prepare data with OOD labels if OOD training is enabled"""
-        if not self.ood_training:
-            return df, None
-
-        # For standard training data, all samples are in-distribution (ID)
-        # In practice, you would have actual OOD samples in your dataset
-        # or implement synthetic OOD generation strategies
-        ood_labels = np.zeros(len(df))  # All samples are ID by default
-
-        return df, ood_labels
-
-    def create_enhanced_model(self, base_model, num_labels):
-        """Create enhanced model with optional OOD capabilities"""
-        if self.ood_training or self.use_spectral_norm:
-            enhanced_model = EnhancedModel(
-                base_model=base_model,
-                num_labels=num_labels,
-                use_spectral_norm=self.use_spectral_norm,
-            )
-            return enhanced_model
-        else:
-            return base_model
-
-    def train(self):
-        classes = []
-        accuracies = []
-        f1_scores = []
-        models = []
-        classifiers = []
-        label_encoders = []
-        ood_metrics = []  # Store OOD-specific metrics
-
-        logger.info(f"INITIATING ENHANCED TRAINING FOR {self.model_name} MODEL")
-        logger.info(f"OOD TRAINING: {self.ood_training}")
-
-        for i in range(len(self.dfs)):
-            logger.info(f"TRAINING FOR DATAFRAME {i + 1} of {len(self.dfs)}")
-            current_df = self.dfs[i]
-
-            if len(current_df) < 10:
-                current_df = self.replicate_data(current_df, 50).reset_index(drop=True)
-
-            train_df, test_df = self.data_split(current_df)
-
-            # Prepare OOD data if enabled
-            train_df, train_ood_labels = self.prepare_ood_data(train_df)
-            test_df, test_ood_labels = self.prepare_ood_data(test_df)
-
-            label_encoder = LabelEncoder()
-            train_labels = label_encoder.fit_transform(train_df["target"])
-            test_labels = label_encoder.transform(test_df["target"])
-
-            # Create model with appropriate configuration
-            num_labels = len(label_encoder.classes_)
-
-            if self.model_name == "distil-bert":
-                base_model = DistilBertForSequenceClassification.from_pretrained(
-                    "distilbert-base-uncased",
-                    num_labels=num_labels,
-                    state_dict=self.base_model.state_dict(),
-                    ignore_mismatched_sizes=True,
-                )
-                tokenizer = DistilBertTokenizer.from_pretrained(
-                    "distilbert-base-uncased"
-                )
-
-                if self.ood_training or self.use_spectral_norm:
-                    model = self.create_enhanced_model(base_model, num_labels)
-                else:
-                    model = base_model
-
-                # Apply layer freezing
-                if hasattr(model, "base_model"):
-                    for param in model.base_model.distilbert.parameters():
-                        param.requires_grad = False
-                    for param in model.base_model.distilbert.transformer.layer[
-                        -2:
-                    ].parameters():
-                        param.requires_grad = True
-                    for param in model.base_model.classifier.parameters():
-                        param.requires_grad = True
-                else:
-                    for param in model.distilbert.parameters():
-                        param.requires_grad = False
-                    for param in model.distilbert.transformer.layer[-2:].parameters():
-                        param.requires_grad = True
-                    for param in model.classifier.parameters():
-                        param.requires_grad = True
-
-            elif self.model_name == "roberta":
-                base_model = XLMRobertaForSequenceClassification.from_pretrained(
-                    "xlm-roberta-base",
-                    num_labels=num_labels,
-                    state_dict=self.base_model.state_dict(),
-                    ignore_mismatched_sizes=True,
-                )
-                tokenizer = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base")
-
-                if self.ood_training or self.use_spectral_norm:
-                    model = self.create_enhanced_model(base_model, num_labels)
-                else:
-                    model = base_model
-
-                # Apply layer freezing
-                if hasattr(model, "base_model"):
-                    for param in model.base_model.roberta.parameters():
-                        param.requires_grad = False
-                    for param in model.base_model.roberta.encoder.layer[
-                        -2:
-                    ].parameters():
-                        param.requires_grad = True
-                    for param in model.base_model.classifier.parameters():
-                        param.requires_grad = True
-                else:
-                    for param in model.roberta.parameters():
-                        param.requires_grad = False
-                    for param in model.roberta.encoder.layer[-2:].parameters():
-                        param.requires_grad = True
-                    for param in model.classifier.parameters():
-                        param.requires_grad = True
-
-            elif self.model_name == "bert":
-                base_model = BertForSequenceClassification.from_pretrained(
-                    "bert-base-uncased",
-                    num_labels=num_labels,
-                    state_dict=self.base_model.state_dict(),
-                    ignore_mismatched_sizes=True,
-                )
-                tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-
-                if self.ood_training or self.use_spectral_norm:
-                    model = self.create_enhanced_model(base_model, num_labels)
-                else:
-                    model = base_model
-
-                # Apply layer freezing
-                if hasattr(model, "base_model"):
-                    for param in model.base_model.bert.parameters():
-                        param.requires_grad = False
-                    for param in model.base_model.bert.encoder.layer[-2:].parameters():
-                        param.requires_grad = True
-                    for param in model.base_model.classifier.parameters():
-                        param.requires_grad = True
-                else:
-                    for param in model.bert.parameters():
-                        param.requires_grad = False
-                    for param in model.bert.encoder.layer[-2:].parameters():
-                        param.requires_grad = True
-                    for param in model.classifier.parameters():
-                        param.requires_grad = True
-
-            # Tokenize data
-            train_encodings = self.tokenize_data(train_df["input"].tolist(), tokenizer)
-            test_encodings = self.tokenize_data(test_df["input"].tolist(), tokenizer)
-
-            # Create datasets
             train_dataset = CustomDataset(
                 train_encodings, train_labels, train_ood_labels
             )
             test_dataset = CustomDataset(test_encodings, test_labels, test_ood_labels)
 
-            # Create custom trainer if OOD training is enabled
-            if self.ood_training:
-                training_args = TrainingArguments(
-                    output_dir="tmp",
-                    num_train_epochs=4,
-                    per_device_train_batch_size=16,
-                    per_device_eval_batch_size=16,
-                    logging_dir="./logs",
-                    logging_steps=100,
-                    eval_strategy="epoch",
-                    disable_tqdm=False,
-                    dataloader_drop_last=False,
-                )
+            # Setup training arguments
+            training_args = TrainingArguments(
+                output_dir="tmp",
+                **DEFAULT_TRAINING_ARGS,
+                disable_tqdm=False,
+            )
 
-                class OODTrainer(Trainer):
-                    def __init__(self, ood_loss_fn=None, **kwargs):
-                        super().__init__(**kwargs)
-                        self.ood_loss_fn = ood_loss_fn
-
-                    def compute_loss(self, model, inputs, return_outputs=False):
-                        labels = inputs.get("labels")
-                        ood_labels = inputs.get("ood_labels")
-
-                        # Forward pass
-                        outputs = model(
-                            **{
-                                k: v
-                                for k, v in inputs.items()
-                                if k not in ["labels", "ood_labels"]
-                            }
-                        )
-                        logits = outputs.get("logits")
-
-                        # Compute loss
-                        if self.ood_loss_fn:
-                            loss = self.ood_loss_fn(logits, labels, ood_labels)
-                        else:
-                            loss_fct = nn.CrossEntropyLoss()
-                            loss = loss_fct(
-                                logits.view(-1, self.model.config.num_labels),
-                                labels.view(-1),
-                            )
-
-                        return (loss, outputs) if return_outputs else loss
-
-                # Create OOD loss function
-                ood_loss_fn = OODLoss(
-                    ood_weight=self.ood_weight,
-                    energy_margin=self.energy_margin,
-                    temperature=self.temperature,
-                )
-
-                trainer = OODTrainer(
-                    model=model,
-                    args=training_args,
-                    train_dataset=train_dataset,
-                    eval_dataset=test_dataset,
-                    ood_loss_fn=ood_loss_fn,
-                    compute_metrics=lambda eval_pred: {
-                        "accuracy": accuracy_score(
-                            eval_pred.label_ids, eval_pred.predictions.argmax(axis=1)
-                        )
-                    },
+            # Use custom trainer for OOD methods
+            if self.ood_method in ["energy", "sngp"]:
+                trainer = self._get_ood_trainer(
+                    model, training_args, train_dataset, test_dataset
                 )
             else:
-                # Standard training
-                training_args = TrainingArguments(
-                    output_dir="tmp",
-                    num_train_epochs=4,
-                    per_device_train_batch_size=16,
-                    per_device_eval_batch_size=16,
-                    logging_dir="./logs",
-                    logging_steps=100,
-                    eval_strategy="epoch",
-                    disable_tqdm=False,
-                )
-
                 trainer = Trainer(
                     model=model,
                     args=training_args,
@@ -827,46 +671,26 @@ class EnhancedTrainingPipeline(TrainingPipeline):
                     },
                 )
 
-            # Add callback for SNGP-like training
-            if self.use_spectral_norm:
-                trainer.add_callback(ResetCovarianceCallback())
-
-            # Train the model
             trainer.train()
 
-            # Extract model components for saving
+            # Extract model components
             if hasattr(model, "base_model"):
                 # Enhanced model
-                if self.model_name == "distil-bert":
-                    models.append(
-                        model.base_model.distilbert.transformer.layer[-2:].state_dict()
-                    )
-                    classifiers.append(model.base_model.classifier.state_dict())
-                elif self.model_name == "roberta":
-                    models.append(
-                        model.base_model.roberta.encoder.layer[-2:].state_dict()
-                    )
-                    classifiers.append(model.base_model.classifier.state_dict())
-                elif self.model_name == "bert":
-                    models.append(model.base_model.bert.encoder.layer[-2:].state_dict())
-                    classifiers.append(model.base_model.classifier.state_dict())
+                base_model = model.base_model
+                layer_components, classifier_components = self.extract_model_components(
+                    base_model
+                )
             else:
-                # Standard model
-                if self.model_name == "distil-bert":
-                    models.append(model.distilbert.transformer.layer[-2:].state_dict())
-                    classifiers.append(model.classifier.state_dict())
-                elif self.model_name == "roberta":
-                    models.append(model.roberta.encoder.layer[-2:].state_dict())
-                    classifiers.append(model.classifier.state_dict())
-                elif self.model_name == "bert":
-                    models.append(model.bert.encoder.layer[-2:].state_dict())
-                    classifiers.append(model.classifier.state_dict())
+                layer_components, classifier_components = self.extract_model_components(
+                    model
+                )
 
-            # Evaluate and compute metrics
+            models.append(layer_components)
+            classifiers.append(classifier_components)
+
+            # Evaluate model
             predictions, labels, _ = trainer.predict(test_dataset)
             predictions = predictions.argmax(axis=-1)
-
-            # Standard classification metrics
             report = classification_report(
                 labels,
                 predictions,
@@ -875,59 +699,102 @@ class EnhancedTrainingPipeline(TrainingPipeline):
                 zero_division=0,
             )
 
+            # Log results
+            logger.info(f"Classification Results for {method_name}:")
             for cls in label_encoder.classes_:
-                classes.append(cls)
-                accuracies.append(report[cls]["precision"])
-                f1_scores.append(report[cls]["f1-score"])
-
-            # OOD-specific evaluation if enabled
-            if self.ood_training and hasattr(model, "predict_with_uncertainty"):
-                logger.info("Evaluating OOD detection performance...")
-
-                # Create a simple test batch for uncertainty evaluation
-                test_batch = next(iter(trainer.get_test_dataloader()))
-                test_inputs = {
-                    k: v
-                    for k, v in test_batch.items()
-                    if k not in ["labels", "ood_labels"]
-                }
-
-                with torch.no_grad():
-                    _, entropy, energy = model.predict_with_uncertainty(
-                        test_inputs["input_ids"], test_inputs.get("attention_mask")
+                if cls in report:
+                    precision = report[cls]["precision"]
+                    f1 = report[cls]["f1-score"]
+                    logger.info(
+                        f"  Class '{cls}': Precision={precision:.3f}, F1={f1:.3f}"
                     )
 
-                # Store OOD metrics (entropy and energy distributions)
-                ood_metric = {
-                    "entropy_mean": entropy.mean().item(),
-                    "entropy_std": entropy.std().item(),
-                    "energy_mean": energy.mean().item(),
-                    "energy_std": energy.std().item(),
-                }
-                ood_metrics.append(ood_metric)
-
-                logger.info(
-                    f"OOD Metrics - Entropy: {ood_metric['entropy_mean']:.4f}±{ood_metric['entropy_std']:.4f}, "
-                    f"Energy: {ood_metric['energy_mean']:.4f}±{ood_metric['energy_std']:.4f}"
-                )
-            else:
-                ood_metrics.append({})
+                    classes.append(cls)
+                    accuracies.append(precision)
+                    f1_scores.append(f1)
 
             label_encoders.append(label_encoder)
-            shutil.rmtree("tmp")
+
+            # Clean up
+            if os.path.exists("tmp"):
+                shutil.rmtree("tmp")
 
         basic_model = self.base_model.state_dict()
         metrics = (classes, accuracies, f1_scores)
+        return metrics, models, classifiers, label_encoders, basic_model
 
-        # Return enhanced results with OOD metrics if available
-        if self.ood_training and any(ood_metrics):
-            return (
-                metrics,
-                models,
-                classifiers,
-                label_encoders,
-                basic_model,
-                ood_metrics,
-            )
-        else:
-            return metrics, models, classifiers, label_encoders, basic_model
+    def _get_ood_trainer(self, model, training_args, train_dataset, test_dataset):
+        """Get custom trainer for OOD methods"""
+
+        class OODTrainer(Trainer):
+            def __init__(self, ood_method, ood_config, **kwargs):
+                super().__init__(**kwargs)
+                self.ood_method = ood_method
+                self.ood_config = ood_config
+
+                if ood_method == "energy":
+                    config = DEFAULT_OOD_CONFIGS["energy"]
+                    config.update(ood_config)
+                    self.ood_loss = OODLoss(
+                        ood_weight=config.get("energy_weight", 0.1),
+                        energy_margin=config.get("energy_margin", 10.0),
+                        temperature=config.get("energy_temp", 1.0),
+                    )
+
+            def compute_loss(self, model, inputs, return_outputs=False):
+                labels = inputs.get("labels")
+                ood_labels = inputs.get("ood_labels")
+
+                outputs = model(
+                    **{
+                        k: v
+                        for k, v in inputs.items()
+                        if k not in ["labels", "ood_labels"]
+                    }
+                )
+                logits = outputs.get("logits")
+
+                if ood_labels is not None and self.ood_method == "energy":
+                    loss = self.ood_loss(logits, labels, ood_labels)
+                else:
+                    loss_fct = nn.CrossEntropyLoss()
+                    loss = loss_fct(logits.view(-1, logits.size(-1)), labels.view(-1))
+
+                return (loss, outputs) if return_outputs else loss
+
+        return OODTrainer(
+            ood_method=self.ood_method,
+            ood_config=self.ood_config,
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=test_dataset,
+            compute_metrics=lambda eval_pred: {
+                "accuracy": accuracy_score(
+                    eval_pred.label_ids, eval_pred.predictions.argmax(axis=1)
+                )
+            },
+        )
+
+
+def create_training_pipeline(dfs, model_name, ood_method=None, **ood_config):
+    """
+    Factory function to create training pipelines.
+
+    Args:
+        dfs: List of dataframes
+        model_name: Name of the base model
+        ood_method: OOD method ("energy", "sngp", "softmax", or None for standard)
+        **ood_config: Additional OOD configuration parameters
+
+    Returns:
+        TrainingPipeline: Configured training pipeline
+    """
+    if ood_method and ood_method not in SUPPORTED_OOD_METHODS:
+        raise ValueError(
+            f"Unsupported OOD method: {ood_method}. Supported: {SUPPORTED_OOD_METHODS}"
+        )
+
+    return TrainingPipeline(
+        dfs=dfs, model_name=model_name, ood_method=ood_method, ood_config=ood_config
+    )

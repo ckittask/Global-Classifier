@@ -1,61 +1,38 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from model_trainer import ModelTrainer, EnhancedModelTrainer
+
+from model_trainer import ModelTrainer
 import json
 import os
 from typing import Optional
 from loguru import logger
 from pydantic import BaseModel
 import requests
-from constants import TRAINING_LOGS_PATH
+import sys
 
-# Environment variable for the update endpoint
-UPDATE_TRAINING_PROGRESS_SESSION_ENDPOINT = os.getenv(
-    "UPDATE_TRAINING_PROGRESS_SESSION_ENDPOINT"
-)
+logger.remove()
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
+print("INIT STARTED model_trainer_api.py")
 
-print("INIT STARTED MAIN.PY")
-logger.add(sink=TRAINING_LOGS_PATH)
-logger.info("INIT STARTED MAIN.PY")
 
-app = FastAPI()
+logger.info("INIT STARTED model_trainer_api.py")
+
+app = FastAPI(title="Model Training API - Unified Training")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust as necessary
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-print("INIT STARTED model_trainer_api.py - Log recorded")
+print("PROCESS STARTED model_trainer_api.py")
 logger.info("PROCESS STARTED model_trainer_api.py")
-print("PROCESS STARTED model_trainer_api.py - Log recorded")
 
 
 class SessionPayload(BaseModel):
-    cookie: str
-    old_model_id: str
-    new_model_id: str
-    update_type: str
-    prev_deployment_env: Optional[str] = None
-    progress_session_id: int
-    deployment_env: str
-    model_details: str
-
-
-class OODConfig(BaseModel):
-    """Configuration for OOD training"""
-
-    ood_weight: float = 0.1
-    energy_margin: float = 10.0
-    temperature: float = 1.0
-    use_spectral_norm: bool = False
-    uncertainty_method: str = "entropy"
-
-
-class EnhancedSessionPayload(BaseModel):
-    """Enhanced payload that supports OOD training"""
+    """Unified payload for all training (standard + OOD variants)"""
 
     cookie: str
     old_model_id: str
@@ -66,214 +43,176 @@ class EnhancedSessionPayload(BaseModel):
     deployment_env: str
     model_details: str
 
-    # OOD-specific parameters
-    ood_training: bool = False
-    ood_config: Optional[OODConfig] = None
 
-
-# Use global variable to track training status
+# Global training status
 Training = False
 
 
 @app.post("/model_trainer/")
-async def model_train(payload: SessionPayload):
-    global Training  # Declare that we intend to modify the global variable
-    try:
-        print("I'm inside model_trainer")
-        print("payload: ", payload)
+async def unified_model_train(payload: SessionPayload):
+    """
+    Unified training endpoint that trains all model variants:
+    - Standard models: estbert, xlm-roberta, multilingual-distilbert
+    - OOD variants: energy, SNGP, softmax for each base model
 
-        # Extract payload data
-        cookie = payload.cookie
-        newModelId = payload.new_model_id
-        oldModelId = payload.old_model_id
-        prev_deployment_env = payload.prev_deployment_env
-        update_type = payload.update_type
-        progress_session_id = payload.progress_session_id
-        model_details = json.loads(payload.model_details)
-        current_deployment_platform = payload.deployment_env
-
-        # Update training progress to "In-Progress"
-        update_model_training_progress_session(
-            progress_session_id=progress_session_id,
-            new_model_id=newModelId,
-            training_status="Training In-Progress",
-            training_progress_update_message="Model training in progress",
-            training_progress_percentage=10,
-            process_complete=False,
-            cookie=cookie,
-        )
-
-        # Initialize and start training
-        trainer = ModelTrainer(
-            cookie,
-            newModelId,
-            oldModelId,
-            prev_deployment_env,
-            update_type,
-            progress_session_id,
-            model_details,
-            current_deployment_platform,
-        )
-        Training = True
-        trainer.train()
-        Training = False
-
-        response = requests.post("http://mock-trainer-queue:8901/get_session")
-        print(response)
-        logger.info("TRAINING SCRIPT COMPLETED")
-        print("TRAINING SCRIPT COMPLETED - Log recorded")
-
-    except Exception as e:
-        Training = False
-        logger.error(f"Error in model_trainer_api.PY : {e}")
-        print(f"Error in model_trainer_api.PY - Log recorded {e}")
-
-        # Update training progress to "Failed"
-        try:
-            update_model_training_progress_session(
-                progress_session_id=payload.progress_session_id,
-                new_model_id=payload.new_model_id,
-                training_status="Training Failed",
-                training_progress_update_message="Training Failed",
-                training_progress_percentage=100,
-                process_complete=True,
-                cookie=payload.cookie,
-            )
-        except Exception as update_error:
-            logger.error(f"Failed to update training progress on error: {update_error}")
-            print(f"Failed to update training progress on error: {update_error}")
-
-        # Optionally, re-raise the exception if you want the API to return an error
-        raise e
-
-
-@app.post("/enhanced_model_trainer/")
-async def enhanced_model_train(payload: EnhancedSessionPayload):
-    """Enhanced endpoint that supports OOD training"""
+    Selects and deploys the best performing model across all variants.
+    """
     global Training
+
     try:
-        print("I'm inside enhanced_model_trainer")
-        print("payload: ", payload)
+        print("Starting unified model training")
+        print("payload: ", payload.dict())
 
         # Extract payload data
         cookie = payload.cookie
-        newModelId = payload.new_model_id
-        oldModelId = payload.old_model_id
+        new_model_id = payload.new_model_id
+        old_model_id = payload.old_model_id
         prev_deployment_env = payload.prev_deployment_env
         update_type = payload.update_type
         progress_session_id = payload.progress_session_id
         model_details = json.loads(payload.model_details)
         current_deployment_platform = payload.deployment_env
 
-        # OOD-specific parameters
-        ood_training = payload.ood_training
-        ood_config = payload.ood_config.dict() if payload.ood_config else {}
+        logger.info(f"UNIFIED TRAINING STARTED FOR MODEL {new_model_id}")
+        logger.info("TRAINING ALL VARIANTS: Standard + OOD methods")
 
-        logger.info(f"OOD Training Enabled: {ood_training}")
-        if ood_training:
-            logger.info(f"OOD Configuration: {ood_config}")
+        Training = True
 
-        # Update training progress to "In-Progress"
-        training_message = "Model training in progress"
-        if ood_training:
-            training_message += " with OOD detection"
-
+        # Update initial progress
         update_model_training_progress_session(
             progress_session_id=progress_session_id,
-            new_model_id=newModelId,
+            new_model_id=new_model_id,
             training_status="Training In-Progress",
-            training_progress_update_message=training_message,
+            training_progress_update_message="Starting unified training of all model variants (Standard + OOD)",
             training_progress_percentage=10,
             process_complete=False,
             cookie=cookie,
         )
 
-        # Initialize and start enhanced training
-        trainer = EnhancedModelTrainer(
+        # Initialize and start unified training
+        logger.info("INITIALIZING UNIFIED MODEL TRAINER")
+
+        trainer = ModelTrainer(
             cookie=cookie,
-            new_model_id=newModelId,
-            old_model_id=oldModelId,
+            new_model_id=new_model_id,
+            old_model_id=old_model_id,
             prev_deployment_env=prev_deployment_env,
             update_type=update_type,
             progress_session_id=progress_session_id,
-            model_details=model_details,
             current_deployment_platform=current_deployment_platform,
-            ood_training=ood_training,
-            ood_config=ood_config,
+            model_details=model_details,
         )
-        Training = True
-        trainer.train()
-        Training = False
 
-        # Notify the session service - FIXED service name
-        response = requests.post("http://mock-trainer-queue:8901/get_session")
-        print(response)
-        logger.info("ENHANCED TRAINING SCRIPT COMPLETED")
-        print("ENHANCED TRAINING SCRIPT COMPLETED - Log recorded")
+        # Train all variants
+        logger.info("STARTING UNIFIED TRAINING")
+        trainer.train()
+        logger.info("UNIFIED TRAINING COMPLETED")
+
+        # Final progress update
+        update_model_training_progress_session(
+            progress_session_id=progress_session_id,
+            new_model_id=new_model_id,
+            training_status="Training Completed",
+            training_progress_update_message="Unified training completed - best model selected and deployed",
+            training_progress_percentage=100,
+            process_complete=True,
+            cookie=cookie,
+        )
+
+        Training = False
+        logger.info("UNIFIED TRAINING SCRIPT COMPLETED")
+
+        return {
+            "status": "success",
+            "message": "Unified training completed successfully",
+            "model_id": new_model_id,
+            "session_id": progress_session_id,
+            "training_type": "unified_standard_and_ood",
+        }
 
     except Exception as e:
         Training = False
-        logger.error(f"Error in enhanced_model_trainer_api.py : {e}")
-        print(f"Error in enhanced_model_trainer_api.py - Log recorded {e}")
+        logger.error(f"Error in unified model training: {e}")
+        print(f"Error in unified model training: {e}")
 
-        # Update training progress to "Failed"
+        # Update error status
         try:
             update_model_training_progress_session(
                 progress_session_id=payload.progress_session_id,
                 new_model_id=payload.new_model_id,
                 training_status="Training Failed",
-                training_progress_update_message="Enhanced Training Failed",
+                training_progress_update_message=f"Unified Training Failed: {str(e)}",
                 training_progress_percentage=100,
                 process_complete=True,
                 cookie=payload.cookie,
             )
         except Exception as update_error:
             logger.error(f"Failed to update training progress on error: {update_error}")
-            print(f"Failed to update training progress on error: {update_error}")
 
-        raise e
+        return {
+            "status": "error",
+            "message": f"Unified training failed: {str(e)}",
+            "error_type": type(e).__name__,
+            "training_type": "unified_standard_and_ood",
+        }
 
 
 @app.get("/model_checker/")
 async def model_checker():
-    print("I'm inside model_checker")
+    """Check current training status"""
+    print("Checking training status")
     print("Training: ", Training)
     return {"Training": Training}
 
 
-@app.get("/ood_config_schema/")
-async def get_ood_config_schema():
-    """Return the OOD configuration schema"""
+@app.get("/supported_models/")
+async def get_supported_models():
+    """Return all supported model variants"""
+    base_models = ["estbert", "xlm-roberta", "multilingual-distilbert"]
+    ood_methods = ["energy", "sngp", "softmax"]
+
+    models = []
+
+    # Add standard models
+    for model in base_models:
+        models.append(
+            {
+                "name": model,
+                "type": "standard",
+                "description": f"Standard {model} training",
+            }
+        )
+
+    # Add OOD variants
+    for model in base_models:
+        for ood_method in ood_methods:
+            models.append(
+                {
+                    "name": f"{model}-{ood_method}",
+                    "type": "ood",
+                    "base_model": model,
+                    "ood_method": ood_method,
+                    "description": f"{model} with {ood_method.upper()} OOD detection",
+                }
+            )
+
     return {
-        "ood_weight": {
-            "type": "float",
-            "default": 0.1,
-            "description": "Weight for OOD loss term",
-            "range": [0.0, 1.0],
-        },
-        "energy_margin": {
-            "type": "float",
-            "default": 10.0,
-            "description": "Margin for energy-based loss",
-            "range": [1.0, 50.0],
-        },
-        "temperature": {
-            "type": "float",
-            "default": 1.0,
-            "description": "Temperature for energy scoring",
-            "range": [0.1, 10.0],
-        },
-        "use_spectral_norm": {
-            "type": "bool",
-            "default": False,
-            "description": "Use spectral normalization for improved uncertainty",
-        },
-        "uncertainty_method": {
-            "type": "string",
-            "default": "entropy",
-            "description": "Method for uncertainty estimation",
-            "options": ["entropy", "energy", "combined"],
-        },
+        "base_models": base_models,
+        "ood_methods": ood_methods,
+        "all_variants": models,
+        "total_variants": len(models),
+    }
+
+
+@app.get("/training_status/{session_id}")
+async def get_training_status(session_id: int):
+    """Get detailed training status for a specific session"""
+    return {
+        "session_id": session_id,
+        "is_training": Training,
+        "status": "in_progress" if Training else "idle",
+        "message": "Unified training in progress" if Training else "No active training",
+        "training_type": "unified_standard_and_ood",
     }
 
 
@@ -286,6 +225,7 @@ def update_model_training_progress_session(
     process_complete,
     cookie,
 ):
+    """Update model training progress session"""
     payload = {
         "sessionId": progress_session_id,
         "trainingStatus": training_status,
@@ -298,33 +238,37 @@ def update_model_training_progress_session(
         f"Update training progress session for model id - {new_model_id} payload \n {payload}"
     )
 
-    response = requests.post(
-        url=UPDATE_TRAINING_PROGRESS_SESSION_ENDPOINT,
-        json=payload,
-        cookies={"customJwtCookie": cookie},
+    # Use environment variable for endpoint
+    update_endpoint = os.getenv(
+        "UPDATE_TRAINING_PROGRESS_SESSION_ENDPOINT",
+        "http://ruuter-private:8088/classifier/datamodel/progress/update",
     )
 
-    if response.status_code == 200:
-        logger.info(
-            f"REQUEST TO UPDATE TRAINING PROGRESS SESSION FOR MODEL ID {new_model_id} SUCCESSFUL"
+    try:
+        response = requests.post(
+            url=update_endpoint,
+            json=payload,
+            cookies={"customJwtCookie": cookie},
+            timeout=10,
         )
-        logger.info(f"RESPONSE PAYLOAD \n {response.json()}")
-        print(
-            f"REQUEST TO UPDATE TRAINING PROGRESS SESSION FOR MODEL ID {new_model_id} SUCCESSFUL"
-        )
-        print(f"RESPONSE PAYLOAD \n {response.json()}")
-        session_id = response.json()["response"]["sessionId"]
-    else:
-        logger.error(
-            f"REQUEST TO UPDATE TRAINING PROGRESS SESSION FOR MODEL ID {new_model_id} FAILED"
-        )
-        logger.error(f"ERROR RESPONSE JSON {response.json()}")
-        logger.error(f"ERROR RESPONSE TEXT {response.text}")
-        print(
-            f"REQUEST TO UPDATE TRAINING PROGRESS SESSION FOR MODEL ID {new_model_id} FAILED"
-        )
-        print(f"ERROR RESPONSE JSON {response.json()}")
-        print(f"ERROR RESPONSE TEXT {response.text}")
-        raise RuntimeError(response.text)
 
-    return session_id
+        if response.status_code == 200:
+            logger.info(
+                f"UPDATE TRAINING PROGRESS SESSION FOR MODEL ID {new_model_id} SUCCESSFUL"
+            )
+            session_id = response.json()["response"]["sessionId"]
+            return session_id
+        else:
+            logger.error(
+                f"UPDATE TRAINING PROGRESS SESSION FOR MODEL ID {new_model_id} FAILED"
+            )
+            logger.error(f"Response: {response.text}")
+            raise RuntimeError(response.text)
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed for progress update: {e}")
+        # In case of network issues, just return the session ID
+        return progress_session_id
+    except Exception as e:
+        logger.error(f"Unexpected error in progress update: {e}")
+        return progress_session_id

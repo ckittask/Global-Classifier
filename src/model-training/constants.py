@@ -84,36 +84,76 @@ DEPLOYING_MODEL_PROGRESS_PERCENTAGE = 80
 MODEL_TRAINED_AND_DEPLOYED_PROGRESS_PERCENTAGE = 100
 
 
-# OOD TRAINING CONSTANTS (Added for enhanced functionality)
-
-# OOD Training Status Messages
-OOD_TRAINING_PROGRESS_MESSAGE = (
-    "The dataset is being trained with OOD detection capabilities"
-)
-
-# OOD Configuration Defaults
-DEFAULT_OOD_WEIGHT = 0.1
-DEFAULT_ENERGY_MARGIN = 10.0
-DEFAULT_TEMPERATURE = 1.0
-DEFAULT_USE_SPECTRAL_NORM = False
-DEFAULT_UNCERTAINTY_METHOD = "entropy"
-
-# OOD Model Storage Paths
-OOD_METRICS_SAVE_PATH = "/shared/model_trainer/results/{model_id}/ood_metrics"
-OOD_CONFIG_SAVE_PATH = "/shared/model_trainer/results/{model_id}/ood_config.json"
-
-# Supported Uncertainty Methods
-SUPPORTED_UNCERTAINTY_METHODS = ["entropy", "energy", "combined"]
-
-# OOD Training Types
-OOD_TRAINING_ENABLED = "ood_enabled"
-OOD_TRAINING_DISABLED = "ood_disabled"
-
 # Supported Models for Testing
-SUPPORTED_MODELS = {
-    "estbert": "tartuNLP/EstBERT",
-    "estbert-small": "tartuNLP/EstBERT-small",
-    "xlm-roberta": "xlm-roberta-base",
-    "mdeberta": "microsoft/mdeberta-v3-base",
-    "multilingual-bert": "bert-base-multilingual-cased",
+SUPPORTED_BASE_MODELS = ["estbert", "xlm-roberta", "multilingual-distilbert"]
+
+
+SUPPORTED_BASE_MODELS = ["estbert", "xlm-roberta", "multilingual-distilbert"]
+
+# Model configurations
+MODEL_CONFIGS = {
+    "estbert": {
+        "model_name": "tartuNLP/EstBERT",
+        "tokenizer_name": "tartuNLP/EstBERT",
+        "type": "bert",
+    },
+    "xlm-roberta": {
+        "model_name": "xlm-roberta-base",
+        "tokenizer_name": "xlm-roberta-base",
+        "type": "roberta",
+    },
+    "multilingual-distilbert": {
+        "model_name": "distilbert-base-multilingual-cased",
+        "tokenizer_name": "distilbert-base-multilingual-cased",
+        "type": "distilbert",
+    },
 }
+
+# OOD Training configurations
+SUPPORTED_OOD_METHODS = ["energy", "sngp", "softmax"]
+
+# OOD Default parameters
+DEFAULT_OOD_CONFIGS = {
+    "energy": {
+        "energy_temp": 1.0,
+        "energy_margin": 10.0,
+        "energy_weight": 0.1,
+        "use_energy_loss": True,
+    },
+    "sngp": {
+        "spec_norm_bound": 0.9,
+        "gp_hidden_dim": 128,
+        "gp_scale": 2.0,
+        "gp_bias": 0.0,
+        "gp_input_normalization": True,
+        "gp_random_feature_type": "orf",
+        "gp_cov_momentum": 0.999,
+        "gp_cov_ridge_penalty": 1e-3,
+    },
+    "softmax": {"temperature": 1.0, "use_entropy": True, "calibrate": False},
+}
+
+# Training parameters
+DEFAULT_TRAINING_ARGS = {
+    "num_train_epochs": 4,
+    "per_device_train_batch_size": 8,
+    "per_device_eval_batch_size": 8,
+    "learning_rate": 2e-5,
+    "warmup_steps": 100,
+    "weight_decay": 0.01,
+    "logging_steps": 50,
+    "eval_strategy": "epoch",
+    "save_strategy": "epoch",
+    "load_best_model_at_end": True,
+    "metric_for_best_model": "accuracy",
+}
+
+
+# Data pipeline constants
+MIN_SAMPLES_PER_CLASS = 10
+TARGET_SAMPLES_FOR_SMALL_DATASETS = 50
+TEST_SIZE_RATIO = 0.2
+
+# Model evaluation constants
+ACCURACY_WEIGHT = 0.7
+F1_WEIGHT = 0.3
