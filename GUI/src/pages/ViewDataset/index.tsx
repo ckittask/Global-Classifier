@@ -3,44 +3,50 @@ import { Button, Card, DataTable, Dialog, Icon, Label, Switch } from 'components
 import { ButtonAppearanceTypes, LabelType } from 'enums/commonEnums';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ViewDatasetGroupModalContexts } from 'enums/datasetEnums';
+import { Link, useSearchParams } from 'react-router-dom';
 import { generateDynamicColumns } from 'utils/dataTableUtils';
 import { MdOutlineDeleteOutline, MdOutlineEdit } from 'react-icons/md';
 import { CellContext, ColumnDef, PaginationState } from '@tanstack/react-table';
 import {
-  DatasetDetails,
   SelectedRowPayload,
 } from 'types/datasets';
 import SkeletonTable from '../../components/molecules/TableSkeleton/TableSkeleton';
 import { sampleDatasetRows } from 'data/sampleDataset';
 import DynamicForm from 'components/FormElements/DynamicForm';
+import { datasetQueryKeys, integratedAgenciesQueryKeys } from 'utils/queryKeys';
+import { getDatasetMetadata } from 'services/datasets';
+import { useQuery } from '@tanstack/react-query';
+import { set } from 'date-fns';
+import { useDialog } from 'hooks/useDialog';
+import { fetchAllAgencies } from 'services/agencies';
 
 const ViewDataset = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 5,
   });
-  const [isUpdateModalOpen, setIsUpdateModal] = useState<boolean>(false);
-  const [modalAction, setModalAction] = useState<string>("");
-
-  const isMetadataLoading = false; // Placeholder for metadata loading state
-  const metadata: any[] = [];
-  const isLoading = false; // Placeholder for loading state
-  const handleOpenModals = (context: ViewDatasetGroupModalContexts) => {
-    if (context === ViewDatasetGroupModalContexts.PATCH_UPDATE_MODAL)
-      setIsUpdateModal(true);
-    else if (context === ViewDatasetGroupModalContexts.DELETE_ROW_MODAL)
-      setModalAction('Delete');
-  };
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+  const { open, close } = useDialog();
+  const isMetadataLoading = false;
+  // Sample data for demonstration purposes
   const datasets = sampleDatasetRows;
   const [updatedDataset, setUpdatedDataset] = useState(datasets?.dataPayload);
-
+  const [deletedRowIds, setDeletedRowIds] = useState<(string | number)[]>([]);
   const [searchParams] = useSearchParams();
   const datasetId = searchParams.get('datasetId');
   const [selectedRow, setSelectedRow] = useState<SelectedRowPayload>();
+  const [editedRows, setEditedRows] = useState<SelectedRowPayload[]>([]);
+
+  const { data: metadata, isLoading } = useQuery({
+    queryKey: datasetQueryKeys.GET_META_DATA(datasetId ?? 0),
+    queryFn: () => getDatasetMetadata(datasetId ?? 0),
+  });
+
+  const { data: agencies } = useQuery({
+    queryKey: integratedAgenciesQueryKeys.ALL_AGENCIES_LIST(),
+    queryFn: () => fetchAllAgencies(),
+  });
 
   const editView = (props: CellContext<any, unknown>) => {
     return (
@@ -48,7 +54,7 @@ const ViewDataset = () => {
         appearance={ButtonAppearanceTypes.TEXT}
         onClick={() => {
           setSelectedRow(props.row.original);
-          handleOpenModals(ViewDatasetGroupModalContexts.PATCH_UPDATE_MODAL);
+          setIsUpdateModalOpen(true);
         }}
       >
         <Icon icon={<MdOutlineEdit />} />
@@ -61,8 +67,28 @@ const ViewDataset = () => {
     <Button
       appearance={ButtonAppearanceTypes.TEXT}
       onClick={() => {
-        setSelectedRow(props.row.original);
-        handleOpenModals(ViewDatasetGroupModalContexts.DELETE_ROW_MODAL);
+        open({
+          title: t('datasets.detailedView.deleteDataRowTitle') ?? '',
+          content: <p>{t('datasets.detailedView.deleteDataRowDesc')}</p>,
+          footer: (
+            <div className="button-wrapper">
+              <Button
+                appearance={ButtonAppearanceTypes.SECONDARY}
+                onClick={() => {
+                  close();
+                }}
+              >
+                {t('global.cancel')}
+              </Button>
+              <Button
+                appearance={ButtonAppearanceTypes.ERROR}
+                onClick={() => deleteDataRecord(props.row.original)}
+              >
+                {t('global.confirm')}
+              </Button>
+            </div>
+          ),
+        });
       }}
     >
       <Icon icon={<MdOutlineDeleteOutline />} />
@@ -75,13 +101,57 @@ const ViewDataset = () => {
     [datasets?.fields]
   );
 
-  const patchDataUpdate = (dataRow: SelectedRowPayload) => {
-    const payload = updatedDataset?.map((row) =>
-      row.rowId === selectedRow?.rowId ? dataRow : row
+  const editDataRecord = (dataRow: SelectedRowPayload) => {
+    const originalRow = datasets?.dataPayload?.find(
+      (row) => row.id === dataRow.id
     );
-    setUpdatedDataset(payload);
 
+    // Only proceed if question or clientId has changed
+    if (
+      originalRow &&
+      (originalRow.question !== dataRow.question || originalRow.clientId !== dataRow.clientId)
+    ) {
+      // Compute the new editedRows array
+      setEditedRows((prev) => {
+        const exists = prev.find((row) => row.id === dataRow.id);
+        const newEditedRows = exists
+          ? prev.map((row) => (row.id === dataRow.id ? dataRow : row))
+          : [...prev, dataRow];
+
+        console.log('Updated editedRows:', newEditedRows);
+        setIsUpdateModalOpen(false);
+
+        return newEditedRows;
+      });
+    }
+    // Update the table view as before
+    const payload = updatedDataset?.map((row) =>
+      row.id === selectedRow?.id
+        ? {
+          id: dataRow.id,
+          question: (dataRow as any).question,
+          clientName: (dataRow as any).clientName,
+        }
+        : row
+    );
+    setUpdatedDataset(payload as { id: number; question: string; clientName: string; clientId: string }[]);
   };
+
+  const deleteDataRecord = (dataRow: SelectedRowPayload) => {
+    if (!dataRow) return;
+    setUpdatedDataset((prev) => prev?.filter(row => row.id !== dataRow.id));
+    setDeletedRowIds((prev) => [...prev, dataRow.id]);
+    close();
+  };
+
+  const minorUpdate = () => {
+    const payload = {
+      datasetId: datasetId,
+      updatedRows: editedRows,
+      deletedRows: deletedRowIds,
+    }
+    console.log(payload, 'minorUpdatePayload');
+  }
 
   return (
     <div className="container">
@@ -90,8 +160,7 @@ const ViewDataset = () => {
           <Link to={'/datasets'}>
             <BackArrowButton />
           </Link>
-          <div className="title">{t('datasets.detailedView.dataset')} V2.0</div>
-
+          <div className="title">{t('datasets.detailedView.dataset')} {`V${metadata?.major}.${metadata?.minor}`}</div>
         </div>
       </div>
       {isMetadataLoading && <SkeletonTable rowCount={2} />}
@@ -103,12 +172,10 @@ const ViewDataset = () => {
             <div className="flex-between">
               <div>
                 <p>
-                  {t('datasets.detailedView.version') ?? ''} : V2.0
-
+                  {t('datasets.detailedView.version') ?? ''} : {`V${metadata?.major}.${metadata?.minor}`}
                 </p>
                 <p>
-                  {t('datasets.detailedView.connectedModels') ?? ''} : 0
-
+                  {t('datasets.detailedView.connectedModels') ?? ''} : N/A
                 </p>
                 <p>
                   {t('datasets.detailedView.noOfItems') ?? ''} : {datasets?.dataPayload?.length ?? 0}
@@ -116,7 +183,7 @@ const ViewDataset = () => {
               </div>
               <div>
                 <Switch label=''></Switch>
-                <br />
+                <br/>
                 <Button appearance='secondary' size='s'>
                   Export Dataset
                 </Button>
@@ -140,24 +207,46 @@ const ViewDataset = () => {
               )
                 return;
               setPagination(state);
-              // getDatasets(state, dgId);
             }}
-            pagesCount={datasets?.dataPayload?.length / pagination.pageSize ?? 0}
+            pagesCount={10}
             isClientSide={false}
           />
         )}
+        <div className="button-container">
+          <Button
+            appearance={ButtonAppearanceTypes.ERROR}
+            onClick={() => { }
+            }
+          >
+            {t('datasets.detailedView.delete') ?? ''}
+          </Button>
+          <Button
+            onClick={minorUpdate}
+          >
+            {t('global.save') ?? ''}
+          </Button>
+        </div>
       </div>
       {isUpdateModalOpen && (
         <Dialog
-          title={'Edit'}
-          onClose={() => setIsUpdateModal(false)}
+          title={t('datasets.detailedView.editDataRowTitle')}
+          onClose={() => setIsUpdateModalOpen(false)}
           isOpen={
             isUpdateModalOpen}
         >
+          <p>{t('datasets.detailedView.editDataRowDesc')}</p>
+
           <DynamicForm
-            formData={selectedRow ?? {}}
-            onSubmit={patchDataUpdate}
-            setPatchUpdateModalOpen={setIsUpdateModal}
+            formData={
+              (selectedRow as SelectedRowPayload | undefined) ?? { question: '', clientName: '', id: 0, clientId: 0 }
+            }
+            clientOptions={agencies?.map((a: { agencyName: string; agencyId: number }) => ({
+              label: a.agencyName,
+              value: a.agencyId,
+              clientId: a.agencyId,
+            })) ?? []}
+            onSubmit={editDataRecord as (data: SelectedRowPayload) => void}
+            setPatchUpdateModalOpen={setIsUpdateModalOpen as React.Dispatch<React.SetStateAction<boolean>>}
           />
         </Dialog>
       )}

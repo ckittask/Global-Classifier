@@ -210,14 +210,14 @@ const DataTable: FC<DataTableProps> = (
                       key={`${id}-${index}`}
                       className={clsx({ 'active': table.getState().pagination.pageIndex === index })}
                     >
-                      <Link
-                        to={`?page=${index + 1}`}
+                      <a
+                        // to={`?page=${index + 1}`}
                         onClick={() => table.setPageIndex(index)}
                         aria-label={t('global.gotoPage') + index}
                         aria-current={table.getState().pagination.pageIndex === index}
                       >
                         {index + 1}
-                      </Link>
+                      </a>
                     </li>
                   ))}
                 </ul>

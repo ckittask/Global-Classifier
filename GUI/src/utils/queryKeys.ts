@@ -17,11 +17,11 @@ export const integratedAgenciesQueryKeys = {
       (val) => val !== undefined
     );
   },
-
+  ALL_AGENCIES_LIST: () => ['integrated-agencies/all'],
   USER_ROLES: (): string[] => ['/accounts/user-role', 'prod'],
-  
-  
-};
+
+  }
+
 
 export const datasetQueryKeys = {
   DATASET_FILTERS: (): string[] => ['datasets/filters'],
@@ -37,8 +37,8 @@ export const datasetQueryKeys = {
       sort,
     ].filter((val) => val !== undefined);
   },
-  GET_META_DATA: function (dgId?: number) {
-    return ['datasets/groups/metadata', `${dgId}`].filter(
+  GET_META_DATA: function (datasetId?: number|string) {
+    return ['datasets/metadata', `${datasetId}`].filter(
       (val) => val !== undefined
     );
   },
