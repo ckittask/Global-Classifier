@@ -6,12 +6,14 @@ from typing import List, Dict, Optional
 
 class DownloadRequest(BaseModel):
     """Request model for downloading files from signed URLs."""
+
     encoded_data: str
     extract_files: Optional[bool] = True
 
 
 class DownloadedFile(BaseModel):
     """Model for downloaded file information."""
+
     agency_id: str
     original_filename: str
     local_path: str
@@ -22,6 +24,7 @@ class DownloadedFile(BaseModel):
 
 class DownloadResponse(BaseModel):
     """Response model for download operation."""
+
     success: bool
     message: str
     total_downloads: int
