@@ -10,6 +10,7 @@ import { ROLES } from 'enums/roles';
 import LoadingScreen from 'pages/LoadingScreen/LoadingScreen';
 import Unauthorized from 'pages/Unauthorized/unauthorized';
 import IntegratedAgencies from 'pages/IntegratedAgencies';
+import DataModels from 'pages/DataModels';
 
 const App: FC = () => {
   const navigate = useNavigate();
@@ -56,9 +57,11 @@ const App: FC = () => {
             ) : (
               <>
                 <Route path="/user-management" element={<Unauthorized />} />
-                <Route path="/integration" element={<Unauthorized />} />
+                <Route path="/integrated-agencies" element={<Unauthorized />} />
               </>
             )}
+              <Route path="/data-models" element={<DataModels />} />
+
             
           </Route>
         </Routes>
