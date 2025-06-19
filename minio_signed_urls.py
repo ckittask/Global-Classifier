@@ -57,7 +57,7 @@ try:
     
     # Display the combined URL string for easy copying
     if presigned_urls:
-        print(f"\nCombined URL string (for signedUrls environment variable):")
+        print("\nCombined URL string (for signedUrls environment variable):")
         print("=" * 60)
         print('|||'.join(presigned_urls))
         

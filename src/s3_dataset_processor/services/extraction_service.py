@@ -3,11 +3,15 @@
 import os
 import zipfile
 import shutil
-from typing import List, Dict, Any
+from typing import List, Dict
 
 from config.settings import settings
 from models.schemas import DownloadedFile
+from loguru import logger
+import sys
 
+logger.remove()
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
 
 class ExtractionService:
     """Service class for handling file extraction operations."""
@@ -62,7 +66,7 @@ class ExtractionService:
             
             # Extract to temporary directory first
             temp_extract_dir = os.path.join(self.data_dir, f"temp_{agency_name}")
-            print(f"Extracting {downloaded_file.original_filename} to temporary directory: {temp_extract_dir}")
+            logger.info(f"Extracting {downloaded_file.original_filename} to temporary directory: {temp_extract_dir}")
             
             if self.extract_zip_file(downloaded_file.local_path, temp_extract_dir):
                 self._move_extracted_contents(temp_extract_dir, agency_dir)
@@ -70,7 +74,7 @@ class ExtractionService:
                 # Update downloaded file info
                 downloaded_file.extracted_path = agency_dir
                 downloaded_file.extraction_success = True
-                print(f"Successfully extracted {downloaded_file.original_filename}")
+                logger.info(f"Successfully extracted {downloaded_file.original_filename}")
                 
                 # Add to extracted folders list
                 extracted_folders.append({
@@ -80,10 +84,10 @@ class ExtractionService:
                 
                 # Remove the ZIP file after successful extraction
                 os.remove(downloaded_file.local_path)
-                print(f"Removed ZIP file {downloaded_file.local_path}")
+                logger.info(f"Removed ZIP file {downloaded_file.local_path}")
             else:
                 downloaded_file.extraction_success = False
-                print(f"Failed to extract {downloaded_file.original_filename}")
+                logger.error(f"Failed to extract {downloaded_file.original_filename}")
         
         return extracted_folders
     
@@ -100,25 +104,19 @@ class ExtractionService:
         if len(extracted_items) == 1 and os.path.isdir(os.path.join(temp_extract_dir, extracted_items[0])):
             # Single folder was extracted - move its contents to the agency directory
             nested_folder = os.path.join(temp_extract_dir, extracted_items[0])
-            print(f"Found nested folder structure, moving contents from {nested_folder} to {agency_dir}")
+            logger.info(f"Found nested folder structure, moving contents from {nested_folder} to {agency_dir}")
             
             for item in os.listdir(nested_folder):
                 src = os.path.join(nested_folder, item)
                 dst = os.path.join(agency_dir, item)
-                if os.path.isdir(src):
-                    shutil.move(src, dst)
-                else:
-                    shutil.move(src, dst)
+                shutil.move(src, dst)
         else:
             # Multiple items or files extracted - move everything to agency directory
-            print(f"Moving extracted contents directly to {agency_dir}")
+            logger.info(f"Moving extracted contents directly to {agency_dir}")
             for item in extracted_items:
                 src = os.path.join(temp_extract_dir, item)
                 dst = os.path.join(agency_dir, item)
-                if os.path.isdir(src):
-                    shutil.move(src, dst)
-                else:
-                    shutil.move(src, dst)
+                shutil.move(src, dst)
         
         # Clean up temporary directory
         shutil.rmtree(temp_extract_dir, ignore_errors=True)

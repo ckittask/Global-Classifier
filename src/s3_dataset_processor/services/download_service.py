@@ -7,7 +7,12 @@ from urllib.parse import urlparse
 
 from config.settings import settings
 from models.schemas import DownloadedFile
+from loguru import logger
+import sys
 
+logger.remove()
+# Add stdout handler with your preferred format
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
 
 class DownloadService:
     """Service class for handling file download operations."""
@@ -43,7 +48,7 @@ class DownloadService:
             
             return True
         except Exception as e:
-            print(f"Failed to download {url}: {e}")
+            logger.error(f"Failed to download {url}: {e}")
             return False
     
     def process_downloads(self, decoded_data: List[Dict[str, Any]]) -> tuple:
@@ -74,7 +79,7 @@ class DownloadService:
                 
                 # Download file to data directory
                 local_file_path = os.path.join(self.data_dir, original_filename)
-                print(f"Downloading {original_filename} for agency {agency_id}")
+                logger.info(f"Downloading {original_filename} for agency {agency_id}")
                 
                 if self.download_file(signed_url, local_file_path):
                     file_size = os.path.getsize(local_file_path)
@@ -88,12 +93,12 @@ class DownloadService:
                     
                     downloaded_files.append(downloaded_file)
                     successful_downloads += 1
-                    print(f"Successfully downloaded {original_filename}")
+                    logger.info(f"Successfully downloaded {original_filename}")
                     
                 else:
                     failed_downloads += 1
-                    print(f"Failed to download {original_filename}")
+                    logger.error(f"Failed to download {original_filename}")
         except Exception as e:
-            print(f"Error processing downloads: {e}")
+            logger.error(f"Error processing downloads: {e}")
             return downloaded_files, successful_downloads, failed_downloads
         return downloaded_files, successful_downloads, failed_downloads

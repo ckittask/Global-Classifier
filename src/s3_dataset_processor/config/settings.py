@@ -1,7 +1,6 @@
 """Application configuration settings."""
 
 import os
-from pathlib import Path
 
 
 class Settings:

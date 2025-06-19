@@ -5,6 +5,8 @@ import uvicorn
 import re
 import json
 import requests
+from loguru import logger
+import sys
 
 from config.settings import settings
 from models.schemas import (
@@ -14,6 +16,10 @@ from services.url_decoder_service import URLDecoderService
 from services.download_service import DownloadService
 from services.extraction_service import ExtractionService
 from handlers.response_handler import ResponseHandler
+
+logger.remove()
+# Add stdout handler with your preferred format
+logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -41,12 +47,12 @@ def process_callback_background(file_path: str, encoded_results: str):
         dataset_id_match = re.search(r'/([^/]+)\.json$', file_path)
         dataset_id = dataset_id_match.group(1) if dataset_id_match else "unknown"
         
-        print(f"[CALLBACK] Extracted dataset ID: {dataset_id}")
+        logger.info(f"[CALLBACK] Extracted dataset ID: {dataset_id}")
         
         # Decode the results using the existing service
         decoded_results = url_decoder_service.decode_signed_urls(encoded_results)
         
-        print(f"[CALLBACK] Decoded {len(decoded_results)} results")
+        logger.info(f"[CALLBACK] Decoded {len(decoded_results)} results")
         
         # Process the decoded results to create the required payload
         agencies = []
@@ -65,7 +71,7 @@ def process_callback_background(file_path: str, encoded_results: str):
                 "syncStatus": sync_status
             })
             
-            print(f"[CALLBACK] Agency {i+1}: ID={agency_id}, Success={success}, Status={sync_status}")
+            logger.info(f"[CALLBACK] Agency {i+1}: ID={agency_id}, Success={success}, Status={sync_status}")
             
             if not success:
                 overall_success = False
@@ -80,21 +86,16 @@ def process_callback_background(file_path: str, encoded_results: str):
         }
         
         # Log the processed callback
-        print(f"[CALLBACK] ========================================")
-        print(f"[CALLBACK] FINAL CALLBACK PAYLOAD")
-        print(f"[CALLBACK] ========================================")
-        print(f"[CALLBACK] {json.dumps(callback_payload, indent=2)}")
-        print(f"[CALLBACK] ========================================")
-        print(f"[CALLBACK] Dataset ID: {dataset_id}")
-        print(f"[CALLBACK] Generation Status: {generation_status}")
-        print(f"[CALLBACK] Total Agencies: {len(agencies)}")
-        print(f"[CALLBACK] Successful Agencies: {len([a for a in agencies if a['syncStatus'] == 'Synced_with_CKB'])}")
-        print(f"[CALLBACK] Failed Agencies: {len([a for a in agencies if a['syncStatus'] == 'Sync_with_CKB_Failed'])}")
-        print(f"[CALLBACK] ========================================")
+        logger.info(f"[CALLBACK] {json.dumps(callback_payload, indent=2)}")
+        logger.info(f"[CALLBACK] Dataset ID: {dataset_id}")
+        logger.info(f"[CALLBACK] Generation Status: {generation_status}")
+        logger.info(f"[CALLBACK] Total Agencies: {len(agencies)}")
+        logger.info(f"[CALLBACK] Successful Agencies: {len([a for a in agencies if a['syncStatus'] == 'Synced_with_CKB'])}")
+        logger.info(f"[CALLBACK] Failed Agencies: {len([a for a in agencies if a['syncStatus'] == 'Sync_with_CKB_Failed'])}")
 
         STATUS_UPDATE_URL = "http://ruuter-public:8086/global-classifier/agencies/data/generation"
         
-        print(f"[CALLBACK] Sending callback payload to: {STATUS_UPDATE_URL}")
+        logger.info(f"[CALLBACK] Sending callback payload to: {STATUS_UPDATE_URL}")
 
         try:
             # Send POST request to the status update endpoint
@@ -107,28 +108,28 @@ def process_callback_background(file_path: str, encoded_results: str):
                 timeout=30
             )
             
-            print(f"[CALLBACK] Status update response - HTTP Status: {response.status_code}")
-            print(f"[CALLBACK] Status update response body: {response.text}")
+            logger.info(f"[CALLBACK] Status update response - HTTP Status: {response.status_code}")
+            logger.info(f"[CALLBACK] Status update response body: {response.text}")
             
             if response.status_code == 200:
-                print(f"[CALLBACK] ✅ Successfully sent callback payload to status update endpoint")
+                logger.info("[CALLBACK] ✅ Successfully sent callback payload to status update endpoint")
             else:
-                print(f"[CALLBACK] ⚠️ Status update endpoint returned non-200 status: {response.status_code}")
-                print(f"[CALLBACK] Response: {response.text}")
+                logger.warning(f"[CALLBACK] ⚠️ Status update endpoint returned non-200 status: {response.status_code}")
+                logger.info(f"[CALLBACK] Response: {response.text}")
                 
         except requests.exceptions.RequestException as webhook_error:
-            print(f"[CALLBACK] ❌ Error sending callback to status update endpoint: {str(webhook_error)}")
-            print(f"[CALLBACK] URL: {STATUS_UPDATE_URL}")
-            print(f"[CALLBACK] Payload: {json.dumps(callback_payload, indent=2)}")
+            logger.error(f"[CALLBACK] ❌ Error sending callback to status update endpoint: {str(webhook_error)}")
+            logger.debug(f"[CALLBACK] URL: {STATUS_UPDATE_URL}")
+            logger.debug(f"[CALLBACK] Payload: {json.dumps(callback_payload, indent=2)}")
 
         except Exception as unexpected_error:
-            print(f"[CALLBACK] ❌ Unexpected error during status update: {str(unexpected_error)}")
+            logger.error(f"[CALLBACK] ❌ Unexpected error during status update: {str(unexpected_error)}")
 
         
     except Exception as e:
-        print(f"[CALLBACK] Error in background processing: {str(e)}")
-        print(f"[CALLBACK] File path: {file_path}")
-        print(f"[CALLBACK] Encoded results length: {len(encoded_results) if encoded_results else 0}")
+        logger.error(f"[CALLBACK] Error in background processing: {str(e)}")
+        logger.debug(f"[CALLBACK] File path: {file_path}")
+        logger.debug(f"[CALLBACK] Encoded results length: {len(encoded_results) if encoded_results else 0}")
         # You might want to implement retry logic or error handling here
 
 
@@ -159,46 +160,6 @@ async def health_check():
     }
 
 
-# @app.post("/decode-urls", response_model=DecodeResponse)
-# async def decode_urls(request: DecodeRequest):
-#     """
-#     Decode signed URLs from encoded data.
-    
-#     Args:
-#         request: Request containing encoded data
-        
-#     Returns:
-#         Decoded URL information
-#     """
-#     try:
-#         if not request.encoded_data or not isinstance(request.encoded_data, str):
-#             raise HTTPException(
-#                 status_code=400,
-#                 detail="'encoded_data' must be a non-empty string"
-#             )
-        
-#         # Decode the data using service
-#         decoded_data = url_decoder_service.decode_signed_urls(request.encoded_data)
-#         print(f"Decoded data: {decoded_data}")
-        
-#         # Format response using handler
-#         response = response_handler.format_decoded_data(decoded_data)
-#         print(f"Formatted response: {response}")
-        
-#         return response
-        
-#     except ValueError as e:
-#         raise HTTPException(
-#             status_code=400,
-#             detail=f"Decoding error: {str(e)}"
-#         )
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=500,
-#             detail=f"Internal server error: {str(e)}"
-#         )
-
-
 @app.post("/download-datasets", response_model=DownloadResponse)
 async def download_datasets(request: DownloadRequest):
     """
@@ -219,7 +180,7 @@ async def download_datasets(request: DownloadRequest):
         
         # Decode the data using service
         decoded_data = url_decoder_service.decode_signed_urls(request.encoded_data)
-        print(f"Starting download for {len(decoded_data)} files")
+        logger.info(f"Starting download for {len(decoded_data)} files")
         
         # Process downloads using service
         downloaded_files, successful_downloads, failed_downloads = (
