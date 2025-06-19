@@ -30,7 +30,11 @@ class URLDecoderService:
             parsed_data = json.loads(decoded_data)
             
             return parsed_data
+        
         except json.JSONDecodeError as e:
+
             raise ValueError(f"Failed to parse JSON: {e}")
+        
         except Exception as e:
+            
             raise ValueError(f"Failed to decode data: {e}")
