@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
-
+import fs from "fs/promises";
+import path from "path";
 
 export function getAuthHeader(username, token) {
   const auth = `${username}:${token}`;
@@ -68,47 +69,47 @@ export function getRandomString() {
 }
 
 export function base64Decrypt(cipher, isObject) {
-    if (!cipher) {
-        return JSON.stringify({
-            error: true,
-            message: 'Cipher is missing',
-        });
-    }
+  if (!cipher) {
+    return JSON.stringify({
+      error: true,
+      message: 'Cipher is missing',
+    });
+  }
 
-    try {
-        const decodedContent = !isObject ? Buffer.from(cipher, 'base64').toString('utf8') : JSON.parse(Buffer.from(cipher, 'base64').toString('utf8'));
-        const cleanedContent = decodedContent.replace(/\r/g, '');
-        return JSON.stringify({
-            error: false,
-            content: cleanedContent
-        });
-    } catch (err) {
-        return JSON.stringify({
-            error: true,
-            message: 'Base64 Decryption Failed',
-        });
-    }
+  try {
+    const decodedContent = !isObject ? Buffer.from(cipher, 'base64').toString('utf8') : JSON.parse(Buffer.from(cipher, 'base64').toString('utf8'));
+    const cleanedContent = decodedContent.replace(/\r/g, '');
+    return JSON.stringify({
+      error: false,
+      content: cleanedContent
+    });
+  } catch (err) {
+    return JSON.stringify({
+      error: true,
+      message: 'Base64 Decryption Failed',
+    });
+  }
 }
 
 export function base64Encrypt(content) {
-    if (!content) {
-        return {
-            error: true,
-            message: 'Content is missing',
-        }
+  if (!content) {
+    return {
+      error: true,
+      message: 'Content is missing',
     }
+  }
 
-    try {
-        return JSON.stringify({
-            error: false,
-            cipher: Buffer.from(typeof content === 'string' ? content : JSON.stringify(content)).toString('base64')
-        });
-    } catch (err) {
-        return JSON.stringify({
-            error: true,
-            message: 'Base64 Encryption Failed',
-        });
-    }
+  try {
+    return JSON.stringify({
+      error: false,
+      cipher: Buffer.from(typeof content === 'string' ? content : JSON.stringify(content)).toString('base64')
+    });
+  } catch (err) {
+    return JSON.stringify({
+      error: true,
+      message: 'Base64 Encryption Failed',
+    });
+  }
 }
 
 export function jsEscape(str) {
@@ -131,7 +132,7 @@ export function getAgencyDataHash(agencyId) {
   const baseHash = agencyId.padEnd(10, agencyId); // Ensure at least 10 chars
   let hash = '';
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  
+
   // Use the agencyId as a seed for pseudo-randomness
   for (let i = 0; i < 16; i++) {
     // Get character code from the baseHash, or use index if out of bounds
@@ -140,29 +141,29 @@ export function getAgencyDataHash(agencyId) {
     const index = (charCode * 13 + i * 7) % chars.length;
     hash += chars[index];
   }
-  
+
   return hash;
 }
 
 export function getAgencyDataAvailable(agencyId) {
   // Use agencyId as a seed for deterministic but seemingly random result
   // This ensures the same agencyId always gets the same result in the same session
-  
+
   // Create a hash from the agencyId
   let hashValue = 0;
   for (let i = 0; i < agencyId.length; i++) {
     hashValue = ((hashValue << 5) - hashValue) + agencyId.charCodeAt(i);
     hashValue |= 0; // Convert to 32bit integer
   }
-  
+
   // Add a time component to make it change between sessions
   // Use current date (year+month only) so it changes monthly but not every request
   const date = new Date();
   const timeComponent = date.getFullYear() * 100 + date.getMonth();
-  
+
   // Combine the hash and time component for pseudo-randomness
   const combinedValue = hashValue + timeComponent;
-  
+
   // Return true or false based on even/odd value
   return (combinedValue % 2) === 0;
 }
@@ -190,7 +191,55 @@ export function extractNewAgencies(gcAgencies, centopsAgencies) {
   const existingIds = new Set(gcAgencies.map(a => a.agencyId));
   const newAgencies = centopsAgencies.filter(a => !existingIds.has(a.agencyId))
   // return newAgencies;
-   return JSON.stringify({
-            agencies: newAgencies,
-        });
+  return JSON.stringify({
+    agencies: newAgencies,
+  });
 }
+
+/**
+ * Downloads a JSON file from S3 and returns its parsed content.
+ * @param {string} datasetId
+ * @param {string|number} pageNum
+ * @returns {Object} Parsed JSON content of the file
+ */
+export function getAllChunksFromS3(datasetId, pageNum) {
+//   const s3Path = `/datasets/${datasetId}.json`;
+//   const s3FerryUrl = "http://gc-s3-ferry:3000";
+//   const localDir = `/tmp/datasets/${datasetId}`;
+//    const fileName = path.basename(s3Path);
+//   const localPath = path.join(localDir, fileName);
+
+//   // Request S3 Ferry to transfer the file from S3 to local FS
+//   const res = await fetch(s3FerryUrl, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       source_path: s3Path,
+//       source_type: "S3",
+//       destination_path: localPath,
+//       destination_type: "FS"
+//     })
+//   });
+
+//   if (!res.ok) {
+//     throw new Error(`S3 Ferry transfer failed: ${res.status} ${await res.text()}`);
+//   }
+//  // Read and parse the JSON file
+//   const fileContent = await fs.readFile(localPath, "utf-8");
+//   const data = JSON.parse(fileContent);
+
+//   // Optionally clean up
+//   await fs.unlink(localPath);
+
+  // return data;
+  return JSON.stringify({
+    data: [
+      { id: 1, question: "How do I renew my passport?", clientName: "Tax Department", clientId: "12" },
+      { id: 2, question: "What are the tax filing deadlines?", clientName: "Tax Department", clientId: "12" },
+      { id: 3, question: "How can I apply for unemployment benefits?", clientName: "Tax Department", clientId: "12" },
+      { id: 4, question: "Where can I get my birth certificate?", clientName: "Tax Department", clientId: "12" },
+      { id: 5, question: "How do I register a new business?", clientName: "Tax Department", clientId: "12" },
+    ]
+  });
+}
+

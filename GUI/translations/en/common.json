@@ -50,7 +50,8 @@
     "sessionTimeOutDesc": "Extend your session or sign out from application in {{seconds}}",
     "close":"Close",
     "proceed":"Proceed",
-    "maxFileSize":"File size should not exceed 20 MB."
+    "maxFileSize":"File size should not exceed 20 MB.",
+    "select": "-Select-"
   },
   "menu": {
     "userManagement": "User Management",

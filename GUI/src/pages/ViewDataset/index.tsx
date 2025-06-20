@@ -14,7 +14,7 @@ import SkeletonTable from '../../components/molecules/TableSkeleton/TableSkeleto
 import { sampleDatasetRows } from 'data/sampleDataset';
 import DynamicForm from 'components/FormElements/DynamicForm';
 import { datasetQueryKeys, integratedAgenciesQueryKeys } from 'utils/queryKeys';
-import { getDatasetMetadata } from 'services/datasets';
+import { getDatasetData, getDatasetMetadata } from 'services/datasets';
 import { useQuery } from '@tanstack/react-query';
 import { set } from 'date-fns';
 import { useDialog } from 'hooks/useDialog';
@@ -31,7 +31,6 @@ const ViewDataset = () => {
   const isMetadataLoading = false;
   // Sample data for demonstration purposes
   const datasets = sampleDatasetRows;
-  const [updatedDataset, setUpdatedDataset] = useState(datasets?.dataPayload);
   const [deletedRowIds, setDeletedRowIds] = useState<(string | number)[]>([]);
   const [searchParams] = useSearchParams();
   const datasetId = searchParams.get('datasetId');
@@ -42,6 +41,12 @@ const ViewDataset = () => {
     queryKey: datasetQueryKeys.GET_META_DATA(datasetId ?? 0),
     queryFn: () => getDatasetMetadata(datasetId ?? 0),
   });
+
+  const { data: dataset, isLoading: datasetIsLoading } = useQuery({
+    queryKey: datasetQueryKeys.GET_DATA_SETS(datasetId ?? 0, 'all', 1),
+    queryFn: () => getDatasetData(datasetId ?? 0, 'all', 1),
+  });
+  const [updatedDataset, setUpdatedDataset] = useState(dataset);
 
   const { data: agencies } = useQuery({
     queryKey: integratedAgenciesQueryKeys.ALL_AGENCIES_LIST(),
@@ -125,7 +130,7 @@ const ViewDataset = () => {
       });
     }
     // Update the table view as before
-    const payload = updatedDataset?.map((row) =>
+    const payload = updatedDataset?.map((row: any) =>
       row.id === selectedRow?.id
         ? {
           id: dataRow.id,
@@ -139,7 +144,7 @@ const ViewDataset = () => {
 
   const deleteDataRecord = (dataRow: SelectedRowPayload) => {
     if (!dataRow) return;
-    setUpdatedDataset((prev) => prev?.filter(row => row.id !== dataRow.id));
+    setUpdatedDataset((prev: { id: number; question: string; clientName: string; clientId: string }[] | undefined) => prev?.filter((row: { id: number }) => row.id !== dataRow.id));
     setDeletedRowIds((prev) => [...prev, dataRow.id]);
     close();
   };
@@ -183,7 +188,7 @@ const ViewDataset = () => {
               </div>
               <div>
                 <Switch label=''></Switch>
-                <br/>
+                <br />
                 <Button appearance='secondary' size='s'>
                   Export Dataset
                 </Button>
@@ -200,6 +205,19 @@ const ViewDataset = () => {
             columns={dataColumns as ColumnDef<string, string>[]}
             pagination={pagination}
             filterable
+            dropdownFilters={[
+              {
+                columnId: 'clientName',
+                options: agencies?.map((a: { agencyName: string; agencyId: number }) => ({
+                  label: a.agencyName,
+                  value: a.agencyId,
+                  clientId: a.agencyId,
+                })) ?? [],
+              },
+            ]}
+            onSelect={(value) => {
+              console.log('Selected option:', value);
+            }}
             setPagination={(state: PaginationState) => {
               if (
                 state.pageIndex === pagination.pageIndex &&
@@ -208,7 +226,7 @@ const ViewDataset = () => {
                 return;
               setPagination(state);
             }}
-            pagesCount={10}
+            pagesCount={1}
             isClientSide={false}
           />
         )}

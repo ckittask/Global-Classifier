@@ -17,6 +17,8 @@ export const integratedAgenciesEndPoints = {
 export const datasetsEndpoints = {
   GET_OVERVIEW: (): string => '/global-classifier/datasets/list',
   GET_METADATA: (): string => `/global-classifier/datasets/metadata`,
+  GET_DATASETS_DATA: (): string => '/global-classifier/datasets/overview',
+
 
 
   GET_DATASET_FILTERS: (): string =>

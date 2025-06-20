@@ -42,11 +42,13 @@ export const datasetQueryKeys = {
       (val) => val !== undefined
     );
   },
-  GET_DATA_SETS: function (dgId?: number, pagination?: PaginationState) {
-    return ['datasets/groups/data', `${dgId}`, pagination].filter(
+  GET_DATA_SETS: function (datasetId?: number|string, agencyId?:number|string, pageNum?: number) {
+    return ['datasets/data', datasetId, agencyId,pageNum].filter(
       (val) => val !== undefined
     );
   },
+
+
   GET_DATASET_GROUP_PROGRESS: () => ['datasetgroups/progress'],
 };
 
