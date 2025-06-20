@@ -25,7 +25,6 @@ const DataModels: FC = () => {
   const navigate = useNavigate();
 
   const [pageIndex, setPageIndex] = useState<number>(1);
-    useState<boolean>(true);
 
   const [view, setView] = useState<'list' | 'individual'>('list');
 
