@@ -408,7 +408,7 @@
       "retrainingNeeded": "Retraining Needed",
       "trained": "Trained",
       "trainingInProgress": "Training In Progress",
-      "untrainable": "Training Failed",
+      "trainingFailed": "Training Failed",
       "notTrained": "Not Trained"
     },
     "maturity": {
