@@ -61,7 +61,7 @@ const DataModelCard: FC<PropsWithChildren<DataModelCardProps>> = ({
     } else if (status === TrainingStatus.FAILED) {
       return (
         <Label type="error">
-          {t('dataModels.trainingStatus.untrainable') ?? ''}
+          {t('dataModels.trainingStatus.trainingFailed') ?? ''}
         </Label>
       );
     } else if (status === TrainingStatus.NOT_TRAINED) {
