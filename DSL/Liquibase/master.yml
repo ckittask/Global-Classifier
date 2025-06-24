@@ -3,3 +3,14 @@ databaseChangeLog:
       file: changelog/global-classifier-script-v1-classification-results.sql
   - include:
       file: changelog/global-classifier-script-v2-classification-feedback.sql
+  - include:
+      file: changelog/global-classifier-script-v3-user-management.sql
+  - include:
+      file: changelog/classifier-script-v5-configuration.sql
+  - include:
+      file: changelog/global-classifier-script-v4-authority-data.xml
+  - include:
+      file: changelog/global-classifier-script-v6-integrated-agencies.sql
+  - include:
+      file: changelog/mock-global-classifier-script-v7-centops-ckb.sql
+      

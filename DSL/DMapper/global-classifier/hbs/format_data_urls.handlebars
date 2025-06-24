@@ -1,0 +1,10 @@
+{
+  "signedUrls": [
+    {{#each response}}
+      {
+        "agencyid": "{{agencyid}}",
+        "signeds3url": "{{signeds3url}}"
+      }{{#unless @last}},{{/unless}}
+    {{/each}}
+  ]
+}
