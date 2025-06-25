@@ -203,35 +203,7 @@ export function extractNewAgencies(gcAgencies, centopsAgencies) {
  * @returns {Object} Parsed JSON content of the file
  */
 export function getAllChunksFromS3(datasetId, pageNum) {
-//   const s3Path = `/datasets/${datasetId}.json`;
-//   const s3FerryUrl = "http://gc-s3-ferry:3000";
-//   const localDir = `/tmp/datasets/${datasetId}`;
-//    const fileName = path.basename(s3Path);
-//   const localPath = path.join(localDir, fileName);
 
-//   // Request S3 Ferry to transfer the file from S3 to local FS
-//   const res = await fetch(s3FerryUrl, {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({
-//       source_path: s3Path,
-//       source_type: "S3",
-//       destination_path: localPath,
-//       destination_type: "FS"
-//     })
-//   });
-
-//   if (!res.ok) {
-//     throw new Error(`S3 Ferry transfer failed: ${res.status} ${await res.text()}`);
-//   }
-//  // Read and parse the JSON file
-//   const fileContent = await fs.readFile(localPath, "utf-8");
-//   const data = JSON.parse(fileContent);
-
-//   // Optionally clean up
-//   await fs.unlink(localPath);
-
-  // return data;
   return JSON.stringify({
     data: [
       { id: 1, question: "How do I renew my passport?", clientName: "Tax Department", clientId: "12" },
@@ -241,5 +213,49 @@ export function getAllChunksFromS3(datasetId, pageNum) {
       { id: 5, question: "How do I register a new business?", clientName: "Tax Department", clientId: "12" },
     ]
   });
+}
+
+export function getPaginatedChunkIds(chunks, agencyId, pageNum, pageSize = 5) {
+  let agencyRecordIndex = 0; // total agency records seen so far
+  let collected = 0;         // agency records collected for this page
+  let resultChunks = [];
+  let startIndex = 0;
+  let foundPage = false;
+
+  for (const chunk of chunks) {
+    // Robustly parse included_agencies
+    let agencies=JSON.parse(chunk.includedAgencies.value)
+    
+
+    const count = agencies.filter(a => String(a) === String(agencyId)).length;
+    if (count === 0) continue;
+
+    // If we haven't reached the start of this page, skip these records
+    if (!foundPage && agencyRecordIndex + count < (pageNum - 1) * pageSize + 1) {
+      agencyRecordIndex += count;
+      continue;
+    }
+
+    // If this is the first chunk of the page, calculate startIndex
+    if (!foundPage) {
+      startIndex = (pageNum - 1) * pageSize - agencyRecordIndex;
+      foundPage = true;
+    }
+
+    resultChunks.push(chunk.chunkId || chunk.chunkId);
+    collected += count;
+
+    // If we've collected enough, stop
+    if (collected >= pageSize) break;
+
+    agencyRecordIndex += count;
+  }
+
+  return JSON.stringify(
+    {
+    chunks: resultChunks,
+    startIndex: startIndex
+  }
+  );
 }
 

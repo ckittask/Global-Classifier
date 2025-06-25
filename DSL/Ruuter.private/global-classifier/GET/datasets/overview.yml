@@ -28,16 +28,7 @@ checkFilter:
   switch:
     - condition: ${agencyId === "all"}
       next: getAllChunks
-  next: getChunkIdsByAgency
-
-getChunkIdsByAgency:
-  call: http.post
-  args:
-    url: "[#GLOBAL_CLASSIFIER_RESQL]/get-chunk-ids-by-agency"
-    body:
-      agencyId: ${agencyId}
-  result: chunkIdsResult
-  next: return_result
+  next: getChunksAndAgencies
 
 getAllChunks:
   call: http.post
@@ -51,11 +42,34 @@ getAllChunks:
   result: dataChunksResult
   next: return_chunk_data
 
+getChunksAndAgencies:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/get-chunks-and-agencies"
+    body:
+      datasetId: ${datasetId}
+  result: chunksResult
+  next: getPaginatedChunkIds
+
+getPaginatedChunkIds:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/get_paginated_chunk_ids"
+    headers:
+      type: json
+    body:
+      chunks: ${chunksResult.response.body}
+      agencyId: ${agencyId}
+      pageNum: ${pageNum}
+  result: paginatedChunksResult
+  next: return_paginated_result
+
 return_chunk_data:
   return: ${dataChunksResult.response.body}
   status: 200
   next: end
 
-return_result:
-  return: ${chunkIdsResult.response.body}
+return_paginated_result:
+  return: ${paginatedChunksResult.response.body}
+  status: 200
   next: end

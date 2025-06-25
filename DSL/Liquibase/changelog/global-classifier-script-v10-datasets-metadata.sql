@@ -5,8 +5,7 @@ CREATE TABLE public.dataset_metadata (
     id BIGSERIAL PRIMARY KEY,
     dataset_id VARCHAR(255) NOT NULL,
     chunk_id VARCHAR(255) NOT NULL,
-    included_agencies JSONB NOT NULL, -- Example: ["agency1", "agency2"]
-    row_ids JSONB NOT NULL,           -- Example: [101, 102, 103]
+    included_agencies JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
