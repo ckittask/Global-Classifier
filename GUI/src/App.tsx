@@ -10,6 +10,8 @@ import { ROLES } from 'enums/roles';
 import LoadingScreen from 'pages/LoadingScreen/LoadingScreen';
 import Unauthorized from 'pages/Unauthorized/unauthorized';
 import IntegratedAgencies from 'pages/IntegratedAgencies';
+import Datasets from 'pages/Datasets';
+import ViewDataset from 'pages/ViewDataset';
 import DataModels from 'pages/DataModels';
 
 const App: FC = () => {
@@ -18,7 +20,7 @@ const App: FC = () => {
   const [hasRedirected, setHasRedirected] = useState(false);
   const { isLoading, data } = useQuery({
     queryKey: authQueryKeys.USER_DETAILS(),
-  
+
     onSuccess: (res: { response: UserInfo }) => {
       localStorage.setItem('exp', res.response.JWTExpirationTimestamp);
       useStore.getState().setUserInfo(res.response);
@@ -57,12 +59,12 @@ const App: FC = () => {
             ) : (
               <>
                 <Route path="/user-management" element={<Unauthorized />} />
-                <Route path="/integrated-agencies" element={<Unauthorized />} />
               </>
             )}
-              <Route path="/data-models" element={<DataModels />} />
+            <Route path="/datasets" element={<Datasets />} />
+            <Route path="/view-dataset" element={<ViewDataset />} />
+            <Route path="/data-models" element={<DataModels />} />
 
-            
           </Route>
         </Routes>
       )}
