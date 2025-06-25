@@ -25,7 +25,7 @@ validateInput:
 disableAgency:
   call: http.post
   args:
-    url: "[#GLOBAL_CLASSIFIER_RESQL]/update-agency-is-enabled"
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/update-agency-disabled"
     body:
       agencyId: ${agencyId}
       isEnabled: false

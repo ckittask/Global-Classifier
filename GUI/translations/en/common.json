@@ -54,7 +54,7 @@
   },
   "menu": {
     "userManagement": "User Management",
-    "agencies": "Integrated Agencies",
+    "agencies": "Integrated Clients",
     "dataSets": "Datasets",
     "datasetGroups": "Dataset Groups",
     "validationSessions": "Validation Sessions",
@@ -122,7 +122,9 @@
         "unavailable":"Unavailable in CKB",
         "resync":"Resync needed with CKB",
         "inProgress":"Sync in Progress with CKB",
-        "resyncInProgress": "Resync in Progress with CKB"
+        "resyncInProgress": "Resync in Progress with CKB",
+        "failed": "Sync with CKB Failed"
+
       },
       "resync":"Resync"
     }
@@ -171,17 +173,12 @@
       "userUpdated": "User updated"
     }
   },
-  "datasetGroups": {
-    "title": "Dataset Groups",
-    "createDatasetGroupButton": "Create Dataset Group",
+  "datasets": {
+    "title": "Datasets",
     "noDatasets":"No data sets available",
     "sortOptions":{
-      "datasetAsc":"Dataset Group Name A-Z",
-      "datasetDesc":"Dataset Group Name Z-A",
       "createdDateAsc":"Created Date Oldest First",
-      "createdDateDesc":"Created Date Latest First",
-      "lastUpdatedDateAsc":"Last Updated Date Oldest First",
-      "lastUpdatedDateDesc":"Last Updated Date Latest First"
+      "createdDateDesc":"Created Date Latest First"
     },
     "table": {
       "group": "Dataset Group",
@@ -241,6 +238,8 @@
       "errorDesc": "Something went wrong. Please try again."
     },
     "detailedView": {
+      "dataset": "Dataset",
+      "version":"Dataset Version",
       "connectedModels": "Connected Models",
       "noOfItems": "Number of items",
       "export": "Export Dataset",

@@ -36,8 +36,33 @@ updateAgencySyncStatus:
       syncStatus: "Resync_in_progress_with_CKB"
       agencyDataHash: ${importResult.response.body.response.find(a => a.agencyId == agencyId)?.agencyDataHash || ""}
   result: updateResult
+  next: CreateDatasetVersion
+
+CreateDatasetVersion:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PUBLIC]/datasets/version/minor"
+  result: datasetResponse
+  next: forwardToFormatting
+
+forwardToFormatting:
+  switch:
+    - condition: ${datasetResponse.response.body.response.length === 0}
+      next: end
+  next: formatDataUrlsResponse
+
+formatDataUrlsResponse:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/format_data_urls"
+    headers:
+      type: json
+    body:
+      agencies: ${importResult.response.body.response}
+      datasetId: ${datasetResponse.response.body.response[0].id}
+  result: dataUrlsResponse
   next: returnImportResult
 
 returnImportResult:
-  return: ${importResult.response.body.response}
+  return: ${dataUrlsResponse.response.body}
   next: end

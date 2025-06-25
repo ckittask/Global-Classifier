@@ -144,12 +144,15 @@ services:
 
   cron-manager:
     container_name: cron-manager
-    image: cron-manager
+    image: cron-manager:latest
+    user: "root"
     volumes:
       - ./DSL/CronManager/DSL:/DSL
       - ./DSL/CronManager/script:/app/scripts
-      - ./DSL/CronManager/config:/app/config
-      - shared-volume:/shared
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
+      - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
+      - ./DSL/DatasetGenerator/config:/app/config
+      - cron_data:/app/data
     environment:
       - server.port=9010
     ports:
@@ -158,50 +161,20 @@ services:
       - bykstack
     depends_on:
       - init
-    command: ["sh", "-c", "chmod -R 777 /app/model_trainer"]
 
-  classifier-service:
-    container_name: classifier-service
-    build:
-      context: ./src/classifier-service 
-    ports:
-      - "8090:8090"
-    networks:
-      - bykstack
-    volumes:
-      - ./src/classifier-service:/app
-    environment:
-      - NODE_ENV=development
-    restart: always
-
-  gui:
-    container_name: gui
-    environment:
-      - NODE_ENV=local
-      - REACT_APP_RUUTER_API_URL=http://localhost:8086
-      - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
-      - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
-      - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
-      - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
-      - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
-      - DEBUG_ENABLED=true
-      - CHOKIDAR_USEPOLLING=true
-      - PORT=3001
-      - REACT_APP_SERVICE_ID=conversations,settings,monitoring
-      - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
-
-    build:
-      context: ./GUI
-      dockerfile: Dockerfile.dev
-    ports:
-      - 3003:3001
-    volumes:
-      - /app/node_modules
-      - ./GUI:/app
-    networks:
-      - bykstack
-    cpus: "0.5"
-    mem_limit: "1G"
+  # classifier-service:
+  #   container_name: classifier-service
+  #   build:
+  #     context: ./src/classifier-service 
+  #   ports:
+  #     - "8090:8090"
+  #   networks:
+  #     - bykstack
+  #   volumes:
+  #     - ./src/classifier-service:/app
+  #   environment:
+  #     - NODE_ENV=development
+  #   restart: always
 
   # Dataset Generator services
   dataset-gen-ollama:
@@ -210,20 +183,20 @@ services:
     ports:
       - "11434:11434"
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - OLLAMA_USE_GPU=1
+      # - NVIDIA_VISIBLE_DEVICES=all
+      # - OLLAMA_USE_GPU=1
       - OLLAMA_HOST=0.0.0.0
     volumes:
       - dataset_gen_ollama_models:/root/.ollama
       - ./src/dataset-generation/ollama-entrypoint.sh:/ollama-entrypoint.sh
     entrypoint: ["bash", "/ollama-entrypoint.sh"]
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
     networks:
       - bykstack
 
@@ -237,12 +210,12 @@ services:
       - SERVICE_DEBUG=false
       - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
     volumes:
-      - ./src/dataset-generation/config:/app/config
-      - ./src/dataset-generation/templates:/app/templates
-      - ./src/dataset-generation/user_configs:/app/user_configs
-      - ./src/dataset-generation/data:/app/data
-      - ./src/dataset-generation/output_datasets:/app/output_datasets
-      - ./src/dataset-generation/logs:/app/logs
+      - ./DSL/DatasetGenerator/config:/app/config
+      - ./DSL/DatasetGenerator/templates:/app/templates
+      - ./DSL/DatasetGenerator/user_configs:/app/user_configs
+      - cron_data:/app/data
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
+      - ./DSL/DatasetGenerator/logs:/app/logs
     depends_on:
       - dataset-gen-ollama
       - dataset-gen-mlflow
@@ -265,24 +238,11 @@ services:
     - MLFLOW_DEFAULT_ARTIFACT_ROOT=${MLFLOW_DEFAULT_ARTIFACT_ROOT}
     - MLFLOW_FLASK_SERVER_SECRET_KEY=${MLFLOW_FLASK_SERVER_SECRET_KEY}
     volumes:
-      - ./src/dataset-generation/mlflow_data:/mlflow/mlflow_data
-      - ./src/dataset-generation/mlflow_artifacts:/mlflow/mlflow_artifacts
+      - ./DSL/DatasetGenerator/mlflow_data:/mlflow/mlflow_data
+      - ./DSL/DatasetGenerator/mlflow_artifacts:/mlflow/mlflow_artifacts
     networks:
       - bykstack
 
-  cron-manager:
-    container_name: cron-manager
-    image: cron-manager:latest
-    volumes:
-      - ./DSL/CronManager/DSL:/DSL
-      - ./DSL/CronManager/scripts:/app/scripts
-      - ./src/dataset-generation/output_datasets:/app/output_datasets
-    environment:
-      - server.port=9010
-    ports:
-      - 9010:8080
-    networks:
-      - bykstack
   
   minio:
     image: minio/minio:latest
@@ -306,7 +266,7 @@ services:
     image: s3-ferry:latest
     container_name: gc-s3-ferry
     volumes:
-      - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
     env_file:
       - config.env
     ports:
@@ -314,12 +274,59 @@ services:
     user: "root"
     networks:
       - bykstack
+
+  s3-dataset-processor:
+    container_name: s3-dataset-processor
+    build: ./src/s3_dataset_processor
+    ports:
+      - "8001:8001"
+    volumes:
+      - cron_data:/app/data  # Same volume as cron-manager
+    environment:
+      - PORT=8001
+    networks:
+      - bykstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
         
+  # gui:
+  #   container_name: gui
+  #   environment:
+  #     - NODE_ENV=local
+  #     - REACT_APP_RUUTER_API_URL=http://localhost:8086
+  #     - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
+  #     - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
+  #     - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
+  #     - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
+  #     - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
+  #     - DEBUG_ENABLED=true
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - PORT=3001
+  #     - REACT_APP_SERVICE_ID=conversations,settings,monitoring
+  #     - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
+
+  #   build:
+  #     context: ./GUI
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - 3003:3001
+  #   volumes:
+  #     - /app/node_modules
+  #     - ./GUI:/app
+  #   networks:
+  #     - bykstack
+  #   cpus: "0.5"
+  #   mem_limit: "1G"
+
 volumes:
   shared-volume:
   opensearch-data:
   dataset_gen_ollama_models:
   minio_data:
+  cron_data:
 
 networks:
   bykstack:

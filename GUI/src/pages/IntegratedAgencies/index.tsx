@@ -57,7 +57,7 @@ const IntegratedAgencies: FC = () => {
               <div style={{ flex: 4 }}>
                 <SearchInput
                   onSearch={handleSearch}
-                  placeholder="Search agencies..."
+                  placeholder="Search clients..."
                   initialValue={searchTerm}
                 />
               </div>
