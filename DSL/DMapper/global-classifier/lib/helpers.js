@@ -202,17 +202,42 @@ export function extractNewAgencies(gcAgencies, centopsAgencies) {
  * @param {string|number} pageNum
  * @returns {Object} Parsed JSON content of the file
  */
-export function getAllChunksFromS3(datasetId, pageNum) {
+export function getSingleChunkData(dataChunk) {
+  const data = [
+    {
+      "agency_id": "1",
+      "id": "1",
+      "question": "Kas kasutajad saavad sarnaselt e-teenuse teiste liikemediakanid sisselogumaast vältimaks, millele lisaks tuleb e-teenuse autentimine?"
+    },
+    {
+      "agency_id": "2",
+      "id": "2",
+      "question": "Kõige järgneisel näitus on, kuidas autentimine koos seansihaldusega toimib e-teenustes?"
+    },
+    {
+      "agency_id": "1",
+      "id": "3",
+      "question": "Mida kasutajad peavad teada, et autentimisteenuse kasutajaga seotud e-teenuse saamine?"
+    },
+    {
+      "agency_id": "1",
+      "id": "4",
+      "question": "Kõige algune asi on, et kui sissenootad esimena Riigi autentimisteenusega, saab midagi tegi?"
+    },
+    {
+      "agency_id": "3",
+      "id": "5",
+      "question": "Kui soovid siseneda mõnda riiklikku e-teenusesse, pead end esmalt autentima ehk tõendama, et oled see, kes väiduta end olevat?"
+    }
+  ];
+  const mapped = data.map(item => ({
+    clientId: item.agency_id,
+    id: item.id,
+    clientName: item.agency_id, 
+    question: item.question
+  }));
 
-  return JSON.stringify({
-    data: [
-      { id: 1, question: "How do I renew my passport?", clientName: "Tax Department", clientId: "12" },
-      { id: 2, question: "What are the tax filing deadlines?", clientName: "Tax Department", clientId: "12" },
-      { id: 3, question: "How can I apply for unemployment benefits?", clientName: "Tax Department", clientId: "12" },
-      { id: 4, question: "Where can I get my birth certificate?", clientName: "Tax Department", clientId: "12" },
-      { id: 5, question: "How do I register a new business?", clientName: "Tax Department", clientId: "12" },
-    ]
-  });
+  return JSON.stringify(mapped);
 }
 
 export function getPaginatedChunkIds(chunks, agencyId, pageNum, pageSize = 5) {
@@ -223,9 +248,7 @@ export function getPaginatedChunkIds(chunks, agencyId, pageNum, pageSize = 5) {
   let foundPage = false;
 
   for (const chunk of chunks) {
-    // Robustly parse included_agencies
-    let agencies=JSON.parse(chunk.includedAgencies.value)
-    
+    let agencies = JSON.parse(chunk.includedAgencies.value)
 
     const count = agencies.filter(a => String(a) === String(agencyId)).length;
     if (count === 0) continue;
@@ -245,7 +268,6 @@ export function getPaginatedChunkIds(chunks, agencyId, pageNum, pageSize = 5) {
     resultChunks.push(chunk.chunkId || chunk.chunkId);
     collected += count;
 
-    // If we've collected enough, stop
     if (collected >= pageSize) break;
 
     agencyRecordIndex += count;
@@ -253,9 +275,102 @@ export function getPaginatedChunkIds(chunks, agencyId, pageNum, pageSize = 5) {
 
   return JSON.stringify(
     {
-    chunks: resultChunks,
-    startIndex: startIndex
-  }
+      chunks: resultChunks?.join(' '),
+      startIndex: startIndex
+    }
   );
+}
+
+export function filterDataByAgency(aggregatedData, startIndex, agencyId, pageSize=5) {
+  const aggregatedData = [
+    {
+      "agency_id": "1",
+      "id": "1",
+      "question": "Kas kasutajad saavad sarnaselt e-teenuse teiste liikemediakanid sisselogumaast vältimaks, millele lisaks tuleb e-teenuse autentimine?"
+    },
+    {
+      "agency_id": "2",
+      "id": "2",
+      "question": "Kõige järgneisel näitus on, kuidas autentimine koos seansihaldusega toimib e-teenustes?"
+    },
+    {
+      "agency_id": "1",
+      "id": "3",
+      "question": "Mida kasutajad peavad teada, et autentimisteenuse kasutajaga seotud e-teenuse saamine?"
+    },
+    {
+      "agency_id": "1",
+      "id": "4",
+      "question": "Kõige algune asi on, et kui sissenootad esimena Riigi autentimisteenusega, saab midagi tegi?"
+    },
+    {
+      "agency_id": "3",
+      "id": "5",
+      "question": "Kui soovid siseneda mõnda riiklikku e-teenusesse, pead end esmalt autentima ehk tõendama, et oled see, kes väiduta end olevat?"
+    },
+    {
+      "agency_id": "1",
+      "id": "6",
+      "question": "Mida autentsimine on ja kuidas kasutajad siseüleskirjastavad?"
+    },
+    {
+      "agency_id": "2",
+      "id": "7",
+      "question": "Mis on 'sisene iseteenindusse' ja kuidas see toimib Riigi autentimisteenusesse juures?"
+    },
+    {
+      "agency_id": "3",
+      "id": "8",
+      "question": "Kõige paremas kohas autentimisteenuses, millel on MOBILID, sisestaab kasutajatele võõrüluseid e-teenuseid ilma lõpetamata, et kõiki ssiselugejad on vältunud uue silsitud."
+    },
+    {
+      "agency_id": "3",
+      "id": "9",
+      "question": "Kõige algune nõu on, et sisestada riiklikud e-teenustes toiminev sisse. Kui kasutaja e-teenuste leidul vahetab sisse Mobiil-ID, saab näiteks sarnaselt kasutada ühekordset sisselogamist."
+    },
+    {
+      "agency_id": "2",
+      "id": "10",
+      "question": "Mida teema on esimiselt ei rahuliseeritavas DigiDoc4 rakendusesõitu, et sertifikaatide usaldusnimekirja uuendamine ei ole edukane?"
+    },
+    {
+      "agency_id": "2",
+      "id": "11",
+      "question": "Mida teh kedagi, kui DigiDoc4 rakenduse veateade ütib, et sertifikaatide usaldusnimekirja uuendamine ebaõnnestus?"
+    },
+    {
+      "agency_id": "3",
+      "id": "12",
+      "question": "Mida teh tehdä, kun DigiDoc4 rakenduse veateade ütib, että sertifikaatide usaldusnimekirja on uudistettu epäonnistuneesti?"
+    },
+    {
+      "agency_id": "2",
+      "id": "13",
+      "question": "Eks, kui DigiDoc4 rakenduse veateade ütib, et sertifikaatide usaldusnimekirja uuendamine ebaõnnestus, mida teha?"
+    },
+    {
+      "agency_id": "3",
+      "id": "14",
+      "question": "Mida teema on selle veateadega seotud ja mida peale seda teada?"
+    },
+    {
+      "agency_id": "1",
+      "id": "15",
+      "question": "Mida teh kedagi, kui DigiDoc4 rakenduse veateade ütib, et sertifikaatide usaldusnimekirja uuendamine ebaõnnestus?"
+    }
+  ]
+
+  const filtered = aggregatedData.filter(item => String(item.agency_id) === String(agencyId));
+
+  const paginated = filtered.slice(startIndex, startIndex + pageSize);
+
+  const result= paginated.map(item => ({
+    clientId: item.agency_id,
+    id: item.id,
+    clientName: item.agency_id, // No mapping available, so use agency_id
+    question: item.question
+  }));
+  console.log("Filtered and paginated data:", result);
+  
 }
 

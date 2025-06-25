@@ -62,14 +62,87 @@ getPaginatedChunkIds:
       agencyId: ${agencyId}
       pageNum: ${pageNum}
   result: paginatedChunksResult
-  next: return_paginated_result
+  next: download_agency_chunks_data
+
+download_single_chunk_data:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_CRON_MANAGER]/execute/download_chunk_data"
+    query:
+      datasetId: ${datasetId}
+      pageNum: ${pageNum}
+  result: singleChunkResult
+  next: processSingleChunkResult
+
+processSingleChunkResult:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/get_single_chunk_data"
+    headers:
+      type: json
+    body:
+      chunkData: ${singleChunkResult.response}
+  result: chunkDataResult
+  next: return_single_chunk_ok
+
+download_agency_chunks_data:
+  call: http.post 
+  args:
+    url: "[#GLOBAL_CLASSIFIER_CRON_MANAGER]/execute/download_agency_chunk_data"
+    query:
+      datasetId: ${datasetId}
+      chunkIds: ${paginatedChunksResult.response.body.chunks}
+      # pageNum: ${pageNum}
+      # agencyId: ${agencyId}
+      # startIndex: ${paginatedChunksResult.response.body.startIndex}
+  result: aggregatedDataResult
+  next: filterChunkDataByAgency
+
+filterChunkDataByAgency:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/get_filtered_chunks"
+    headers:
+      type: json
+    body:
+      aggregatedData: ${aggregatedDataResult.response}
+      startIndex: ${paginatedChunksResult.response.body.startIndex}
+      agencyId: ${agencyId}
+  result: filteredChunkDataResult
+  next: return_filtered_chunk_ok
 
 return_chunk_data:
   return: ${dataChunksResult.response.body}
   status: 200
   next: end
 
-return_paginated_result:
-  return: ${paginatedChunksResult.response.body}
+# return_paginated_result:
+#   return: ${paginatedChunksResult.response.body}
+#   status: 200
+#   next: end
+
+return_single_chunk_ok:
+  assign:
+    dataResponse: {
+      operationSuccess: true,
+      data:chunkDataResult.response.body
+    }
+  next: return_single_chunk_response
+
+return_single_chunk_response:
+  return: ${dataResponse}
+  status: 200
+  next: end
+
+return_filtered_chunk_ok:
+  assign:
+    dataResponseFiltered: {
+      operationSuccess: true,
+      data:filteredChunkDataResult.response.body
+    }
+  next: return_filtered_chunk_response
+
+return_filtered_chunk_response:
+  return: ${dataResponse}
   status: 200
   next: end
