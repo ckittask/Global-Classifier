@@ -17,10 +17,10 @@ services:
     ports:
       - 8086:8086
     networks:
-      - bykstack-gc
+      - bykstack
     cpus: "0.5"
     mem_limit: "512M"
-
+  
   ruuter-private:
     container_name: ruuter-private
     image: ruuter
@@ -39,24 +39,24 @@ services:
     ports:
       - 8088:8088
     networks:
-      - bykstack-gc
+      - bykstack
     cpus: "0.5"
     mem_limit: "512M"
 
-  # data-mapper:
-  #   container_name: data-mapper
-  #   image: data-mapper
-  #   environment:
-  #     - PORT=3000
-  #     - CONTENT_FOLDER=/data
-  #   volumes:
-  #     - ./DSL:/data
-  #     - ./DSL/DMapper/classifier/hbs:/workspace/app/views/classifier
-  #     - ./DSL/DMapper/classifier/lib:/workspace/app/lib
-  #   ports:
-  #     - 3000:3000
-  #   networks:
-  #     - bykstack-gc
+  data-mapper:
+    container_name: data-mapper
+    image: data-mapper
+    environment:
+      - PORT=3000
+      - CONTENT_FOLDER=/data
+    volumes:
+      - ./DSL:/data
+      - ./DSL/DMapper/global-classifier/hbs:/workspace/app/views/global-classifier
+      - ./DSL/DMapper/global-classifier/lib:/workspace/app/lib
+    ports:
+      - 3000:3000
+    networks:
+      - bykstack
 
   tim:
     container_name: tim
@@ -69,7 +69,7 @@ services:
     ports:
       - 8085:8085
     networks:
-      - bykstack-gc
+      - bykstack
     extra_hosts:
       - "host.docker.internal:host-gateway"
     cpus: "0.5"
@@ -82,21 +82,21 @@ services:
       - POSTGRES_USER=tim
       - POSTGRES_PASSWORD=123
       - POSTGRES_DB=tim
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      # - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - ./tim-db:/var/lib/postgresql/data
     ports:
       - 9876:5432
     networks:
-      - bykstack-gc
+      - bykstack
 
-  # authentication-layer:
-  #   container_name: authentication-layer
-  #   image: authentication-layer
-  #   ports:
-  #     - 3004:3004
-  #   networks:
-  #     - bykstack-gc
+  authentication-layer:
+    container_name: authentication-layer
+    image: authentication-layer
+    ports:
+      - 3004:3004
+    networks:
+      - bykstack
 
   resql:
     container_name: resql
@@ -115,7 +115,7 @@ services:
     volumes:
       - ./DSL/Resql:/DSL
     networks:
-      - bykstack-gc
+      - bykstack
 
   users_db:
     container_name: users_db
@@ -130,7 +130,7 @@ services:
       - ~/buerokratt_classifier/db_files:/var/lib/postgresql/data
 
     networks:
-      - bykstack-gc
+      - bykstack
     restart: always
 
   init:
@@ -140,31 +140,189 @@ services:
       - shared-volume:/shared
       - ./model_trainer:/app/model_trainer
     networks:
-      - bykstack-gc
+      - bykstack
+
+  cron-manager:
+    container_name: cron-manager
+    image: cron-manager
+    volumes:
+      - ./DSL/CronManager/DSL:/DSL
+      - ./DSL/CronManager/script:/app/scripts
+      - ./DSL/CronManager/config:/app/config
+      - shared-volume:/shared
+    environment:
+      - server.port=9010
+    ports:
+      - 9010:8080
+    networks:
+      - bykstack
+    depends_on:
+      - init
+    command: ["sh", "-c", "chmod -R 777 /app/model_trainer"]
 
   classifier-service:
     container_name: classifier-service
     build:
-      context: ./src/classifier-service  # Create this folder with a Dockerfile and the Node.js code
+      context: ./src/classifier-service 
     ports:
       - "8090:8090"
     networks:
-      - bykstack-gc
+      - bykstack
     volumes:
       - ./src/classifier-service:/app
     environment:
       - NODE_ENV=development
     restart: always
 
+  gui:
+    container_name: gui
+    environment:
+      - NODE_ENV=local
+      - REACT_APP_RUUTER_API_URL=http://localhost:8086
+      - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
+      - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
+      - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
+      - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
+      - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
+      - DEBUG_ENABLED=true
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=3001
+      - REACT_APP_SERVICE_ID=conversations,settings,monitoring
+      - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
+
+    build:
+      context: ./GUI
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3003:3001
+    volumes:
+      - /app/node_modules
+      - ./GUI:/app
+    networks:
+      - bykstack
+    cpus: "0.5"
+    mem_limit: "1G"
+
+  # Dataset Generator services
+  dataset-gen-ollama:
+    image: synthesisai/dataset-generator-ollama:latest
+    container_name: dataset-gen-ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_USE_GPU=1
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - dataset_gen_ollama_models:/root/.ollama
+      - ./src/dataset-generation/ollama-entrypoint.sh:/ollama-entrypoint.sh
+    entrypoint: ["bash", "/ollama-entrypoint.sh"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - bykstack
+
+  dataset-gen-service:
+    image: synthesisai/dataset-generator:latest
+    container_name: dataset-gen-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PROVIDER_API_URL=http://dataset-gen-ollama:11434
+      - SERVICE_DEBUG=false
+      - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
+    volumes:
+      - ./src/dataset-generation/config:/app/config
+      - ./src/dataset-generation/templates:/app/templates
+      - ./src/dataset-generation/user_configs:/app/user_configs
+      - ./src/dataset-generation/data:/app/data
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+      - ./src/dataset-generation/logs:/app/logs
+    depends_on:
+      - dataset-gen-ollama
+      - dataset-gen-mlflow
+    networks:
+      - bykstack
+
+  dataset-gen-mlflow:
+    image: synthesisai/dataset-generator-mlflow:latest
+    container_name: dataset-gen-mlflow
+    ports:
+      - "5000:5000"
+    env_file:
+      - sidecar.env
+    environment:
+    - MLFLOW_TRACKING_USERNAME=${MLFLOW_TRACKING_USERNAME}
+    - MLFLOW_TRACKING_PASSWORD=${MLFLOW_TRACKING_PASSWORD}
+    - MLFLOW_HOST=${MLFLOW_HOST}
+    - MLFLOW_PORT=${MLFLOW_PORT}
+    - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
+    - MLFLOW_DEFAULT_ARTIFACT_ROOT=${MLFLOW_DEFAULT_ARTIFACT_ROOT}
+    - MLFLOW_FLASK_SERVER_SECRET_KEY=${MLFLOW_FLASK_SERVER_SECRET_KEY}
+    volumes:
+      - ./src/dataset-generation/mlflow_data:/mlflow/mlflow_data
+      - ./src/dataset-generation/mlflow_artifacts:/mlflow/mlflow_artifacts
+    networks:
+      - bykstack
+
+  cron-manager:
+    container_name: cron-manager
+    image: cron-manager:latest
+    volumes:
+      - ./DSL/CronManager/DSL:/DSL
+      - ./DSL/CronManager/scripts:/app/scripts
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+    environment:
+      - server.port=9010
+    ports:
+      - 9010:8080
+    networks:
+      - bykstack
+  
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    env_file:
+      - sidecar.env
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_BROWSER_REDIRECT_URL=${MINIO_BROWSER_REDIRECT_URL}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console port
+    networks:
+      - bykstack
+
+  gc-s3-ferry:
+    image: s3-ferry:latest
+    container_name: gc-s3-ferry
+    volumes:
+      - ./src/dataset-generation/output_datasets:/app/output_datasets
+    env_file:
+      - config.env
+    ports:
+      - "3006:3000"
+    user: "root"
+    networks:
+      - bykstack
+        
 volumes:
   shared-volume:
   opensearch-data:
+  dataset_gen_ollama_models:
+  minio_data:
 
 networks:
-  bykstack-gc:
-    name: bykstack-gc
+  bykstack:
+    name: bykstack
     driver: bridge
-    # ipam:
-    #   config:
-    #     - subnet: 172.25.0.0/27
-    #       gateway: 172.25.0.1
+   
