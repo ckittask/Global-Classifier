@@ -27,7 +27,7 @@ extractRequestData:
 checkFilter:
   switch:
     - condition: ${agencyId === "all"}
-      next: getAllChunks
+      next: download_single_chunk_data
   next: getChunksAndAgencies
 
 getAllChunks:
