@@ -27,21 +27,13 @@ export const datasetQueryKeys = {
   DATASET_FILTERS: (): string[] => ['datasets/filters'],
   DATASET_OVERVIEW: function (
     pageIndex?: number,
-    datasetGroupName?: string,
-    versionMajor?: number,
-    versionMinor?: number,
-    versionPatch?: number,
-    validationStatus?: string,
+    generationStatus?: string,
     sort?: string
   ) {
     return [
-      'datasetgroup/overview',
+      'datasets/overview',
       pageIndex,
-      datasetGroupName,
-      versionMajor,
-      versionMinor,
-      versionPatch,
-      validationStatus,
+      generationStatus,
       sort,
     ].filter((val) => val !== undefined);
   },
@@ -68,31 +60,23 @@ export const authQueryKeys = {
 
 export const dataModelsQueryKeys = {
   DATA_MODEL_FILTERS: (): string[] => ['datamodels/filters'],
+  DATA_MODEL_DEPLOYMENT_ENVIRONMENTS: (): string[] => ['datamodels/deployment-environments'],
+
   DATA_MODELS_OVERVIEW: function (
     pageIndex?: number,
-    modelName?: string,
-    versionMajor?: number,
-    versionMinor?: number,
-    platform?: string,
-    datasetGroup?: number,
+    modelStatus?:string,
     trainingStatus?:string,
     maturity?:string,
     sort?:string,
-    isProduction?:boolean
 
   ) {
     return [
-      'datamodels/overview',
+      'datamodels/list',
       pageIndex,
-      modelName,
-      versionMajor,
-      versionMinor,
-      platform,
-      datasetGroup,
+      modelStatus,
       trainingStatus,
       maturity,
-      sort,
-      isProduction
+      sort
     ].filter((val) => val !== undefined);
   },
   GET_META_DATA: function (modelId?: number) {

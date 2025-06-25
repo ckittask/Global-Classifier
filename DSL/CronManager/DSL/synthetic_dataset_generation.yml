@@ -1,5 +1,0 @@
-dataset_generator:
-  trigger: off
-  type: exec
-  command: "../app/scripts/dataset_generation_exec.sh"
-  allowedEnvs: ['datasetStructureName', 'promptTemplateName', 'traversalType','bucketName','prefix','noOfSamples', 'generatedDatasetFolder']

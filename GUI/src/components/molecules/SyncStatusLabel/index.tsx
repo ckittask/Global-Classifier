@@ -17,13 +17,20 @@ const SyncStatusLabel = ({
         {t('integratedAgencies.agencyCard.syncStatus.synced')}
       </Label>
     );
-  } else if (status === SyncStatus.UNAVAILABLE) {
+  } else if (status === SyncStatus.UNAVAILABLE ) {
     return (
       <Label type={LabelType.ERROR}>
         {t('integratedAgencies.agencyCard.syncStatus.unavailable')}
       </Label>
     );
-  } else if (status === SyncStatus.RESYNC_NEEDED) {
+  }else if (status === SyncStatus.FAILED ) {
+    return (
+      <Label type={LabelType.ERROR}>
+        {t('integratedAgencies.agencyCard.syncStatus.failed')}
+      </Label>
+    );
+  }
+   else if (status === SyncStatus.RESYNC_NEEDED) {
     return (
       <Label type={LabelType.WARNING}>
         {t('integratedAgencies.agencyCard.syncStatus.resync')}

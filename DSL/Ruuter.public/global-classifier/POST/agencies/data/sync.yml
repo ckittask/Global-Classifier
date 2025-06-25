@@ -103,7 +103,7 @@ filterAvailableAgencies:
 checkAvailableAgencies:
   switch:
     - condition: ${!availableAgencyIds.response.body || availableAgencyIds.response.body.length === 0}
-      next: formatResults
+      next: formatNoAgenciesResults
   next: importAgencyData
 
 importAgencyData:
@@ -129,7 +129,7 @@ initializeUpdateProcess:
 processNextAgency:
   switch:
     - condition: ${agencyUpdateIndex >= totalAgencies}
-      next: returnImportResult
+      next: CreateDatasetVersion
   next: updateCurrentAgency
 
 updateCurrentAgency:
@@ -157,11 +157,46 @@ incrementUpdateCounter:
 
 # +++++
 
+CreateDatasetVersion:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PUBLIC]/datasets/version/major"
+  result: datasetResponse
+  next: forwardToFormatting
+
+forwardToFormatting:
+  switch:
+    - condition: ${datasetResponse.response.body.response.length === 0}
+      next: end
+  next: initiateDataGeneration
+
+# formatDataUrlsResponse:
+#   call: http.post
+#   args:
+#     url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/format_data_urls"
+#     headers:
+#       type: json
+#     body:
+#       agencies: ${importResult.response.body.response}
+#       datasetId: ${datasetResponse.response.body.response[0].id}
+#   result: dataUrlsResponse
+#   next: initiateDataGeneration
+
+initiateDataGeneration:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RUUTER_PUBLIC]/data/generate"
+    body:
+      datasetId: ${datasetResponse.response.body.response[0].id}
+      presignedUrls: ${importResult.response.body.response}
+  result: dataGenerationResponse
+  next: returnImportResult
+
 returnImportResult:
-  return: ${importResult.response.body.response}
+  return: ${dataGenerationResponse.response.body}
   next: end
 
-formatResults:
+formatNoAgenciesResults:
   call: http.post
   args:
     url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/agencies-sync-summary"

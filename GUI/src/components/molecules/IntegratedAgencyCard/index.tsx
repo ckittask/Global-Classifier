@@ -5,7 +5,7 @@ import Button from 'components/Button';
 import Label from 'components/Label';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDialog } from 'hooks/useDialog';
-import { Operation } from 'types/datasetGroups';
+import { Operation } from 'types/datasets';
 import { datasetQueryKeys, integratedAgenciesQueryKeys } from 'utils/queryKeys';
 import { ButtonAppearanceTypes, LabelType, ToastTypes } from 'enums/commonEnums';
 import { useTranslation } from 'react-i18next';
@@ -98,14 +98,14 @@ const IntegratedAgencyCard: FC<PropsWithChildren<IntegratedAgencyCardProps>> = (
       await queryClient.invalidateQueries(
         integratedAgenciesQueryKeys.INTEGRATED_AGENCIES_LIST()
       );
-    },
-    onError: (error: AxiosError) => {
-      toast.open({
-        type: ToastTypes.ERROR,
-        title: t('global.notificationError'),
-        message: error?.message ?? '',
-      });
-    },
+    }
+    // onError: (error: AxiosError) => {
+    //   toast.open({
+    //     type: ToastTypes.ERROR,
+    //     title: t('global.notificationError'),
+    //     message: error?.message ?? '',
+    //   });
+    // },
   });
 
   const handleCheckedChange = (checked: boolean) => {

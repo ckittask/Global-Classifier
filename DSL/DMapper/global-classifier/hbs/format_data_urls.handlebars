@@ -1,9 +1,10 @@
-{
-  "signedUrls": [
-    {{#each response}}
+{    
+  "datasetId": "{{datasetId}}",
+  "presignedUrls": [
+    {{#each agencies}}
       {
-        "agencyid": "{{agencyid}}",
-        "signeds3url": "{{signeds3url}}"
+        "agencyId": "{{agencyId}}",
+        "signedS3Url": "{{dataUrl}}"
       }{{#unless @last}},{{/unless}}
     {{/each}}
   ]
