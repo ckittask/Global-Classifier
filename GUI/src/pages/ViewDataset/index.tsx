@@ -109,7 +109,10 @@ const ViewDataset = () => {
     </Button>
   );
 
-  const dataColumns = generateDynamicColumns(["id", "question", "clientName"], editView, deleteView);
+  const dataColumns = useMemo(
+    () => generateDynamicColumns(["id", "question", "clientName"], editView, deleteView),
+    [editView, deleteView]
+  );
 
   const editDataRecord = (dataRow: SelectedRowPayload) => {
     const originalRow = dataset?.find(
