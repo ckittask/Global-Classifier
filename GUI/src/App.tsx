@@ -12,6 +12,7 @@ import Unauthorized from 'pages/Unauthorized/unauthorized';
 import IntegratedAgencies from 'pages/IntegratedAgencies';
 import Datasets from 'pages/Datasets';
 import ViewDataset from 'pages/ViewDataset';
+import DataModels from 'pages/DataModels';
 
 const App: FC = () => {
   const navigate = useNavigate();
@@ -58,12 +59,12 @@ const App: FC = () => {
             ) : (
               <>
                 <Route path="/user-management" element={<Unauthorized />} />
+                <Route path="/integrated-agencies" element={<Unauthorized />} />
               </>
             )}
+            <Route path="/data-models" element={<DataModels />} />
             <Route path="/datasets" element={<Datasets />} />
             <Route path="/view-dataset" element={<ViewDataset />} />
-
-
           </Route>
         </Routes>
       )}
