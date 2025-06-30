@@ -1,0 +1,61 @@
+declaration:
+  call: declare
+  version: 0.1
+  description: "Get chunk_ids from dataset_metadata where included_agencies contains the given agencyId"
+  method: get
+  accepts: json
+  returns: json
+  namespace: global-classifier
+  allowlist:
+    params:
+      - field: agencyId
+        type: string
+        description: "Agency ID to search for in included_agencies"
+      - field: pageNum
+        type: string
+        description: "Page number for pagination"
+      - field: datasetId
+        type: string
+        description: "datasetId to filter chunks by dataset"
+
+extractRequestData:
+  assign:
+    agencyId: ${incoming.params.agencyId}
+    pageNum: ${incoming.params.pageNum}
+    datasetId: ${incoming.params.datasetId}
+
+checkFilter:
+  switch:
+    - condition: ${agencyId === "all"}
+      next: getAllChunks
+  next: getChunkIdsByAgency
+
+getChunkIdsByAgency:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_RESQL]/get-chunk-ids-by-agency"
+    body:
+      agencyId: ${agencyId}
+  result: chunkIdsResult
+  next: return_result
+
+getAllChunks:
+  call: http.post
+  args:
+    url: "[#GLOBAL_CLASSIFIER_DMAPPER]/hbs/global-classifier/get_all_chunks"
+    headers:
+      type: json
+    body:
+      pageNum: ${pageNum}
+      datasetId: ${datasetId}
+  result: dataChunksResult
+  next: return_chunk_data
+
+return_chunk_data:
+  return: ${dataChunksResult.response.body}
+  status: 200
+  next: end
+
+return_result:
+  return: ${chunkIdsResult.response.body}
+  next: end
