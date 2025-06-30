@@ -39,5 +39,5 @@ export async function getDatasetData(
       pageNum : pageNum ?? 1,
     },
   });
-  return data?.response?.data ?? [];
+  return data?.response ?? [];
 }
