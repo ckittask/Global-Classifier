@@ -58,22 +58,22 @@ services:
     networks:
       - bykstack
 
-  # tim:
-  #   container_name: tim
-  #   image: tim
-  #   depends_on:
-  #     - tim-postgresql
-  #   environment:
-  #     - SECURITY_ALLOWLIST_JWT=ruuter-private,ruuter-public,data-mapper,resql,tim,tim-postgresql,chat-widget,authentication-layer,127.0.0.1,::1
-  #     - KEY_PASS=ppjjpp
-  #   ports:
-  #     - 8085:8085
-  #   networks:
-  #     - bykstack
-  #   extra_hosts:
-  #     - "host.docker.internal:host-gateway"
-  #   cpus: "0.5"
-  #   mem_limit: "512M"
+  tim:
+    container_name: tim
+    image: tim
+    depends_on:
+      - tim-postgresql
+    environment:
+      - SECURITY_ALLOWLIST_JWT=ruuter-private,ruuter-public,data-mapper,resql,tim,tim-postgresql,chat-widget,authentication-layer,127.0.0.1,::1
+      - KEY_PASS=ppjjpp
+    ports:
+      - 8085:8085
+    networks:
+      - bykstack
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    cpus: "0.5"
+    mem_limit: "512M"
 
   tim-postgresql:
     container_name: tim-postgresql
@@ -90,13 +90,13 @@ services:
     networks:
       - bykstack
 
-  # authentication-layer:
-  #   container_name: authentication-layer
-  #   image: authentication-layer
-  #   ports:
-  #     - 3004:3004
-  #   networks:
-  #     - bykstack
+  authentication-layer:
+    container_name: authentication-layer
+    image: authentication-layer
+    ports:
+      - 3004:3004
+    networks:
+      - bykstack
 
   resql:
     container_name: resql
@@ -305,34 +305,34 @@ services:
       retries: 3
     restart: unless-stopped
         
-  # gui:
-  #   container_name: gui
-  #   environment:
-  #     - NODE_ENV=local
-  #     - REACT_APP_RUUTER_API_URL=http://localhost:8086
-  #     - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
-  #     - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
-  #     - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
-  #     - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
-  #     - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
-  #     - DEBUG_ENABLED=true
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - PORT=3001
-  #     - REACT_APP_SERVICE_ID=conversations,settings,monitoring
-  #     - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
+  gui:
+    container_name: gui
+    environment:
+      - NODE_ENV=local
+      - REACT_APP_RUUTER_API_URL=http://localhost:8086
+      - REACT_APP_RUUTER_PRIVATE_API_URL=http://localhost:8088
+      - REACT_APP_EXTERNAL_API_URL=http://localhost:8000
+      - REACT_APP_CUSTOMER_SERVICE_LOGIN=http://localhost:3004/et/dev-auth
+      - REACT_APP_NOTIFICATION_NODE_URL=http://localhost:4040
+      - REACT_APP_CSP=upgrade-insecure-requests; default-src 'self'; font-src 'self' data:; img-src 'self' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; connect-src 'self' http://localhost:8086 http://localhost:8088 http://localhost:8085 http://localhost:4040 http://localhost:3001 http://localhost:8000;
+      - DEBUG_ENABLED=true
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=3001
+      - REACT_APP_SERVICE_ID=conversations,settings,monitoring
+      - REACT_APP_ENABLE_HIDDEN_FEATURES=TRUE
 
-  #   build:
-  #     context: ./GUI
-  #     dockerfile: Dockerfile.dev
-  #   ports:
-  #     - 3003:3001
-  #   volumes:
-  #     - /app/node_modules
-  #     - ./GUI:/app
-  #   networks:
-  #     - bykstack
-  #   cpus: "0.5"
-  #   mem_limit: "1G"
+    build:
+      context: ./GUI
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3003:3001
+    volumes:
+      - /app/node_modules
+      - ./GUI:/app
+    networks:
+      - bykstack
+    cpus: "0.5"
+    mem_limit: "1G"
 
 volumes:
   shared-volume:
