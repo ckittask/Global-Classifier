@@ -36,7 +36,7 @@ const ConfigureDataModel: FC<ConfigureDataModelType> = ({
   const [initialData, setInitialData] = useState<Partial<DataModel>>({
     modelName: '',
     datasetId: 0,
-    platform: '',
+    deploymentEnvironment: '',
     baseModels: [],
     maturity: '',
     version: '',
