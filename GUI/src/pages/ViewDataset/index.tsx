@@ -1,7 +1,7 @@
 import BackArrowButton from 'assets/BackArrowButton';
 import { Button, Card, DataTable, Dialog, Icon, Label, Switch } from 'components';
 import { ButtonAppearanceTypes, LabelType } from 'enums/commonEnums';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import { generateDynamicColumns } from 'utils/dataTableUtils';
@@ -16,9 +16,9 @@ import DynamicForm from 'components/FormElements/DynamicForm';
 import { datasetQueryKeys, integratedAgenciesQueryKeys } from 'utils/queryKeys';
 import { getDatasetData, getDatasetMetadata } from 'services/datasets';
 import { useQuery } from '@tanstack/react-query';
-import { set } from 'date-fns';
 import { useDialog } from 'hooks/useDialog';
 import { fetchAllAgencies } from 'services/agencies';
+import NoDataView from 'components/molecules/NoDataView';
 
 const ViewDataset = () => {
   const { t } = useTranslation();
@@ -36,6 +36,8 @@ const ViewDataset = () => {
   const datasetId = searchParams.get('datasetId');
   const [selectedRow, setSelectedRow] = useState<SelectedRowPayload>();
   const [editedRows, setEditedRows] = useState<SelectedRowPayload[]>([]);
+  const [selectedAgencyId, setSelectedAgencyId] = useState<string | number>("all");
+
 
   const { data: metadata, isLoading } = useQuery({
     queryKey: datasetQueryKeys.GET_META_DATA(datasetId ?? 0),
@@ -43,10 +45,16 @@ const ViewDataset = () => {
   });
 
   const { data: dataset, isLoading: datasetIsLoading } = useQuery({
-    queryKey: datasetQueryKeys.GET_DATA_SETS(datasetId ?? 0, 'all', 1),
-    queryFn: () => getDatasetData(datasetId ?? 0, 'all', 1),
+    queryKey: datasetQueryKeys.GET_DATA_SETS(datasetId ?? 0, selectedAgencyId, pagination.pageIndex + 1),
+    queryFn: () => getDatasetData(datasetId ?? 0, selectedAgencyId, pagination.pageIndex + 1),
   });
   const [updatedDataset, setUpdatedDataset] = useState(dataset);
+
+  useEffect(() => {
+    if (dataset) {
+      setUpdatedDataset(dataset);
+    }
+  }, [dataset]);
 
   const { data: agencies } = useQuery({
     queryKey: integratedAgenciesQueryKeys.ALL_AGENCIES_LIST(),
@@ -102,13 +110,13 @@ const ViewDataset = () => {
   );
 
   const dataColumns = useMemo(
-    () => generateDynamicColumns(datasets?.fields ?? [], editView, deleteView),
-    [datasets?.fields]
+    () => generateDynamicColumns(["id", "question", "clientName"], editView, deleteView),
+    [editView, deleteView]
   );
 
   const editDataRecord = (dataRow: SelectedRowPayload) => {
-    const originalRow = datasets?.dataPayload?.find(
-      (row) => row.id === dataRow.id
+    const originalRow = dataset?.find(
+      (row: any) => row.id === dataRow.id
     );
 
     // Only proceed if question or clientId has changed
@@ -135,11 +143,13 @@ const ViewDataset = () => {
         ? {
           id: dataRow.id,
           question: (dataRow as any).question,
+          clientId: (dataRow as any).clientId,
           clientName: (dataRow as any).clientName,
+
         }
         : row
     );
-    setUpdatedDataset(payload as { id: number; question: string; clientName: string; clientId: string }[]);
+    setUpdatedDataset(payload as { id: number; question: string; clientId: string; clientName: string; }[]);
   };
 
   const deleteDataRecord = (dataRow: SelectedRowPayload) => {
@@ -150,13 +160,30 @@ const ViewDataset = () => {
   };
 
   const minorUpdate = () => {
+    const questionUpdated: SelectedRowPayload[] = [];
+    const clientUpdated: SelectedRowPayload[] = [];
+
+    editedRows.forEach((row) => {
+      const original = dataset?.find((r: any) => r.id === row.id);
+      if (!original) return;
+      const isQuestionChanged = original.question !== row.question;
+      const isClientChanged = original.clientId !== row.clientId;
+
+      if (isQuestionChanged && !isClientChanged) {
+        questionUpdated.push(row);
+      }
+      if (isClientChanged) {
+        clientUpdated.push(row);
+      }
+    });
+
     const payload = {
-      datasetId: datasetId,
-      updatedRows: editedRows,
+      questionUpdated,
+      clientUpdated,
       deletedRows: deletedRowIds,
-    }
+    };
     console.log(payload, 'minorUpdatePayload');
-  }
+  };
 
   return (
     <div className="container">
@@ -183,12 +210,12 @@ const ViewDataset = () => {
                   {t('datasets.detailedView.connectedModels') ?? ''} : N/A
                 </p>
                 <p>
-                  {t('datasets.detailedView.noOfItems') ?? ''} : {datasets?.dataPayload?.length ?? 0}
+                  {t('datasets.detailedView.noOfItems') ?? ''} : {20}
                 </p>
               </div>
               <div>
-                <Switch label=''></Switch>
-                <br />
+                {/* <Switch label=''></Switch>
+                <br /> */}
                 <Button appearance='secondary' size='s'>
                   Export Dataset
                 </Button>
@@ -199,12 +226,11 @@ const ViewDataset = () => {
       )}
       <div className="mb-20">
         {isLoading && <SkeletonTable rowCount={5} />}
-        {!isLoading && updatedDataset && updatedDataset.length > 0 && (
+        {!isLoading && updatedDataset && updatedDataset?.length > 0 && (
           <DataTable
             data={updatedDataset}
             columns={dataColumns as ColumnDef<string, string>[]}
             pagination={pagination}
-            filterable
             dropdownFilters={[
               {
                 columnId: 'clientName',
@@ -217,6 +243,12 @@ const ViewDataset = () => {
             ]}
             onSelect={(value) => {
               console.log('Selected option:', value);
+              setSelectedAgencyId(value);
+              setPagination({
+                pageIndex: 0,
+                pageSize: 5,
+              });
+              setUpdatedDataset([]);
             }}
             setPagination={(state: PaginationState) => {
               if (
@@ -226,10 +258,15 @@ const ViewDataset = () => {
                 return;
               setPagination(state);
             }}
-            pagesCount={1}
+            pagesCount={4}
             isClientSide={false}
           />
         )}
+        {
+          updatedDataset?.length === 0 && (
+           <NoDataView text='No data available'/>
+          )
+        }
         <div className="button-container">
           <Button
             appearance={ButtonAppearanceTypes.ERROR}
