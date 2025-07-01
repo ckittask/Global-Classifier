@@ -60,8 +60,10 @@ const App: FC = () => {
             ) : (
               <>
                 <Route path="/user-management" element={<Unauthorized />} />
+                <Route path="/integrated-agencies" element={<Unauthorized />} />
               </>
             )}
+            <Route path="/data-models" element={<DataModels />} />
             <Route path="/datasets" element={<Datasets />} />
             <Route path="/view-dataset" element={<ViewDataset />} />
             <Route path="/data-models" element={<DataModels />} />
