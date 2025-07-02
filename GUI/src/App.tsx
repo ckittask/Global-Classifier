@@ -13,6 +13,7 @@ import IntegratedAgencies from 'pages/IntegratedAgencies';
 import Datasets from 'pages/Datasets';
 import ViewDataset from 'pages/ViewDataset';
 import DataModels from 'pages/DataModels';
+import CreateDataModel from 'pages/DataModels/CreateDataModel';
 
 const App: FC = () => {
   const navigate = useNavigate();
@@ -66,6 +67,7 @@ const App: FC = () => {
             <Route path="/datasets" element={<Datasets />} />
             <Route path="/view-dataset" element={<ViewDataset />} />
             <Route path="/data-models" element={<DataModels />} />
+            <Route path="/create-data-model" element={<CreateDataModel />} />
           </Route>
         </Routes>
       )}

@@ -39,5 +39,10 @@ export async function getDatasetData(
       pageNum : pageNum ?? 1,
     },
   });
+  return data?.response?.data ?? [];
+}
+
+export async function getAllDatasetVersions() {
+  const { data } = await apiDev.get(datasetsEndpoints.GET_ALL_DATASET_VERSIONS());
   return data?.response ?? [];
 }
