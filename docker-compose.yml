@@ -144,7 +144,7 @@ services:
 
   cron-manager:
     container_name: cron-manager
-    image: cron-manager:latest
+    image: cron-manager-python:latest
     user: "root"
     volumes:
       - ./DSL/CronManager/DSL:/DSL
