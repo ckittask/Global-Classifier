@@ -127,7 +127,7 @@ services:
     ports:
       - 5435:5432
     volumes:
-      - ~/buerokratt_classifier/db_files:/var/lib/postgresql/data
+      - ./global-classifier-db/db_files:/var/lib/postgresql/data
 
     networks:
       - bykstack
