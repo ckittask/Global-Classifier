@@ -17,11 +17,11 @@ export const integratedAgenciesQueryKeys = {
       (val) => val !== undefined
     );
   },
-
+  ALL_AGENCIES_LIST: () => ['integrated-agencies/all'],
   USER_ROLES: (): string[] => ['/accounts/user-role', 'prod'],
-  
-  
-};
+
+  }
+
 
 export const datasetQueryKeys = {
   DATASET_FILTERS: (): string[] => ['datasets/filters'],
@@ -37,16 +37,18 @@ export const datasetQueryKeys = {
       sort,
     ].filter((val) => val !== undefined);
   },
-  GET_META_DATA: function (dgId?: number) {
-    return ['datasets/groups/metadata', `${dgId}`].filter(
+  GET_META_DATA: function (datasetId?: number|string) {
+    return ['datasets/metadata', `${datasetId}`].filter(
       (val) => val !== undefined
     );
   },
-  GET_DATA_SETS: function (dgId?: number, pagination?: PaginationState) {
-    return ['datasets/groups/data', `${dgId}`, pagination].filter(
+  GET_DATA_SETS: function (datasetId?: number|string, agencyId?:number|string, pageNum?: number) {
+    return ['datasets/data', datasetId, agencyId,pageNum].filter(
       (val) => val !== undefined
     );
   },
+
+
   GET_DATASET_GROUP_PROGRESS: () => ['datasetgroups/progress'],
 };
 
@@ -60,31 +62,23 @@ export const authQueryKeys = {
 
 export const dataModelsQueryKeys = {
   DATA_MODEL_FILTERS: (): string[] => ['datamodels/filters'],
+  DATA_MODEL_DEPLOYMENT_ENVIRONMENTS: (): string[] => ['datamodels/deployment-environments'],
+
   DATA_MODELS_OVERVIEW: function (
     pageIndex?: number,
-    modelName?: string,
-    versionMajor?: number,
-    versionMinor?: number,
-    platform?: string,
-    datasetGroup?: number,
+    modelStatus?:string,
     trainingStatus?:string,
     maturity?:string,
     sort?:string,
-    isProduction?:boolean
 
   ) {
     return [
-      'datamodels/overview',
+      'datamodels/list',
       pageIndex,
-      modelName,
-      versionMajor,
-      versionMinor,
-      platform,
-      datasetGroup,
+      modelStatus,
       trainingStatus,
       maturity,
-      sort,
-      isProduction
+      sort
     ].filter((val) => val !== undefined);
   },
   GET_META_DATA: function (modelId?: number) {
