@@ -402,10 +402,12 @@
     },
     "dataModelForm": {
       "modelVersion": "Model Version",
-      "datasetGroup": "Select Dataset Group",
+      "datasetGroup": "Select Dataset Version",
       "baseModels": "Select Base Models",
-      "deploymentPlatform": "Select Deployment Platform",
-      "maturityLabel": "Select Maturity Label"
+      "deploymentPlatform": "Select Deployment Environment",
+      "errors":{
+        "datasetVersionNotExist":"Dataset version does not exist"
+      }
       }
   },
   "trainingSessions": {

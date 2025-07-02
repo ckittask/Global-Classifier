@@ -25,6 +25,7 @@ export const integratedAgenciesQueryKeys = {
 
 export const datasetQueryKeys = {
   DATASET_FILTERS: (): string[] => ['datasets/filters'],
+  DATASET_VERSIONS: (): string[] => ['datasets/versions'],
   DATASET_OVERVIEW: function (
     pageIndex?: number,
     generationStatus?: string,
@@ -63,7 +64,6 @@ export const authQueryKeys = {
 export const dataModelsQueryKeys = {
   DATA_MODEL_FILTERS: (): string[] => ['datamodels/filters'],
   DATA_MODEL_DEPLOYMENT_ENVIRONMENTS: (): string[] => ['datamodels/deployment-environments'],
-
   DATA_MODELS_OVERVIEW: function (
     pageIndex?: number,
     modelStatus?:string,

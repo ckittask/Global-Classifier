@@ -2,10 +2,10 @@ export type DataModel = {
   modelId: number;
   modelName: string;
   dgName?: string;
-  dgId: string | number;
+  datasetId: string | number;
   platform: string;
   baseModels: string[];
-  maturity: string;
+  deploymentEnvironment: string;
   version?: string;
 };
 
@@ -86,8 +86,7 @@ export type DataModelsFilters = {
 export type ErrorsType = {
   modelName?: string;
   dgName?: string;
-  platform?: string;
+  deploymentEnvironment?: string;
   baseModels?: string;
-  maturity?: string;
-  dgId?: string;
+  datasetId?: string;
 };
