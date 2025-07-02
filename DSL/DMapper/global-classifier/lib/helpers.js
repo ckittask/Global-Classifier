@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
-
+import fs from "fs/promises";
+import path from "path";
 
 export function getAuthHeader(username, token) {
   const auth = `${username}:${token}`;
@@ -68,47 +69,47 @@ export function getRandomString() {
 }
 
 export function base64Decrypt(cipher, isObject) {
-    if (!cipher) {
-        return JSON.stringify({
-            error: true,
-            message: 'Cipher is missing',
-        });
-    }
+  if (!cipher) {
+    return JSON.stringify({
+      error: true,
+      message: 'Cipher is missing',
+    });
+  }
 
-    try {
-        const decodedContent = !isObject ? Buffer.from(cipher, 'base64').toString('utf8') : JSON.parse(Buffer.from(cipher, 'base64').toString('utf8'));
-        const cleanedContent = decodedContent.replace(/\r/g, '');
-        return JSON.stringify({
-            error: false,
-            content: cleanedContent
-        });
-    } catch (err) {
-        return JSON.stringify({
-            error: true,
-            message: 'Base64 Decryption Failed',
-        });
-    }
+  try {
+    const decodedContent = !isObject ? Buffer.from(cipher, 'base64').toString('utf8') : JSON.parse(Buffer.from(cipher, 'base64').toString('utf8'));
+    const cleanedContent = decodedContent.replace(/\r/g, '');
+    return JSON.stringify({
+      error: false,
+      content: cleanedContent
+    });
+  } catch (err) {
+    return JSON.stringify({
+      error: true,
+      message: 'Base64 Decryption Failed',
+    });
+  }
 }
 
 export function base64Encrypt(content) {
-    if (!content) {
-        return {
-            error: true,
-            message: 'Content is missing',
-        }
+  if (!content) {
+    return {
+      error: true,
+      message: 'Content is missing',
     }
+  }
 
-    try {
-        return JSON.stringify({
-            error: false,
-            cipher: Buffer.from(typeof content === 'string' ? content : JSON.stringify(content)).toString('base64')
-        });
-    } catch (err) {
-        return JSON.stringify({
-            error: true,
-            message: 'Base64 Encryption Failed',
-        });
-    }
+  try {
+    return JSON.stringify({
+      error: false,
+      cipher: Buffer.from(typeof content === 'string' ? content : JSON.stringify(content)).toString('base64')
+    });
+  } catch (err) {
+    return JSON.stringify({
+      error: true,
+      message: 'Base64 Encryption Failed',
+    });
+  }
 }
 
 export function jsEscape(str) {
@@ -131,7 +132,7 @@ export function getAgencyDataHash(agencyId) {
   const baseHash = agencyId.padEnd(10, agencyId); // Ensure at least 10 chars
   let hash = '';
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  
+
   // Use the agencyId as a seed for pseudo-randomness
   for (let i = 0; i < 16; i++) {
     // Get character code from the baseHash, or use index if out of bounds
@@ -140,29 +141,29 @@ export function getAgencyDataHash(agencyId) {
     const index = (charCode * 13 + i * 7) % chars.length;
     hash += chars[index];
   }
-  
+
   return hash;
 }
 
 export function getAgencyDataAvailable(agencyId) {
   // Use agencyId as a seed for deterministic but seemingly random result
   // This ensures the same agencyId always gets the same result in the same session
-  
+
   // Create a hash from the agencyId
   let hashValue = 0;
   for (let i = 0; i < agencyId.length; i++) {
     hashValue = ((hashValue << 5) - hashValue) + agencyId.charCodeAt(i);
     hashValue |= 0; // Convert to 32bit integer
   }
-  
+
   // Add a time component to make it change between sessions
   // Use current date (year+month only) so it changes monthly but not every request
   const date = new Date();
   const timeComponent = date.getFullYear() * 100 + date.getMonth();
-  
+
   // Combine the hash and time component for pseudo-randomness
   const combinedValue = hashValue + timeComponent;
-  
+
   // Return true or false based on even/odd value
   return (combinedValue % 2) === 0;
 }
@@ -190,7 +191,87 @@ export function extractNewAgencies(gcAgencies, centopsAgencies) {
   const existingIds = new Set(gcAgencies.map(a => a.agencyId));
   const newAgencies = centopsAgencies.filter(a => !existingIds.has(a.agencyId))
   // return newAgencies;
-   return JSON.stringify({
-            agencies: newAgencies,
-        });
+  return JSON.stringify({
+    agencies: newAgencies,
+  });
+}
+
+/**
+ * Downloads a JSON file from S3 and returns its parsed content.
+ * @param {string} datasetId
+ * @param {string|number} pageNum
+ * @returns {Object} Parsed JSON content of the file
+ */
+export function getSingleChunkData(chunkData) {
+
+  console.log(chunkData, "dataChunk");
+  
+ 
+  const mapped = chunkData?.map(item => ({
+    clientId: item.agency_id,
+    id: item.id,
+    clientName: item.agency_name, 
+    question: item.question
+  }));
+
+  return JSON.stringify(mapped);
+}
+
+export function getPaginatedChunkIds(chunks, agencyId, pageNum, pageSize = 5) {
+  let agencyRecordIndex = 0; // total agency records seen so far
+  let collected = 0;         // agency records collected for this page
+  let resultChunks = [];
+  let startIndex = 0;
+  let foundPage = false;
+
+  for (const chunk of chunks) {
+    let agencies = JSON.parse(chunk.includedAgencies.value)
+
+    const count = agencies.filter(a => String(a) === String(agencyId)).length;
+    if (count === 0) continue;
+
+    // If we haven't reached the start of this page, skip these records
+    if (!foundPage && agencyRecordIndex + count < (pageNum - 1) * pageSize + 1) {
+      agencyRecordIndex += count;
+      continue;
+    }
+
+    // If this is the first chunk of the page, calculate startIndex
+    if (!foundPage) {
+      startIndex = (pageNum - 1) * pageSize - agencyRecordIndex;
+      foundPage = true;
+    }
+
+    resultChunks.push(chunk.chunkId || chunk.chunkId);
+    collected += count;
+
+    if (collected >= pageSize) break;
+
+    agencyRecordIndex += count;
+  }
+
+  return JSON.stringify(
+    {
+      chunks: resultChunks,
+      startIndex: startIndex
+    }
+  );
+}
+
+export function filterDataByAgency(aggregatedData, startIndex, agencyId, pageSize=5) {
+
+  const filtered = aggregatedData.filter(item => String(item.agency_id) === String(agencyId));
+
+  const paginated = filtered.slice(startIndex, startIndex + 5);
+
+  const result= paginated.map(item => ({
+    clientId: item.agency_id,
+    id: item.id,
+    clientName: item.agency_name, // No mapping available, so use agency_id
+    question: item.question
+  }));
+  console.log("Filtered  data:", filtered);
+  console.log("Paginated data:", paginated);
+  return JSON.stringify(result);
+  
 }
