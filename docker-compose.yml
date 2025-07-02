@@ -144,13 +144,12 @@ services:
 
   cron-manager:
     container_name: cron-manager
-    image: cron-manager-python:latest
+    image: cron-manager:latest
     user: "root"
     volumes:
       - ./DSL/CronManager/DSL:/DSL
       - ./DSL/CronManager/script:/app/scripts
       - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
-      - ./DSL/DatasetGenerator/temp_chunks:/app/temp_chunks
       - ./src/s3_dataset_processor:/app/src/s3_dataset_processor
       - ./DSL/DatasetGenerator/config:/app/config
       - cron_data:/app/data
@@ -178,71 +177,71 @@ services:
   #   restart: always
 
   # Dataset Generator services
-  dataset-gen-ollama:
-    image: synthesisai/dataset-generator-ollama:latest
-    container_name: dataset-gen-ollama
-    ports:
-      - "11434:11434"
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - OLLAMA_USE_GPU=1
-      - OLLAMA_HOST=0.0.0.0
-    volumes:
-      - dataset_gen_ollama_models:/root/.ollama
-      - ./DSL/DatasetGenerator/ollama-entrypoint.sh:/ollama-entrypoint.sh
-    entrypoint: ["bash", "/ollama-entrypoint.sh"]
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    networks:
-      - bykstack
+  # dataset-gen-ollama:
+  #   image: synthesisai/dataset-generator-ollama:latest
+  #   container_name: dataset-gen-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   environment:
+  #     # - NVIDIA_VISIBLE_DEVICES=all
+  #     # - OLLAMA_USE_GPU=1
+  #     - OLLAMA_HOST=0.0.0.0
+  #   volumes:
+  #     - dataset_gen_ollama_models:/root/.ollama
+  #     - ./src/dataset-generation/ollama-entrypoint.sh:/ollama-entrypoint.sh
+  #   entrypoint: ["bash", "/ollama-entrypoint.sh"]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    # networks:
+    #   - bykstack
 
-  dataset-gen-service:
-    image: synthesisai/dataset-generator:latest
-    container_name: dataset-gen-service
-    ports:
-      - "8000:8000"
-    environment:
-      - PROVIDER_API_URL=http://dataset-gen-ollama:11434
-      - SERVICE_DEBUG=false
-      - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
-    volumes:
-      - ./DSL/DatasetGenerator/config:/app/config
-      - ./DSL/DatasetGenerator/templates:/app/templates
-      - ./DSL/DatasetGenerator/user_configs:/app/user_configs
-      - cron_data:/app/data
-      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
-      - ./DSL/DatasetGenerator/logs:/app/logs
-    depends_on:
-      - dataset-gen-ollama
-      - dataset-gen-mlflow
-    networks:
-      - bykstack
+  # dataset-gen-service:
+  #   image: synthesisai/dataset-generator:latest
+  #   container_name: dataset-gen-service
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - PROVIDER_API_URL=http://dataset-gen-ollama:11434
+  #     - SERVICE_DEBUG=false
+  #     - MLFLOW_TRACKING_URI=http://dataset-gen-mlflow:5000
+  #   volumes:
+  #     - ./DSL/DatasetGenerator/config:/app/config
+  #     - ./DSL/DatasetGenerator/templates:/app/templates
+  #     - ./DSL/DatasetGenerator/user_configs:/app/user_configs
+  #     - cron_data:/app/data
+  #     - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
+  #     - ./DSL/DatasetGenerator/logs:/app/logs
+  #   depends_on:
+  #     - dataset-gen-ollama
+  #     - dataset-gen-mlflow
+  #   networks:
+  #     - bykstack
 
-  dataset-gen-mlflow:
-    image: synthesisai/dataset-generator-mlflow:latest
-    container_name: dataset-gen-mlflow
-    ports:
-      - "5000:5000"
-    env_file:
-      - sidecar.env
-    environment:
-    - MLFLOW_TRACKING_USERNAME=${MLFLOW_TRACKING_USERNAME}
-    - MLFLOW_TRACKING_PASSWORD=${MLFLOW_TRACKING_PASSWORD}
-    - MLFLOW_HOST=${MLFLOW_HOST}
-    - MLFLOW_PORT=${MLFLOW_PORT}
-    - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
-    - MLFLOW_DEFAULT_ARTIFACT_ROOT=${MLFLOW_DEFAULT_ARTIFACT_ROOT}
-    - MLFLOW_FLASK_SERVER_SECRET_KEY=${MLFLOW_FLASK_SERVER_SECRET_KEY}
-    volumes:
-      - ./DSL/DatasetGenerator/mlflow_data:/mlflow/mlflow_data
-      - ./DSL/DatasetGenerator/mlflow_artifacts:/mlflow/mlflow_artifacts
-    networks:
-      - bykstack
+  # dataset-gen-mlflow:
+  #   image: synthesisai/dataset-generator-mlflow:latest
+  #   container_name: dataset-gen-mlflow
+  #   ports:
+  #     - "5000:5000"
+  #   env_file:
+  #     - sidecar.env
+  #   environment:
+  #   - MLFLOW_TRACKING_USERNAME=${MLFLOW_TRACKING_USERNAME}
+  #   - MLFLOW_TRACKING_PASSWORD=${MLFLOW_TRACKING_PASSWORD}
+  #   - MLFLOW_HOST=${MLFLOW_HOST}
+  #   - MLFLOW_PORT=${MLFLOW_PORT}
+  #   - MLFLOW_BACKEND_STORE_URI=${MLFLOW_BACKEND_STORE_URI}
+  #   - MLFLOW_DEFAULT_ARTIFACT_ROOT=${MLFLOW_DEFAULT_ARTIFACT_ROOT}
+  #   - MLFLOW_FLASK_SERVER_SECRET_KEY=${MLFLOW_FLASK_SERVER_SECRET_KEY}
+  #   volumes:
+  #     - ./DSL/DatasetGenerator/mlflow_data:/mlflow/mlflow_data
+  #     - ./DSL/DatasetGenerator/mlflow_artifacts:/mlflow/mlflow_artifacts
+  #   networks:
+  #     - bykstack
 
   
   minio:
@@ -268,7 +267,6 @@ services:
     container_name: gc-s3-ferry
     volumes:
       - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
-      - ./DSL/DatasetGenerator/temp_chunks:/app/temp_chunks
     env_file:
       - config.env
     ports:
@@ -277,33 +275,22 @@ services:
     networks:
       - bykstack
 
-  dataset-file-handler:
-    container_name: dataset-file-handler
-    build:
-      context: ./src/dataset_file_hanlder
-      dockerfile: Dockerfile
+  s3-dataset-processor:
+    container_name: s3-dataset-processor
+    build: ./src/s3_dataset_processor
     ports:
-      - "8003:8000"
+      - "8001:8001"
     volumes:
-      - ./DSL/DatasetGenerator/output_datasets:/app/output_datasets
-      - ./DSL/DatasetGenerator/temp_chunks:/app/temp_chunks
-      - ./src/dataset_file_hanlder:/app/src
-      - cron_data:/app/data
+      - cron_data:/app/data  # Same volume as cron-manager
     environment:
-      - PORT=8000
-      - PYTHONPATH=/app/src
-      - LOG_LEVEL=INFO
+      - PORT=8001
     networks:
       - bykstack
-    depends_on:
-      - gc-s3-ferry
-      - resql
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-    restart: unless-stopped
         
   gui:
     container_name: gui
