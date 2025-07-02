@@ -47,7 +47,6 @@ const DataModels: FC = () => {
   });
 
   const pageCount = dataModelsData?.[0]?.totalPages || 0;
-console.log(deploymentEnvironmentsData);
 
   const handleFilterChange = (
     name: keyof DataModelsFilters,

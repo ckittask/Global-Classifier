@@ -15,6 +15,17 @@ export const formattedArray = (data: string[]|undefined): FormattedOption[]|unde
   }));
 };
 
+export const toLabelValueArray = <T>(
+  data: T[] | undefined,
+  valueField: keyof T,
+  labelField: keyof T
+): { label: string; value: string }[] | undefined => {
+  return data?.map((item) => ({
+    label: String(item[labelField]),
+    value: String(item[valueField]),
+  }));
+};
+
 
 export const convertTimestampToDateTime = (timestamp: number) => {
   return moment.unix(timestamp).format('YYYY-MM-DD HH:mm:ss');
