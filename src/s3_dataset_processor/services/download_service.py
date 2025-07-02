@@ -8,12 +8,13 @@ from config.settings import settings
 from models.schemas import DownloadedFile
 import sys
 import logging
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,9 @@ class DownloadService:
 
                 # Download file to data directory
                 local_file_path = os.path.join(self.data_dir, original_filename)
-                logger.info(f"Downloading {original_filename} for agency {agency_id} with name {agency_name}")
+                logger.info(
+                    f"Downloading {original_filename} for agency {agency_id} with name {agency_name}"
+                )
 
                 if self.download_file(signed_url, local_file_path):
                     file_size = os.path.getsize(local_file_path)

@@ -4,6 +4,7 @@
 Direct Python script for downloading datasets from S3 signed URLs.
 Replaces the FastAPI /download-datasets endpoint for CronManager execution.
 """
+
 import sys
 import json
 import argparse
@@ -14,15 +15,15 @@ import traceback
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
 # Add the s3_dataset_processor to Python path to import modules FIRST
 # This path corresponds to the volume mount in docker-compose.yml
-script_dir = Path('/app/src/s3_dataset_processor')
+script_dir = Path("/app/src/s3_dataset_processor")
 sys.path.insert(0, str(script_dir))
 
 # Now import the services AFTER adding to path
@@ -31,6 +32,7 @@ try:
     from services.download_service import DownloadService
     from services.extraction_service import ExtractionService
     from handlers.response_handler import ResponseHandler
+
     logger.info("✅ Successfully imported all required modules")
 except ImportError as e:
     logger.error(f"❌ Failed to import required modules: {e}")
@@ -40,15 +42,25 @@ except ImportError as e:
         logger.error(f"Contents of script directory: {list(script_dir.iterdir())}")
     sys.exit(1)
 
+
 def main():
     """Main function to handle dataset download process."""
-    parser = argparse.ArgumentParser(description='Download datasets from S3 signed URLs')
-    parser.add_argument('--encoded-data', required=True, help='Base64 encoded signed URLs data')
-    parser.add_argument('--extract-files', action='store_true', default=True, help='Extract downloaded files')
-    parser.add_argument('--output-json', help='Output file path for results JSON')
-    
+    parser = argparse.ArgumentParser(
+        description="Download datasets from S3 signed URLs"
+    )
+    parser.add_argument(
+        "--encoded-data", required=True, help="Base64 encoded signed URLs data"
+    )
+    parser.add_argument(
+        "--extract-files",
+        action="store_true",
+        default=True,
+        help="Extract downloaded files",
+    )
+    parser.add_argument("--output-json", help="Output file path for results JSON")
+
     args = parser.parse_args()
-    
+
     try:
         if not args.encoded_data or not isinstance(args.encoded_data, str):
             logger.error("'encoded_data' must be a non-empty string")
@@ -90,14 +102,16 @@ def main():
 
         # Output results
         if args.output_json:
-            with open(args.output_json, 'w') as f:
+            with open(args.output_json, "w") as f:
                 json.dump(response.dict(), f, indent=2)
             logger.info(f"Results written to {args.output_json}")
         else:
             print(json.dumps(response.dict(), indent=2))
 
         # Log summary
-        logger.info(f"Download completed: {successful_downloads} successful, {failed_downloads} failed")
+        logger.info(
+            f"Download completed: {successful_downloads} successful, {failed_downloads} failed"
+        )
         logger.info(f"Extracted folders: {len(extracted_folders)}")
 
         # Exit with appropriate code
@@ -111,6 +125,7 @@ def main():
         logger.error(f"Internal error: {str(e)}")
         traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

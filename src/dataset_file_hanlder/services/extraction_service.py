@@ -9,12 +9,13 @@ from config.settings import settings
 from models.schemas import DownloadedFile
 import sys
 import logging
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
@@ -91,7 +92,11 @@ class ExtractionService:
 
                 # Add to extracted folders list
                 extracted_folders.append(
-                    {"agency_id": downloaded_file.agency_id, "agency_name": downloaded_file.agency_name, "folder_path": agency_dir}
+                    {
+                        "agency_id": downloaded_file.agency_id,
+                        "agency_name": downloaded_file.agency_name,
+                        "folder_path": agency_dir,
+                    }
                 )
 
                 # Remove the ZIP file after successful extraction

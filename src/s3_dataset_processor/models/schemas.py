@@ -35,20 +35,24 @@ class DownloadResponse(BaseModel):
     extracted_folders: List[Dict[str, str]]
     total_extracted_folders: int
 
+
 class ChunkDownloadRequest(BaseModel):
     """Request model for downloading a single chunk."""
+
     dataset_id: str
     page_num: int
 
 
 class MultiChunkDownloadRequest(BaseModel):
     """Request model for downloading multiple chunks."""
+
     dataset_id: str
     chunk_ids: List[int]
 
 
 class ChunkDownloadResponse(BaseModel):
     """Response model for single chunk download."""
+
     success: bool
     dataset_id: str
     page_num: Optional[int] = None
@@ -59,6 +63,7 @@ class ChunkDownloadResponse(BaseModel):
 
 class MultiChunkDownloadResponse(BaseModel):
     """Response model for multi-chunk download and aggregation."""
+
     success: bool
     dataset_id: str
     chunk_info: Optional[Dict[str, Any]] = None

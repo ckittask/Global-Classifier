@@ -7,7 +7,7 @@ from models.schemas import (
     ChunkDownloadRequest,
     ChunkDownloadResponse,
     MultiChunkDownloadRequest,
-    MultiChunkDownloadResponse
+    MultiChunkDownloadResponse,
 )
 from single_chunk_handler import ChunkService
 from multiple_chunk_handler import MultiChunkService
@@ -28,23 +28,27 @@ multi_chunk_service = MultiChunkService()
 async def download_chunk(request: ChunkDownloadRequest):
     """
     Download a single chunk from S3.
-    
+
     Args:
         request: Chunk download request containing dataset_id and page_num
-        
+
     Returns:
         Chunk data or error information
     """
     try:
-        logger.info(f"Chunk download request - Dataset: {request.datasetId}, Page: {request.pageNum}")
-        
-        result = chunk_service.download_chunk_from_s3(request.datasetId, request.pageNum)
-        
+        logger.info(
+            f"Chunk download request - Dataset: {request.datasetId}, Page: {request.pageNum}"
+        )
+
+        result = chunk_service.download_chunk_from_s3(
+            request.datasetId, request.pageNum
+        )
+
         if not result["success"]:
             raise HTTPException(status_code=400, detail=result)
-        
+
         return ChunkDownloadResponse(**result)
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -56,26 +60,30 @@ async def download_chunk(request: ChunkDownloadRequest):
 async def download_multiple_chunks(request: MultiChunkDownloadRequest):
     """
     Download and aggregate multiple chunks from S3.
-    
+
     Args:
         request: Multi-chunk download request containing dataset_id and chunk_ids
-        
+
     Returns:
         Aggregated chunk data or error information
     """
     try:
-        logger.info(f"Multi-chunk download request - Dataset: {request.datasetId}, Chunks: {request.chunkIds}")
-        
+        logger.info(
+            f"Multi-chunk download request - Dataset: {request.datasetId}, Chunks: {request.chunkIds}"
+        )
+
         if not request.chunkIds:
             raise HTTPException(status_code=400, detail="No chunk IDs provided")
-        
-        result = multi_chunk_service.download_multiple_chunks(request.datasetId, request.chunkIds)
-        
+
+        result = multi_chunk_service.download_multiple_chunks(
+            request.datasetId, request.chunkIds
+        )
+
         if not result["success"]:
             raise HTTPException(status_code=400, detail=result)
-        
+
         return MultiChunkDownloadResponse(**result)
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -88,6 +96,8 @@ async def chunk_health_check():
     """Health check endpoint for chunk services."""
     return {"status": "healthy", "service": "chunk-download"}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
