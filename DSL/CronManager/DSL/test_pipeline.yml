@@ -1,5 +1,0 @@
-test_job:
-  trigger: off
-  type: exec
-  command: "../app/scripts/python_test_script.sh"
-  allowedEnvs: ['testParam', 'delaySeconds'] 
