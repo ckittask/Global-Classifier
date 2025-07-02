@@ -1,4 +1,5 @@
 tim-db
+global-classifier-db
 .vscode/
 .idea/
 # Node modules
