@@ -176,7 +176,7 @@ services:
   #     - NODE_ENV=development
   #   restart: always
 
-  Dataset Generator services
+  # Dataset Generator services
   dataset-gen-ollama:
     image: synthesisai/dataset-generator-ollama:latest
     container_name: dataset-gen-ollama
