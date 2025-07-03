@@ -1,0 +1,47 @@
+tim-db
+global-classifier-db
+.vscode/
+.idea/
+# Node modules
+node_modules/
+.venv/
+
+#Common .ignore files
+*.DS_Store
+*.log
+
+# MLflow generated files
+mlflow_artifacts/
+mlflow_data/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+test/logs/
+**/logs/
+*.log.*
+*.zip
+
+*.bkp
+*.dtmp
+
+# Python cache files
+__pycache__/
+.ruff_cache/
+.pytest_cache/
+
+venv
